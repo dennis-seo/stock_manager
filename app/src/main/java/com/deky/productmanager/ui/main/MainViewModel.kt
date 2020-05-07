@@ -1,9 +1,9 @@
 package com.deky.productmanager.ui.main
 
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import com.deky.productmanager.util.Logger
 
 
 class MainViewModel : ViewModel() {
@@ -13,16 +13,16 @@ class MainViewModel : ViewModel() {
 
     fun onClickInput(view: View) {
         Toast.makeText(view.context, "onClickInput()", Toast.LENGTH_SHORT).show()
-        Log.d(TAG, "onClickInput()")
+        Logger.d(TAG, "onClickInput()")
     }
 
     fun onClickModify(view: View) {
         Toast.makeText(view.context, "onClickModify()", Toast.LENGTH_SHORT).show()
-        Log.d(TAG, "onClickModify()")
+        Logger.d(TAG, "onClickModify()")
     }
 
     fun onClickConfirm(view: View) {
         Toast.makeText(view.context, "onClickConfirm()", Toast.LENGTH_SHORT).show()
-        Log.d(TAG, "onClickConfirm()")
+        Logger.d(TAG, "onClickConfirm()")
     }
 }

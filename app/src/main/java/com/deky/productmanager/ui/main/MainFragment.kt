@@ -19,7 +19,7 @@ class MainFragment : Fragment() {
     }
 
     private val viewModel: MainViewModel by lazy {
-        ViewModelProviders.of(this@MainFragment)[MainViewModel::class.java]
+        ViewModelProviders.of(this)[MainViewModel::class.java]
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
