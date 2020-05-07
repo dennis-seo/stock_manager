@@ -2,8 +2,8 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
         <variable
-            name="handlers"
-            type="com.deky.productmanager.ui.main.MainViewHandler" />
+            name="model"
+            type="com.deky.productmanager.ui.main.MainViewModel"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,7 +25,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias = "0.35"
             app:layout_constraintHorizontal_bias="0.5"
-            android:onClick="@{handlers::onClickInput}"/>
+            android:onClick="@{model::onClickModify}"/>
 
         <Button
             android:id="@+id/btn_modify"
@@ -38,7 +38,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias = "0.5"
             app:layout_constraintHorizontal_bias="0.5"
-            android:onClick="@{handlers::onClickModify}"/>
+            android:onClick="@{model::onClickModify}"/>
 
         <Button
             android:id="@+id/btn_confirm"
@@ -52,7 +52,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias = "0.65"
             app:layout_constraintHorizontal_bias="0.5"
-            android:onClick="@{handlers::onClickConfirm}"/>
+            android:onClick="@{model::onClickConfirm}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
