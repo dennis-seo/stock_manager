@@ -21,8 +21,8 @@ object FileUtils {
         )
     }
 
-    fun getImagePrefixName(): String {
-        return SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    private fun getImagePrefixName(): String {
+        return SimpleDateFormat("yyyyMMdd_", Locale.getDefault()).format(Date())
             .let { timeStamp ->
                 "Image_${timeStamp}"
             }
