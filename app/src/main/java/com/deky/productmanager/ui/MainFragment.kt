@@ -5,13 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.deky.productmanager.R
 import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.model.MainViewModel
+import com.deky.productmanager.util.Logger
+import kotlinx.android.synthetic.main.main_fragment.*
 
-class MainFragment : Fragment() {
+class MainFragment : BaseFragment() {
     companion object {
         private const val TAG = "MainFragment"
 
@@ -28,6 +29,20 @@ class MainFragment : Fragment() {
             DataBindingUtil.bind<MainFragmentBinding>(this)?.apply {
                 lifecycleOwner = this@MainFragment
                 model = viewModel
+            }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        btn_picture.setOnClickListener {
+            takePictureIntent { imageFile ->
+                if (imageFile.exists()) {
+                    Logger.v(TAG, "btn_picture.onClick() - Take image file success.")
+                } else {
+                    Logger.e(TAG, "btn_picture.onClick() - Not found image file.")
+                }
             }
         }
     }
