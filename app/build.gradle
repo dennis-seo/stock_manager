@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -23,6 +24,10 @@ android {
         }
     }
 
+    dataBinding {
+        enabled = true
+    }
+
 }
 
 dependencies {
@@ -39,6 +44,9 @@ dependencies {
 
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+
+    // data binding
+    kapt "com.android.databinding:compiler:3.1.4"
 
     // Room
     implementation "androidx.room:room-runtime:$room_version"
