@@ -1,8 +1,8 @@
 package com.deky.productmanager
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.deky.productmanager.ui.main.MainFragment
+import androidx.appcompat.app.AppCompatActivity
+import com.deky.productmanager.ui.MainFragment
 
 class MainActivity : AppCompatActivity() {
 

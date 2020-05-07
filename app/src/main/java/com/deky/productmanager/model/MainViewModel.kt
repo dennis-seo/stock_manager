@@ -1,4 +1,4 @@
-package com.deky.productmanager.ui.main
+package com.deky.productmanager.model
 
 import android.view.View
 import android.widget.Toast

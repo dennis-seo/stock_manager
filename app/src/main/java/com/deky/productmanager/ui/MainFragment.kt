@@ -1,4 +1,4 @@
-package com.deky.productmanager.ui.main
+package com.deky.productmanager.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.deky.productmanager.R
 import com.deky.productmanager.databinding.MainFragmentBinding
+import com.deky.productmanager.model.MainViewModel
 
 class MainFragment : Fragment() {
     companion object {

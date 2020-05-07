@@ -1,4 +1,4 @@
-package com.deky.productmanager.ui.main
+package com.deky.productmanager.ui
 
 
 /*
