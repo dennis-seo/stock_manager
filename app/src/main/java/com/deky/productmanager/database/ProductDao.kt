@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import com.deky.productmanager.database.entity.Product
 
 
 /*
@@ -12,12 +13,12 @@ import androidx.room.Query
 
 @Dao
 interface ProductDao {
-    @Query("SELECT * FROM Products")
+    @Query("SELECT * FROM Product")
     fun getAll(): List<Product>
 
     @Insert(onConflict = REPLACE)
     fun insert(cat: Product)
 
-    @Query("DELETE from Products")
+    @Query("DELETE from Product")
     fun deleteAll()
 }
