@@ -37,7 +37,7 @@ class MainFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btn_picture.setOnClickListener {
-            takePictureIntent { imageFile ->
+            takePictureByIntent { imageFile ->
                 if (imageFile.exists()) {
                     Logger.v(TAG, "btn_picture.onClick() - Take image file success.")
                 } else {

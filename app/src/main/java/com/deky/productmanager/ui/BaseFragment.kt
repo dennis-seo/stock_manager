@@ -22,22 +22,20 @@ abstract class BaseFragment : Fragment() {
 
     private var imageReq: ImageRequest? = null
 
-    protected fun takePictureIntent(result: (File) -> Unit = {}) {
-        Logger.d(TAG, "takePictureIntent()")
+    protected fun takePictureByIntent(result: (File) -> Unit = {}) {
+        Logger.d(TAG, "takePictureByIntent()")
 
         val context = context ?: return
         val imageFile = try {
             FileUtils.createImageFile(context)
         } catch (e: Exception) {
             Logger.e(TAG, buildString {
-                append("takePictureIntent() - Failed to create image file").append("\n")
+                append("takePictureByIntent() - Failed to create image file").append("\n")
                 append("exception message : ${e.message}")
             })
 
             return
         }
-
-        Logger.d(TAG, "takePictureIntent() - Image file : ${imageFile.name}")
 
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
             takePictureIntent.resolveActivity(context.packageManager)?.also {
