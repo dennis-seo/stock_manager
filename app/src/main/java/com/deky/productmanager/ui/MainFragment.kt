@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.deky.productmanager.R
 import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.model.MainViewModel
-import com.deky.productmanager.util.DKLog
 import kotlinx.android.synthetic.main.main_fragment.*
 
 class MainFragment : BaseFragment() {
@@ -58,9 +57,9 @@ class MainFragment : BaseFragment() {
         btn_picture.setOnClickListener {
             takePictureByIntent { imageFile ->
                 if (imageFile.exists()) {
-                    DKLog.v(TAG, "btn_picture.onClick() - Take image file success.")
+                    log.debug { "btn_picture.onClick() - Take image file success." }
                 } else {
-                    DKLog.e(TAG, "btn_picture.onClick() - Not found image file.")
+                    log.debug { "btn_picture.onClick() - Not found image file." }
                 }
             }
         }

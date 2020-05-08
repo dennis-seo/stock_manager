@@ -1,6 +1,7 @@
 package com.deky.productmanager.util
 
 import android.util.Log
+import com.deky.productmanager.BuildConfig
 
 /**
  * Copyright (C) 2020 Kakao corp. All rights reserved.
@@ -8,35 +9,67 @@ import android.util.Log
  */
 class DKLog {
     companion object {
-        @JvmStatic
-        fun v(tag: String, message: String) {
-            Log.v(tag, appendExtraInfo(message))
-        }
+        val isDebuggable: Boolean
+            get() = BuildConfig.DEBUG
 
-        @JvmStatic
-        fun d(tag: String, message: String) {
-            Log.d(tag, appendExtraInfo(message))
-        }
-
-        @JvmStatic
-        fun i(tag: String, message: String) {
-            Log.i(tag, appendExtraInfo(message))
-        }
-
-        @JvmStatic
-        fun w(tag: String, message: String) {
-            Log.w(tag, appendExtraInfo(message))
-        }
-
-        @JvmStatic
-        fun e(tag: String, message: String) {
-            Log.e(tag, appendExtraInfo(message))
-        }
-
-        private fun appendExtraInfo(message: String): String {
-            return Thread.currentThread().run {
-                "[$name][$id] $message"
+        inline fun verbose(tag: String, force: Boolean = false, log: () -> String) {
+            if (isDebuggable || force) {
+                Log.v(tag, appendExtraInfo(log()))
             }
         }
+
+        inline fun debug(tag: String, force: Boolean = false, log: () -> String) {
+            if (isDebuggable || force) {
+                Log.d(tag, appendExtraInfo(log()))
+            }
+        }
+
+        inline fun info(tag: String, force: Boolean = false, log: () -> String) {
+            if (isDebuggable || force) {
+                Log.i(tag, appendExtraInfo(log()))
+            }
+        }
+
+        inline fun warn(tag: String, force: Boolean = false, log: () -> String) {
+            if (isDebuggable || force) {
+                Log.w(tag, appendExtraInfo(log()))
+            }
+        }
+
+        inline fun error(tag: String, callStack: Boolean = false, log: () -> String) {
+            if (callStack) {
+                Log.e(tag, appendExtraInfo(log()), Throwable())
+            } else {
+                Log.e(tag, appendExtraInfo(log()))
+            }
+        }
+
+        fun appendExtraInfo(message: String): String {
+            return Thread.currentThread().run {
+                "[$name] $message"
+            }
+        }
+    }
+
+    var tag: String = ""
+
+    inline fun verbose(force: Boolean = false, log: () -> String) {
+        verbose(tag, force, log)
+    }
+
+    inline fun debug(force: Boolean = false, log: () -> String) {
+        debug(tag, force, log)
+    }
+
+    inline fun info(force: Boolean = false, log: () -> String) {
+        info(tag, force, log)
+    }
+
+    inline fun warn(force: Boolean = false, log: () -> String) {
+        warn(tag, force, log)
+    }
+
+    inline fun error(callStack: Boolean = false, log: () -> String) {
+        error(tag, callStack, log)
     }
 }

@@ -13,16 +13,16 @@ class MainViewModel : ViewModel() {
 
     fun onClickInput(view: View) {
         Toast.makeText(view.context, "onClickInput()", Toast.LENGTH_SHORT).show()
-        DKLog.d(TAG, "onClickInput()")
+        DKLog.debug(TAG) { "onClickInput()" }
     }
 
     fun onClickModify(view: View) {
         Toast.makeText(view.context, "onClickModify()", Toast.LENGTH_SHORT).show()
-        DKLog.d(TAG, "onClickModify()")
+        DKLog.debug(TAG) { "onClickModify()" }
     }
 
     fun onClickConfirm(view: View) {
         Toast.makeText(view.context, "onClickConfirm()", Toast.LENGTH_SHORT).show()
-        DKLog.d(TAG, "onClickConfirm()")
+        DKLog.debug(TAG) { "onClickConfirm()" }
     }
 }

@@ -7,6 +7,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.deky.productmanager.util.FileUtils
 import com.deky.productmanager.util.DKLog
+import com.deky.productmanager.util.simpleTag
 import java.io.File
 
 /**
@@ -20,19 +21,27 @@ abstract class BaseFragment : Fragment() {
         const val REQUEST_IMAGE_CAPTURE = 1
     }
 
+    protected val log by lazy(LazyThreadSafetyMode.NONE) {
+        DKLog().apply {
+            tag = this@BaseFragment.simpleTag()
+        }
+    }
+
     private var imageReq: ImageRequest? = null
 
     protected fun takePictureByIntent(result: (File) -> Unit = {}) {
-        DKLog.d(TAG, "takePictureByIntent()")
+        log.debug { "takePictureByIntent()" }
 
         val context = context ?: return
         val imageFile = try {
             FileUtils.createImageFile(context)
         } catch (e: Exception) {
-            DKLog.e(TAG, buildString {
-                append("takePictureByIntent() - Failed to create image file").append("\n")
-                append("exception message : ${e.message}")
-            })
+            log.error {
+                buildString {
+                    append("takePictureByIntent() - Failed to create image file").append("\n")
+                    append("exception message : ${e.message}")
+                }
+            }
 
             return
         }
@@ -57,23 +66,25 @@ abstract class BaseFragment : Fragment() {
             REQUEST_IMAGE_CAPTURE -> {
                 if (resultCode == Activity.RESULT_OK) {
                     imageReq?.run {
-                        DKLog.v(TAG, buildString {
-                            append("onActivityResult() - REQUEST_IMAGE_CAPTURE").append("\n")
-                            append("imageFile : ${imageFile.absolutePath}").append("\n")
-                            append("fileSize : ${imageFile.length()}")
-                        })
+                        log.debug {
+                            buildString {
+                                append("onActivityResult() - REQUEST_IMAGE_CAPTURE").append("\n")
+                                append("imageFile : ${imageFile.absolutePath}").append("\n")
+                                append("fileSize : ${imageFile.length()}")
+                            }
+                        }
 
                         block(imageFile)
                     }
                 } else {
-                    DKLog.d(TAG, "onActivityResult() - REQUEST_IMAGE_CAPTURE :: Result not Ok")
+                    log.debug { "onActivityResult() - REQUEST_IMAGE_CAPTURE :: Result not Ok" }
                 }
 
                 imageReq = null
             }
 
             else -> {
-                DKLog.w(TAG, "onActivityResult() - Unknown requestCode : $requestCode")
+                log.warn { "onActivityResult() - Unknown requestCode : $requestCode" }
             }
         }
     }
