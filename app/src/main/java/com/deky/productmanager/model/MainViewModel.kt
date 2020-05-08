@@ -3,7 +3,7 @@ package com.deky.productmanager.model
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
-import com.deky.productmanager.util.Logger
+import com.deky.productmanager.util.DKLog
 
 
 class MainViewModel : ViewModel() {
@@ -13,16 +13,16 @@ class MainViewModel : ViewModel() {
 
     fun onClickInput(view: View) {
         Toast.makeText(view.context, "onClickInput()", Toast.LENGTH_SHORT).show()
-        Logger.d(TAG, "onClickInput()")
+        DKLog.d(TAG, "onClickInput()")
     }
 
     fun onClickModify(view: View) {
         Toast.makeText(view.context, "onClickModify()", Toast.LENGTH_SHORT).show()
-        Logger.d(TAG, "onClickModify()")
+        DKLog.d(TAG, "onClickModify()")
     }
 
     fun onClickConfirm(view: View) {
         Toast.makeText(view.context, "onClickConfirm()", Toast.LENGTH_SHORT).show()
-        Logger.d(TAG, "onClickConfirm()")
+        DKLog.d(TAG, "onClickConfirm()")
     }
 }

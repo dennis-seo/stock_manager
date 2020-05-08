@@ -6,7 +6,7 @@ import android.util.Log
  * Copyright (C) 2020 Kakao corp. All rights reserved.
  *
  */
-class Logger {
+class DKLog {
     companion object {
         @JvmStatic
         fun v(tag: String, message: String) {

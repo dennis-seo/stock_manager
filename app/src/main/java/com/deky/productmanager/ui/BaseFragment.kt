@@ -6,7 +6,7 @@ import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.deky.productmanager.util.FileUtils
-import com.deky.productmanager.util.Logger
+import com.deky.productmanager.util.DKLog
 import java.io.File
 
 /**
@@ -23,13 +23,13 @@ abstract class BaseFragment : Fragment() {
     private var imageReq: ImageRequest? = null
 
     protected fun takePictureByIntent(result: (File) -> Unit = {}) {
-        Logger.d(TAG, "takePictureByIntent()")
+        DKLog.d(TAG, "takePictureByIntent()")
 
         val context = context ?: return
         val imageFile = try {
             FileUtils.createImageFile(context)
         } catch (e: Exception) {
-            Logger.e(TAG, buildString {
+            DKLog.e(TAG, buildString {
                 append("takePictureByIntent() - Failed to create image file").append("\n")
                 append("exception message : ${e.message}")
             })
@@ -57,7 +57,7 @@ abstract class BaseFragment : Fragment() {
             REQUEST_IMAGE_CAPTURE -> {
                 if (resultCode == Activity.RESULT_OK) {
                     imageReq?.run {
-                        Logger.v(TAG, buildString {
+                        DKLog.v(TAG, buildString {
                             append("onActivityResult() - REQUEST_IMAGE_CAPTURE").append("\n")
                             append("imageFile : ${imageFile.absolutePath}").append("\n")
                             append("fileSize : ${imageFile.length()}")
@@ -66,14 +66,14 @@ abstract class BaseFragment : Fragment() {
                         block(imageFile)
                     }
                 } else {
-                    Logger.d(TAG, "onActivityResult() - REQUEST_IMAGE_CAPTURE :: Result not Ok")
+                    DKLog.d(TAG, "onActivityResult() - REQUEST_IMAGE_CAPTURE :: Result not Ok")
                 }
 
                 imageReq = null
             }
 
             else -> {
-                Logger.w(TAG, "onActivityResult() - Unknown requestCode : $requestCode")
+                DKLog.w(TAG, "onActivityResult() - Unknown requestCode : $requestCode")
             }
         }
     }

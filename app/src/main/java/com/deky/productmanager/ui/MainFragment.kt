@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.deky.productmanager.R
 import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.model.MainViewModel
-import com.deky.productmanager.util.Logger
+import com.deky.productmanager.util.DKLog
 import kotlinx.android.synthetic.main.main_fragment.*
 
 class MainFragment : BaseFragment() {
@@ -27,12 +27,14 @@ class MainFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        dataBinding = DataBindingUtil.inflate(inflater, R.layout.main_fragment, container, false)
-        dataBinding.lifecycleOwner = this@MainFragment
-        dataBinding.listener = this@MainFragment
-        dataBinding.model = viewModel
-        return dataBinding.root
+        dataBinding = DataBindingUtil.inflate<MainFragmentBinding>(
+            inflater, R.layout.main_fragment, container, false).apply {
+            lifecycleOwner = this@MainFragment
+            listener = this@MainFragment
+            model = viewModel
+        }
 
+        return dataBinding.root
     }
 
     fun onClickButton(view: View?) {
@@ -56,9 +58,9 @@ class MainFragment : BaseFragment() {
         btn_picture.setOnClickListener {
             takePictureByIntent { imageFile ->
                 if (imageFile.exists()) {
-                    Logger.v(TAG, "btn_picture.onClick() - Take image file success.")
+                    DKLog.v(TAG, "btn_picture.onClick() - Take image file success.")
                 } else {
-                    Logger.e(TAG, "btn_picture.onClick() - Not found image file.")
+                    DKLog.e(TAG, "btn_picture.onClick() - Not found image file.")
                 }
             }
         }
