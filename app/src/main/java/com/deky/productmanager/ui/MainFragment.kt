@@ -1,4 +1,4 @@
-package com.deky.productmanager.ui.main
+package com.deky.productmanager.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
