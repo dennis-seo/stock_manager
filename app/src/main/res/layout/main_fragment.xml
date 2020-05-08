@@ -4,6 +4,10 @@
         <variable
             name="model"
             type="com.deky.productmanager.ui.main.MainViewModel"/>
+
+        <variable
+            name="listener"
+            type="com.deky.productmanager.ui.main.MainFragment"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,26 +23,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_insert"
+            android:onClick="@{listener::onClickButton}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias = "0.35"
-            app:layout_constraintHorizontal_bias="0.5"
-            android:onClick="@{model::onClickModify}"/>
+            app:layout_constraintHorizontal_bias="0.5" />
 
         <Button
             android:id="@+id/btn_modify"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_modify"
+            android:onClick="@{listener::onClickButton}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias = "0.5"
-            app:layout_constraintHorizontal_bias="0.5"
-            android:onClick="@{model::onClickModify}"/>
+            app:layout_constraintHorizontal_bias="0.5" />
 
         <Button
             android:id="@+id/btn_confirm"
@@ -46,13 +50,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
             android:text="@string/btn_confirm"
+            android:onClick="@{listener::onClickButton}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias = "0.65"
-            app:layout_constraintHorizontal_bias="0.5"
-            android:onClick="@{model::onClickConfirm}"/>
+            app:layout_constraintHorizontal_bias="0.5" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

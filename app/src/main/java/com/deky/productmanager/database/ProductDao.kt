@@ -17,7 +17,7 @@ interface ProductDao {
     fun getAll(): List<Product>
 
     @Insert(onConflict = REPLACE)
-    fun insert(cat: Product)
+    fun insert(product: Product)
 
     @Query("DELETE from Product")
     fun deleteAll()
