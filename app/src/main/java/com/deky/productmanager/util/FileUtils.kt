@@ -11,6 +11,11 @@ import java.util.*
  *
  */
 object FileUtils {
+    private const val DATA_DIRECTORY_NAME = "ProductManager"
+
+    fun getDataDirectory(context: Context): File {
+        return File(context.getExternalFilesDir(null) ?: context.filesDir, DATA_DIRECTORY_NAME)
+    }
 
     @Throws(Exception::class)
     fun createImageFile(context: Context, filePrefixName: String = getImagePrefixName()): File {
