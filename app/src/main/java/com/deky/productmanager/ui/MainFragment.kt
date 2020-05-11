@@ -71,60 +71,7 @@ class MainFragment : BaseFragment() {
 
         btn_test.setOnClickListener {
             context?.let {
-                testDB(it)
-            }
-        }
-    }
-
-    private fun testDB(context: Context) {
-        log.debug { "testDB()" }
-
-        val dao = ProductDB.getInstance(context).productDao()
-
-        // 현재 아이템 체크
-        dao.getAll().also { list ->
-            if (list.isNotEmpty()) {
-                log.debug {
-                    buildString {
-                        val index = 0
-                        list.forEach { item ->
-                            append("item[${index.inc()}]: ").append(item)
-                        }
-                    }
-                }
-            }
-        }
-
-        // 전체 삭제
-        dao.getAll()
-
-        // 데이터 입력
-        val manufactureDate = Date(System.currentTimeMillis())
-        for (index in 1..10) {
-            dao.insert(Product(
-                /* label */ "Label-$index",
-                /* location */ "회의실_$index",
-                /* name */ "노트북",
-                /* imagePath */ "",
-                /* manufacturer */ "Apple",
-                /* manufactureDate */ manufactureDate,
-                /* condition */ Condition.getCondition(index % Condition.values().size),
-                /* size */ "15-inch",
-                /* model */ "MacBook Pro (2019)",
-                /* amount */ index)
-            )
-        }
-
-        dao.getAll().also { list ->
-            if (list.isNotEmpty()) {
-                log.debug {
-                    buildString {
-                        val index = 0
-                        list.forEach { item ->
-                            append("item[${index.inc()}]: ").append(item)
-                        }
-                    }
-                }
+                ProductDB.getInstance(it).setSampleData()
             }
         }
     }
