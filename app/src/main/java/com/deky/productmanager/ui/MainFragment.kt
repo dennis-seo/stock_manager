@@ -1,5 +1,6 @@
 package com.deky.productmanager.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,9 +8,13 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProviders
 import com.deky.productmanager.R
+import com.deky.productmanager.database.ProductDB
+import com.deky.productmanager.database.entity.Condition
+import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.model.MainViewModel
 import kotlinx.android.synthetic.main.main_fragment.*
+import java.util.*
 
 class MainFragment : BaseFragment() {
     companion object {
@@ -61,6 +66,12 @@ class MainFragment : BaseFragment() {
                 } else {
                     log.debug { "btn_picture.onClick() - Not found image file." }
                 }
+            }
+        }
+
+        btn_test.setOnClickListener {
+            context?.let {
+                ProductDB.getInstance(it).setSampleData()
             }
         }
     }
