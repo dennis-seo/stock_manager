@@ -14,9 +14,9 @@ import java.util.*
 @Entity(tableName = "product")
 data class Product(
     @ColumnInfo(name = "label") var label: String,
+    @ColumnInfo(name = "image_path") var imagePath: String,
     @ColumnInfo(name = "location") var location: String,
     @ColumnInfo(name = "name") var name: String,
-    @ColumnInfo(name = "image_path") var imagePath: String,
     @ColumnInfo(name = "manufacturer") var manufacturer: String,
     @ColumnInfo(name = "manufacture_date") var manufactureDate: Date,
     @ColumnInfo(name = "condition") var condition: Condition,
@@ -28,9 +28,9 @@ data class Product(
         return buildString {
             append("Product {").append("\n")
             append("label : $label".prependIndent(1)).append("\n")
+            append("imagePath : $imagePath".prependIndent(1)).append("\n")
             append("location : $location".prependIndent(1)).append("\n")
             append("name : $name".prependIndent(1)).append("\n")
-            append("imagePath : $imagePath".prependIndent(1)).append("\n")
             append("manufacturer : $manufacturer".prependIndent(1)).append("\n")
             append("manufactureDate : $manufactureDate".prependIndent(1)).append("\n")
             append("condition : $condition".prependIndent(1)).append("\n")

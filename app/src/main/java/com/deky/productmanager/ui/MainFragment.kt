@@ -1,16 +1,16 @@
 package com.deky.productmanager.ui
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProviders
 import com.deky.productmanager.R
 import com.deky.productmanager.database.ProductDB
 import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.excel.ExcelConverterTask
-import com.deky.productmanager.model.MainViewModel
 import com.deky.productmanager.util.FileUtils
 import kotlinx.android.synthetic.main.main_fragment.*
 import java.io.File
@@ -27,18 +27,17 @@ class MainFragment : BaseFragment() {
 
     private lateinit var dataBinding: MainFragmentBinding
 
+//    private val viewModel: InputViewModel by lazy {
+//        ViewModelProviders.of(this@MainFragment)[InputViewModel::class.java]
+//    }
     private var excelTask: ExcelConverterTask? = null
-
-    private val viewModel: MainViewModel by lazy {
-        ViewModelProviders.of(this@MainFragment)[MainViewModel::class.java]
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         dataBinding = DataBindingUtil.inflate<MainFragmentBinding>(
             inflater, R.layout.main_fragment, container, false).apply {
             lifecycleOwner = this@MainFragment
             listener = this@MainFragment
-            model = viewModel
+//            model = viewModel
         }
 
         return dataBinding.root
@@ -57,6 +56,10 @@ class MainFragment : BaseFragment() {
                 transaction.replace(R.id.container, InputFragment.newInstance())
         }
         transaction.addToBackStack(null).commitAllowingStateLoss()
+    }
+
+    fun onClickDeleteButton(view: View?) {
+        showAlertDelete()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -103,5 +106,25 @@ class MainFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    private fun showAlertDelete() {
+        context?.let {
+            val builder = AlertDialog.Builder(it).apply {
+                setMessage(R.string.message_alert_delete_data)
+                setPositiveButton(R.string.btn_confirm, DialogInterface.OnClickListener(function = removeButtonClick))
+                setNegativeButton(android.R.string.no, null)
+            }
+            builder.show()
+        }
+
+    }
+
+    private val removeButtonClick = { dialog: DialogInterface, which: Int ->
+        removeDb()
+    }
+
+    private fun removeDb() {
+        log.debug { "removeDB()" }
     }
 }

@@ -5,7 +5,7 @@
 
         <variable
             name="model"
-            type="com.deky.productmanager.model.MainViewModel"/>
+            type="com.deky.productmanager.model.InputViewModel"/>
 
         <variable
             name="listener"
@@ -24,7 +24,7 @@
             android:id="@+id/btn_input"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_insert"
+            android:text="@string/btn_data_insert"
             android:onClick="@{listener::onClickButton}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -37,7 +37,7 @@
             android:id="@+id/btn_modify"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_modify"
+            android:text="@string/btn_data_modify"
             android:onClick="@{listener::onClickButton}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -50,7 +50,6 @@
             android:id="@+id/btn_confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
             android:text="@string/btn_confirm"
             android:onClick="@{listener::onClickButton}"
             app:layout_constraintTop_toTopOf="parent"
@@ -83,6 +82,19 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5" />
+
+        <Button
+            android:id="@+id/btn_remove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_data_remove"
+            android:onClick="@{listener::onClickDeleteButton}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias = "0.65"
+            app:layout_constraintHorizontal_bias="0.7" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
