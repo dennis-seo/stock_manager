@@ -14,9 +14,10 @@ import com.deky.productmanager.excel.ColumnInfo.Companion.CELL_INDEX_NAME
 import com.deky.productmanager.excel.ColumnInfo.Companion.CELL_INDEX_NO
 import com.deky.productmanager.excel.ColumnInfo.Companion.CELL_INDEX_SIZE
 import com.deky.productmanager.util.DKLog
-import org.apache.poi.hssf.usermodel.HSSFRow
-import org.apache.poi.hssf.usermodel.HSSFWorkbook
-import org.apache.poi.ss.usermodel.CellType
+import org.apache.poi.ss.usermodel.Cell
+import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.usermodel.Workbook
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 
 /**
@@ -27,7 +28,7 @@ class ExcelConverterTask private constructor(
     private val productList: List<Product>,
     private val directory: File,
     private var listener: OnTaskListener?
-): AsyncTask<Void, Int, Exception>(){
+) : AsyncTask<Void, Int, Exception>() {
 
     interface OnTaskListener {
         fun onStartTask()
@@ -45,17 +46,17 @@ class ExcelConverterTask private constructor(
         private const val DEFAULT_SHEET_NAME = "관리품목"
 
         private val columnArray = arrayOf(
-            ColumnInfo(CELL_INDEX_NO, CellType.STRING, "No"),
-            ColumnInfo(CELL_INDEX_LABEL, CellType.STRING, "라벨번호"),
-            ColumnInfo(CELL_INDEX_IMAGE, CellType.STRING, "사진"),
-            ColumnInfo(CELL_INDEX_LOCATION, CellType.STRING, "위치"),
-            ColumnInfo(CELL_INDEX_NAME, CellType.STRING, "품명"),
-            ColumnInfo(CELL_INDEX_MANUFACTURER, CellType.STRING, "제조사"),
-            ColumnInfo(CELL_INDEX_MODEL, CellType.STRING, "모델명"),
-            ColumnInfo(CELL_INDEX_MANUFACTURE_DATE, CellType.STRING, "제조일자"),
-            ColumnInfo(CELL_INDEX_CONDITION, CellType.STRING, "상태"),
-            ColumnInfo(CELL_INDEX_SIZE, CellType.STRING, "규격"),
-            ColumnInfo(CELL_INDEX_AMOUNT, CellType.STRING, "수량")
+            ColumnInfo(CELL_INDEX_NO, Cell.CELL_TYPE_STRING, "No"),
+            ColumnInfo(CELL_INDEX_LABEL, Cell.CELL_TYPE_STRING, "라벨번호"),
+            ColumnInfo(CELL_INDEX_IMAGE, Cell.CELL_TYPE_STRING, "사진"),
+            ColumnInfo(CELL_INDEX_LOCATION, Cell.CELL_TYPE_STRING, "위치"),
+            ColumnInfo(CELL_INDEX_NAME, Cell.CELL_TYPE_STRING, "품명"),
+            ColumnInfo(CELL_INDEX_MANUFACTURER, Cell.CELL_TYPE_STRING, "제조사"),
+            ColumnInfo(CELL_INDEX_MODEL, Cell.CELL_TYPE_STRING, "모델명"),
+            ColumnInfo(CELL_INDEX_MANUFACTURE_DATE, Cell.CELL_TYPE_STRING, "제조일자"),
+            ColumnInfo(CELL_INDEX_CONDITION, Cell.CELL_TYPE_STRING, "상태"),
+            ColumnInfo(CELL_INDEX_SIZE, Cell.CELL_TYPE_STRING, "규격"),
+            ColumnInfo(CELL_INDEX_AMOUNT, Cell.CELL_TYPE_STRING, "수량")
         )
 
         @JvmStatic
@@ -135,31 +136,30 @@ class ExcelConverterTask private constructor(
     private fun saveExcelFile(file: File) {
         DKLog.info(TAG) { "saveExcelFile() - file : ${file.absolutePath}" }
 
-//        val workBook = XSSFWorkbook()
-        val workBook = HSSFWorkbook()
-        workBook.createSheet(getNextSheetName(workBook)).let { sheet ->
-            sheet.createRow(0).apply {
-                columnArray.forEach { column ->
-                    createCell(column.index, column.type).apply {
-                        setCellValue(column.name)
+        file.outputStream().use {
+            val workBook = XSSFWorkbook()//HSSFWorkbook()
+            workBook.createSheet(getNextSheetName(workBook)).let { sheet ->
+                sheet.createRow(0).apply {
+                    columnArray.forEach { column ->
+                        createCell(column.index, column.type).apply {
+                            setCellValue(column.name)
+                        }
                     }
+                }
+
+                for (itemIndex in 0..productList.lastIndex) {
+                    writeProductData(productList[itemIndex], sheet.createRow(itemIndex + 1))
+                    publishProgress((itemIndex + 1) * 100 / productList.size)
                 }
             }
 
-            for (itemIndex in 0..productList.lastIndex) {
-                writeProductData(productList[itemIndex], sheet.createRow(itemIndex + 1))
-                publishProgress((itemIndex + 1) * 100 / productList.size)
-            }
-        }
-
-        file.outputStream().use {
             workBook.write(it)
         }
     }
 
-    private fun getNextSheetName(workBook: HSSFWorkbook) = "$DEFAULT_SHEET_NAME-${workBook.numberOfSheets + 1}"
+    private fun getNextSheetName(workBook: Workbook) = "$DEFAULT_SHEET_NAME-${workBook.numberOfSheets + 1}"
 
-    private fun writeProductData(product: Product, row: HSSFRow) {
+    private fun writeProductData(product: Product, row: Row) {
         DKLog.info(TAG) { "writeProductData() - product : $product" }
 
         columnArray.forEach { column ->
@@ -216,7 +216,7 @@ class ExcelConverterTask private constructor(
 
 data class ColumnInfo(
     val index: Int,
-    val type: CellType,
+    val type: Int,
     val name: String
 ) {
     companion object {
