@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.deky.productmanager.R
+import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
@@ -92,7 +93,15 @@ class DataListFragment : BaseFragment() {
                     tv_manufacturer_value.text = product.manufacturer
                     tv_model_value.text = product.model
                     tv_size_value.text = product.size
-                    tv_condition_value.text = product.condition.name
+                    tv_condition_value.text = when(product.condition){
+                        Condition.NONE -> ""
+                        Condition.HIGH ->
+                            resources.getString(R.string.text_condition_high)
+                        Condition.MIDDLE ->
+                            resources.getString(R.string.text_condition_middle)
+                        Condition.LOW ->
+                            resources.getString(R.string.text_condition_low)
+                    }
                     tv_amount_value.text = product.amount.toString()
                     tv_manufacture_date_value.text =
                         DateUtils.convertDateToString(product.manufactureDate)
