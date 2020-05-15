@@ -33,7 +33,7 @@ class ExcelConverterTask private constructor(
     interface OnTaskListener {
         fun onStartTask()
         fun onProgressTask(progress: Int)
-        fun onCompleteTask(e: Exception?)
+        fun onCompleteTask(error: Exception?)
     }
 
     companion object {
@@ -165,49 +165,17 @@ class ExcelConverterTask private constructor(
         columnArray.forEach { column ->
             row.createCell(column.index, column.type).apply {
                 when (column.index) {
-                    CELL_INDEX_NO -> {
-                        setCellValue(product.id.toString())
-                    }
-
-                    CELL_INDEX_LABEL -> {
-                        setCellValue(product.label)
-                    }
-
-                    CELL_INDEX_IMAGE -> {
-                        setCellValue(product.imagePath)
-                    }
-
-                    CELL_INDEX_LOCATION -> {
-                        setCellValue(product.location)
-                    }
-
-                    CELL_INDEX_NAME -> {
-                        setCellValue(product.name)
-                    }
-
-                    CELL_INDEX_MANUFACTURER -> {
-                        setCellValue(product.manufacturer)
-                    }
-
-                    CELL_INDEX_MODEL -> {
-                        setCellValue(product.model)
-                    }
-
-                    CELL_INDEX_MANUFACTURE_DATE -> {
-                        setCellValue(product.manufactureDate)
-                    }
-
-                    CELL_INDEX_CONDITION -> {
-                        setCellValue(product.condition.name)
-                    }
-
-                    CELL_INDEX_SIZE -> {
-                        setCellValue(product.size)
-                    }
-
-                    CELL_INDEX_AMOUNT -> {
-                        setCellValue(product.amount.toString())
-                    }
+                    CELL_INDEX_NO -> setCellValue(product.id.toString())
+                    CELL_INDEX_LABEL -> setCellValue(product.label)
+                    CELL_INDEX_IMAGE -> setCellValue(product.imagePath)
+                    CELL_INDEX_LOCATION -> setCellValue(product.location)
+                    CELL_INDEX_NAME -> setCellValue(product.name)
+                    CELL_INDEX_MANUFACTURER -> setCellValue(product.manufacturer)
+                    CELL_INDEX_MODEL -> setCellValue(product.model)
+                    CELL_INDEX_MANUFACTURE_DATE -> setCellValue(product.manufactureDate)
+                    CELL_INDEX_CONDITION -> setCellValue(product.condition.name)
+                    CELL_INDEX_SIZE -> setCellValue(product.size)
+                    CELL_INDEX_AMOUNT -> setCellValue(product.amount.toString())
                 }
             }
         }

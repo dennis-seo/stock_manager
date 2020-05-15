@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import com.deky.productmanager.R
@@ -13,6 +14,9 @@ import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.excel.ExcelConverterTask
 import com.deky.productmanager.util.FileUtils
 import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,14 +31,19 @@ class MainFragment : BaseFragment() {
 
     private lateinit var dataBinding: MainFragmentBinding
 
-//    private val viewModel: InputViewModel by lazy {
+    //    private val viewModel: InputViewModel by lazy {
 //        ViewModelProviders.of(this@MainFragment)[InputViewModel::class.java]
 //    }
     private var excelTask: ExcelConverterTask? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         dataBinding = DataBindingUtil.inflate<MainFragmentBinding>(
-            inflater, R.layout.main_fragment, container, false).apply {
+            inflater, R.layout.main_fragment, container, false
+        ).apply {
             lifecycleOwner = this@MainFragment
             listener = this@MainFragment
 //            model = viewModel
@@ -45,7 +54,7 @@ class MainFragment : BaseFragment() {
 
     fun onClickButton(view: View?) {
         val transaction = parentFragmentManager.beginTransaction()
-        when(view?.id) {
+        when (view?.id) {
             R.id.btn_input ->
                 transaction.replace(R.id.container, InputFragment.newInstance())
 
@@ -69,6 +78,7 @@ class MainFragment : BaseFragment() {
             takePictureByIntent { imageFile ->
                 if (imageFile.exists()) {
                     log.debug { "btn_picture.onClick() - Take image file success." }
+                    ProductDB.getInstance(context!!).setSampleData(imageFile)
                 } else {
                     log.debug { "btn_picture.onClick() - Not found image file." }
                 }
@@ -80,28 +90,33 @@ class MainFragment : BaseFragment() {
 
             context?.let { context ->
                 ProductDB.getInstance(context).run {
-                    setSampleData()
-
-                    SimpleDateFormat("yyyy년 MM월dd일 HH시mm분ss초", Locale.getDefault()).format(System.currentTimeMillis()).let {
+                    SimpleDateFormat(
+                        "yyyy년 MM월dd일 HH시mm분ss초",
+                        Locale.getDefault()
+                    ).format(System.currentTimeMillis()).let {
                         val directory = File(FileUtils.getDataDirectory(context), it)
-                        excelTask = ExcelConverterTask.convert(productDao().getAll(), directory, object: ExcelConverterTask.OnTaskListener{
-                            override fun onStartTask() {
-                                log.debug { "ExcelConverterTask.onStartTask()" }
-                            }
-
-                            override fun onProgressTask(progress: Int) {
-                                log.debug { "ExcelConverterTask.onProgressTask() - progress : $progress" }
-                            }
-
-                            override fun onCompleteTask(e: Exception?) {
-                                log.debug { "ExcelConverterTask.onCompleteTask()" }
-                                e?.let {
-                                    log.error(true) { "Error : ${e.message}" }
+                        excelTask = ExcelConverterTask.convert(productDao().getAll(), directory,
+                            object : ExcelConverterTask.OnTaskListener {
+                                override fun onStartTask() {
+                                    log.debug { "ExcelConverterTask.onStartTask()" }
                                 }
 
-                                excelTask = null
-                            }
-                        })
+                                override fun onProgressTask(progress: Int) {
+                                    log.debug { "ExcelConverterTask.onProgressTask() - progress : $progress" }
+                                }
+
+                                override fun onCompleteTask(error: Exception?) {
+                                    log.debug { "ExcelConverterTask.onCompleteTask()" }
+
+                                    excelTask = null
+                                    if (error != null) {
+                                        log.error(true) { "Error : ${error.message}" }
+                                    } else {
+                                        Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                }
+                            })
                     }
                 }
             }
@@ -112,7 +127,10 @@ class MainFragment : BaseFragment() {
         context?.let {
             val builder = AlertDialog.Builder(it).apply {
                 setMessage(R.string.message_alert_delete_data)
-                setPositiveButton(R.string.btn_confirm, DialogInterface.OnClickListener(function = removeButtonClick))
+                setPositiveButton(
+                    R.string.btn_confirm,
+                    DialogInterface.OnClickListener(function = removeButtonClick)
+                )
                 setNegativeButton(android.R.string.no, null)
             }
             builder.show()
@@ -126,5 +144,15 @@ class MainFragment : BaseFragment() {
 
     private fun removeDb() {
         log.debug { "removeDB()" }
+
+        context?.let { context ->
+            ProductDB.getInstance(context).run {
+                CoroutineScope(Dispatchers.Default).launch {
+                    productDao().deleteAll()
+                }
+
+                Toast.makeText(context, "Database 삭제 완료", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
