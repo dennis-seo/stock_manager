@@ -10,16 +10,16 @@
     <string name="btn_picture">사진찍기</string>
     <string name="btn_test">테스트</string>
 
-    <string name="input_text_label">라벨번호</string>
-    <string name="input_text_location">위치</string>
-    <string name="input_text_name">품명</string>
-    <string name="input_text_manufacturer">제조사</string>
-    <string name="input_text_model">모델명</string>
-    <string name="input_text_size">규격</string>
-    <string name="input_text_manufacture_date">제조일자</string>
-    <string name="input_text_condition">상태</string>
-    <string name="input_text_amount">수량</string>
-    <string name="input_text_note">비고</string>
+    <string name="text_label">라벨번호</string>
+    <string name="text_location">위치</string>
+    <string name="text_name">품명</string>
+    <string name="text_manufacturer">제조사</string>
+    <string name="text_model">모델명</string>
+    <string name="text_size">규격</string>
+    <string name="text_manufacture_date">제조일자</string>
+    <string name="text_condition">상태</string>
+    <string name="text_amount">수량</string>
+    <string name="text_note">비고</string>
     <string name="input_btn_clear">내용삭제</string>
     <string name="input_btn_confirm">저장</string>
 
@@ -27,9 +27,9 @@
     <string name="input_text_size_width">세로</string>
     <string name="input_text_size_height">높이</string>
 
-    <string name="input_text_condition_high">상</string>
-    <string name="input_text_condition_middle">중</string>
-    <string name="input_text_condition_low">하</string>
+    <string name="text_condition_high">상</string>
+    <string name="text_condition_middle">중</string>
+    <string name="text_condition_low">하</string>
 
     <string name="hint_input_amount">안넣으면 1</string>
     <string name="hint_input_manufacture_date">1900.01.01</string>

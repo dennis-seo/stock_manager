@@ -59,7 +59,7 @@ class MainFragment : BaseFragment() {
                     transaction.replace(R.id.container, InputFragment.newInstance())
 
                 R.id.btn_confirm ->
-                    transaction.replace(R.id.container, InputFragment.newInstance())
+                    transaction.replace(R.id.container, DataListFragment.newInstance())
             }
             transaction.addToBackStack(null).commitAllowingStateLoss()
         }
@@ -93,6 +93,7 @@ class MainFragment : BaseFragment() {
                         Locale.getDefault()
                     ).format(System.currentTimeMillis()).let {
                         val directory = File(FileUtils.getDataDirectory(context), it)
+                        log.debug { "direcroty : ${directory.absoluteFile}"}
                         excelTask = ExcelConverterTask.convert(context, productDao().getAll(), directory,
                             object : ExcelConverterTask.OnTaskListener {
                                 override fun onStartTask() {

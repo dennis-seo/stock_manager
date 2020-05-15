@@ -66,4 +66,6 @@ dependencies {
     // excel
     implementation "org.apache.poi:poi:$poi_version"
     implementation "org.apache.poi:poi-ooxml:$poi_version"
+
+    implementation 'com.android.support:cardview-v7:28.0.0'
 }

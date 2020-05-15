@@ -1,5 +1,7 @@
 package com.deky.productmanager.database
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
@@ -15,6 +17,9 @@ import com.deky.productmanager.database.entity.Product
 interface ProductDao {
     @Query("SELECT * FROM Product")
     fun getAll(): List<Product>
+
+    @Query("SELECT * FROM Product")
+    fun getAllProducts(): LiveData<List<Product>>
 
     @Insert(onConflict = REPLACE)
     fun insert(product: Product)

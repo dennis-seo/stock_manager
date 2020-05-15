@@ -35,7 +35,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_text_label"/>
+                    android:text="@string/text_label"/>
                 <EditText
                     android:id="@+id/ed_input_label"
                     android:layout_width="100dp"
@@ -69,7 +69,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_text_location"/>
+                    android:text="@string/text_location"/>
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/et_input_location"
@@ -93,7 +93,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_text_name"/>
+                    android:text="@string/text_name"/>
                 <EditText
                     android:id="@+id/et_input_name"
                     android:layout_width="100dp"
@@ -117,7 +117,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_text_manufacturer"/>
+                    android:text="@string/text_manufacturer"/>
                 <EditText
                     android:id="@+id/et_input_manufacturer"
                     android:layout_width="100dp"
@@ -141,7 +141,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_text_model"/>
+                    android:text="@string/text_model"/>
                 <EditText
                     android:id="@+id/et_input_model"
                     android:layout_width="100dp"
@@ -165,7 +165,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_text_size"/>
+                    android:text="@string/text_size"/>
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/ed_input_size_length"
@@ -236,7 +236,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_text_manufacture_date"/>
+                    android:text="@string/text_manufacture_date"/>
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/et_input_manufacture_date"
                     android:layout_width="120dp"
@@ -245,7 +245,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_manufacture_date"
                     android:lines="1"
-                    android:inputType="text|date"
+                    android:inputType="text|numberDecimal"
                     android:hint="@string/hint_input_manufacture_date"
                     android:text="@={productViewModel.manufactureDate}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onManufactureDateChange(text)}" />
@@ -261,7 +261,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_text_amount"/>
+                    android:text="@string/text_amount"/>
                 <EditText
                     android:id="@+id/et_input_amount"
                     android:layout_width="100dp"
@@ -286,7 +286,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_text_condition"/>
+                    android:text="@string/text_condition"/>
 
                 <RadioGroup
                     android:id="@+id/radio_input_condition_group"
@@ -302,21 +302,21 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="15dp"
-                        android:text="@string/input_text_condition_high"
+                        android:text="@string/text_condition_high"
                         android:checked="@{Condition.HIGH.equals(productViewModel.products.condition)}"/>
                     <RadioButton
                         android:id="@+id/radio_input_condition_middle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="15dp"
-                        android:text="@string/input_text_condition_middle"
+                        android:text="@string/text_condition_middle"
                         android:checked="@{Condition.MIDDLE.equals(productViewModel.products.condition)}"/>
                     <RadioButton
                         android:id="@+id/radio_input_condition_low"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="15dp"
-                        android:text="@string/input_text_condition_low"
+                        android:text="@string/text_condition_low"
                         android:checked="@{Condition.LOW.equals(productViewModel.products.condition)}"/>
                 </RadioGroup>
             </RelativeLayout>
@@ -331,7 +331,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="@string/input_text_note"/>
+                    android:text="@string/text_note"/>
                 <EditText
                     android:id="@+id/et_input_note"
                     android:layout_width="match_parent"

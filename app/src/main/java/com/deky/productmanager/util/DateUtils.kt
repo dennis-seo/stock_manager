@@ -19,4 +19,10 @@ object DateUtils {
             }
         }
     }
+
+    fun convertDateToString(date: Date): String {
+        val pattern = "yyyy-MM-dd"
+        val simpleDateFormat = SimpleDateFormat(pattern, Locale.KOREA)
+        return simpleDateFormat.format(date)
+    }
 }
