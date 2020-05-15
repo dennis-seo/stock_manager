@@ -1,17 +1,59 @@
 package com.deky.productmanager.model
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
-import android.view.View
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.deky.productmanager.R
+import android.widget.TextView
+import androidx.databinding.BindingAdapter
+import androidx.databinding.InverseMethod
+import androidx.lifecycle.*
+import com.deky.productmanager.database.ProductDB
 import com.deky.productmanager.database.entity.Condition
+import com.deky.productmanager.database.entity.Product
+import com.deky.productmanager.util.DKLog
+import com.deky.productmanager.util.DateUtils
+import com.deky.productmanager.util.NotNullMutableLiveData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.text.DateFormat
+import java.util.*
+import java.util.concurrent.Executors
 
 
-class InputViewModel : ViewModel() {
+class InputViewModel: ViewModel() {
     companion object {
         private const val TAG = "InputViewModel"
     }
+
+
+//    private var mLabel: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//    private var mImagePath: String =""
+//        get() = if (field.isEmpty()) "" else field
+//    private var mLocation: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//    private var mName: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//    private var mManufacturer: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//    private var mModel: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//
+//    private var mSizeLength: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//    private var mSizeWidth: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//    private var mSizeHeight: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//
+//    private var mManufactureDate: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//    private var mAmount: String = ""
+//        get() = if (field.isEmpty()) "" else field
+//    private var mNote: String = ""
+//        get() = if (field.isEmpty()) "" else field
+    private var products: NotNullMutableLiveData<Product> = NotNullMutableLiveData(Product())
+    fun getProducts() = products
 
     private var label: MutableLiveData<String> = MutableLiveData()                  // 라벨번호
     private var imagePath: MutableLiveData<String> = MutableLiveData()              // 이미지
@@ -20,58 +62,119 @@ class InputViewModel : ViewModel() {
     private var manufacturer: MutableLiveData<String> = MutableLiveData()           // 제조사
     private var model: MutableLiveData<String> = MutableLiveData()                  // 모델명
 
-    private var sizeLength: MutableLiveData<String> = MutableLiveData()                   // 규격
-    private var sizeWidth: MutableLiveData<String> = MutableLiveData()                   // 규격
-    private var sizeHeight: MutableLiveData<String> = MutableLiveData()                   // 규격
-
-    private var manufactureDate: MutableLiveData<String> = MutableLiveData()        // 제조일자
-    private var amount: MutableLiveData<Int> = MutableLiveData(1)                    // 수량
-    private var condition: MutableLiveData<Condition> = MutableLiveData()           // 상태
-    private var note: MutableLiveData<String> = MutableLiveData()
-
-    init {
-        amount.value = 1
+    var sizeLength: LiveData<String> = Transformations.map(products) { product ->
+        getManufactureSize(product, 0)
+    }
+    var sizeWidth: LiveData<String> = Transformations.map(products) { product ->
+        getManufactureSize(product, 1)
+    }
+    var sizeHeight: LiveData<String> = Transformations.map(products) { product ->
+        getManufactureSize(product, 2)
+    }
+    var manufactureDate: MutableLiveData<String> = MutableLiveData()        // 제조일자
+    var condition: LiveData<Condition> = Transformations.map(products) { product ->
+        product.condition
     }
 
-    fun getLabel() = label
-    fun getImagePath() = imagePath
-    fun getLocation() = location
-    fun getName() = name
-    fun getManufacturer() = manufacturer
-    fun getModel() = model
-
-//    fun getSize() = size
-    fun getSizeLength() = sizeLength
-    fun getSizeWidth() = sizeWidth
-    fun getSizeHeight() = sizeHeight
-
-    fun getManufactureDate() = manufactureDate
-    fun getAmount() = amount
-    fun getCondition() = condition
-    fun getNote() = note
-
-    fun getSize(): String {
-        if(sizeLength.value.isNullOrEmpty()) {
-            Log.d("bbong", "a")
+    private fun getManufactureSize(product: Product, index: Int): String {
+        val arrayProductSize = product.size.split("x")
+        if(arrayProductSize.size == 3) {
+            if(arrayProductSize[index] != "0") {
+                return arrayProductSize[index]
+            }
         }
-        if(sizeHeight.value.isNullOrEmpty()) {
-            Log.d("bbong", "b")
-        }
-        if(sizeWidth.value.isNullOrEmpty()) {
-            Log.d("bbong", "c")
-        }
+        return ""
+    }
 
-        return if (sizeLength.value.isNullOrEmpty()
-            || sizeWidth.value.isNullOrEmpty()
-            || sizeHeight.value.isNullOrEmpty()) ""
-        else buildString {
-            append(sizeLength.value).append("x")
-            append(sizeWidth.value).append("x")
-            append(sizeHeight.value)
+//    private fun getManufactureSize(): String {
+//        if(mSizeLength.isEmpty()) {
+//            Log.d("bbong", "mSizeLength is null")
+//        }
+//        if(mSizeWidth.isEmpty()) {
+//            Log.d("bbong", "mSizeWidth is null")
+//        }
+//        if(mSizeHeight.isEmpty()) {
+//            Log.d("bbong", "mSizeHight is null")
+//        }
+//
+//        return if (mSizeLength.isEmpty()
+//            || mSizeWidth.isEmpty()
+//            || mSizeHeight.isEmpty()) ""
+//        else buildString {
+//            append(mSizeLength).append("x")
+//            append(mSizeWidth).append("x")
+//            append(mSizeHeight)
+//        }
+//    }
+
+    fun onLabelChange(text: CharSequence) {
+        products.value.label = if (text.isNotEmpty()) text.toString() else ""
+    }
+
+    fun onLocationChange(text: CharSequence) {
+        products.value.location = if(text.isNotEmpty()) text.toString() else ""
+    }
+
+    fun onNameChange(text: CharSequence) {
+        products.value.name = if(text.isNotEmpty()) text.toString() else ""
+        DKLog.debug("bbong") { "name : ${products.value.name}"}
+    }
+
+    fun onManufacturerChange(text: CharSequence) {
+        products.value.manufacturer = if (text.isNotEmpty()) text.toString() else ""
+    }
+
+    fun onModelChange(text: CharSequence) {
+        products.value.model = if (text.isNotEmpty()) text.toString() else ""
+    }
+
+    fun onSizeLengthChange(text: CharSequence) {
+        onReplaceSize(0, text.toString())
+    }
+
+    fun onSizeWidthChange(text: CharSequence) {
+        onReplaceSize(1, text.toString())
+    }
+
+    fun onReplaceSize(index: Int, newValue: String) {
+        val strOldSize = products.value.size
+        val intValue = newValue.toIntOrNull()
+
+        if(newValue.isEmpty() || intValue == null)
+            return
+
+        val arrayProductSize: MutableList<String> = strOldSize.split("x").toMutableList()
+        if(arrayProductSize.size == 3) {
+            arrayProductSize[index] = newValue
+            products.value.size = buildString {
+                append(arrayProductSize[0])
+                    .append("x").append(arrayProductSize[1])
+                    .append("x").append(arrayProductSize[2])
+            }
         }
     }
 
-//    fun getCondition(): Condition {
-//        return condition.value?: Condition.NONE
+    fun onManufactureDateChange(text: CharSequence) {
+        manufactureDate.value = text.toString()
+
+        DateUtils.convertStringToDate(text.toString())?.let {
+            products.value.manufactureDate = it
+        }
+    }
+
+    fun onAmountChange(text: CharSequence) {
+        products.value.amount = if (text.isNotEmpty()) text.toString().toInt() else 0
+    }
+
+    fun onNoteChange(text: CharSequence) {
+        products.value.note = if (text.isNotEmpty()) text.toString() else ""
+    }
+
+
+//    class Factory(private val application: Application) : ViewModelProvider.Factory {
+//        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+//            return InputViewModel(application) as T
+//        }
 //    }
 }
+

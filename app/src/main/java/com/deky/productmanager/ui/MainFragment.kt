@@ -29,11 +29,8 @@ class MainFragment : BaseFragment() {
         fun newInstance() = MainFragment()
     }
 
-    private lateinit var dataBinding: MainFragmentBinding
+    private lateinit var binding: MainFragmentBinding
 
-    //    private val viewModel: InputViewModel by lazy {
-//        ViewModelProviders.of(this@MainFragment)[InputViewModel::class.java]
-//    }
     private var excelTask: ExcelConverterTask? = null
 
     override fun onCreateView(
@@ -41,33 +38,34 @@ class MainFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        dataBinding = DataBindingUtil.inflate<MainFragmentBinding>(
+        binding = DataBindingUtil.inflate<MainFragmentBinding>(
             inflater, R.layout.main_fragment, container, false
         ).apply {
             lifecycleOwner = this@MainFragment
             listener = this@MainFragment
-//            model = viewModel
         }
 
-        return dataBinding.root
+        return binding.root
     }
 
     fun onClickButton(view: View?) {
-        val transaction = parentFragmentManager.beginTransaction()
-        when (view?.id) {
-            R.id.btn_input ->
-                transaction.replace(R.id.container, InputFragment.newInstance())
+        fragmentManager?.let {
+            val transaction = it.beginTransaction()
+            when(view?.id) {
+                R.id.btn_input ->
+                    transaction.replace(R.id.container, InputFragment.newInstance())
 
-            R.id.btn_modify ->
-                transaction.replace(R.id.container, InputFragment.newInstance())
+                R.id.btn_modify ->
+                    transaction.replace(R.id.container, InputFragment.newInstance())
 
-            R.id.btn_confirm ->
-                transaction.replace(R.id.container, InputFragment.newInstance())
+                R.id.btn_confirm ->
+                    transaction.replace(R.id.container, InputFragment.newInstance())
+            }
+            transaction.addToBackStack(null).commitAllowingStateLoss()
         }
-        transaction.addToBackStack(null).commitAllowingStateLoss()
     }
 
-    fun onClickDeleteButton(view: View?) {
+    fun onClickDeleteButton() {
         showAlertDelete()
     }
 
@@ -138,7 +136,7 @@ class MainFragment : BaseFragment() {
 
     }
 
-    private val removeButtonClick = { dialog: DialogInterface, which: Int ->
+    private val removeButtonClick = { _: DialogInterface, _: Int ->
         removeDb()
     }
 

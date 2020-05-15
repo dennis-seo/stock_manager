@@ -11,18 +11,22 @@ import java.util.*
 * Copyright (C) 2020 Kakao corp. All rights reserved.
 */
 
+val DEFAULT_DATE = Date(0)
+val DEFAULT_SIZE = "0x0x0"
+
 @Entity(tableName = "product")
 data class Product(
-    @ColumnInfo(name = "label") var label: String,
-    @ColumnInfo(name = "image_path") var imagePath: String,
-    @ColumnInfo(name = "location") var location: String,
-    @ColumnInfo(name = "name") var name: String,
-    @ColumnInfo(name = "manufacturer") var manufacturer: String,
-    @ColumnInfo(name = "manufacture_date") var manufactureDate: Date,
-    @ColumnInfo(name = "condition") var condition: Condition,
-    @ColumnInfo(name = "size") var size: String,
-    @ColumnInfo(name = "model") var model: String,
-    @ColumnInfo(name = "amount") var amount: Int
+    @ColumnInfo(name = "label") var label: String = "",
+    @ColumnInfo(name = "image_path") var imagePath: String = "",
+    @ColumnInfo(name = "location") var location: String = "",
+    @ColumnInfo(name = "name") var name: String = "",
+    @ColumnInfo(name = "manufacturer") var manufacturer: String = "",
+    @ColumnInfo(name = "manufacture_date") var manufactureDate: Date = DEFAULT_DATE,
+    @ColumnInfo(name = "condition") var condition: Condition = Condition.NONE,
+    @ColumnInfo(name = "size") var size: String = DEFAULT_SIZE,
+    @ColumnInfo(name = "model") var model: String = "",
+    @ColumnInfo(name = "amount") var amount: Int = 1,
+    @ColumnInfo(name = "note") var note: String = ""
 ) : BaseEntity() {
     override fun toString(): String {
         return buildString {
@@ -37,6 +41,7 @@ data class Product(
             append("size : $size".prependIndent(1)).append("\n")
             append("model : $model".prependIndent(1)).append("\n")
             append("amount : $amount".prependIndent(1)).append("\n")
+            append("note : $note".prependIndent(1)).append("\n")
             append("}")
         }
     }

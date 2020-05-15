@@ -1,5 +1,6 @@
 package com.deky.productmanager.ui
 
+import android.app.Application
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -10,20 +11,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.deky.productmanager.R
 import com.deky.productmanager.database.ProductDB
 import com.deky.productmanager.database.entity.Condition
+import com.deky.productmanager.database.entity.DEFAULT_DATE
+import com.deky.productmanager.database.entity.DEFAULT_SIZE
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.DateUtils
 import kotlinx.android.synthetic.main.input_fragment.*
-import java.util.logging.Logger
+import java.util.*
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 
 /*
@@ -34,13 +39,11 @@ import java.util.logging.Logger
 */
 class InputFragment : BaseFragment() {
 
-
     companion object {
         fun newInstance() = InputFragment()
     }
 
     private lateinit var dataBinding: InputFragmentBinding
-
     private val viewModel: InputViewModel by lazy {
         ViewModelProvider(this).get(InputViewModel::class.java)
     }
@@ -50,7 +53,7 @@ class InputFragment : BaseFragment() {
         dataBinding = DataBindingUtil.inflate<InputFragmentBinding>(
             inflater, R.layout.input_fragment, container, false).apply {
                 lifecycleOwner = this@InputFragment
-                viewModel = viewModel
+                productViewModel = viewModel
                 listener = this@InputFragment
             }
         return dataBinding.root
@@ -58,77 +61,86 @@ class InputFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        dataBinding.radioInputConditionGroup.setOnCheckedChangeListener { radioGroup, checkedId ->
-            when(checkedId) {
+
+
+//
+//
+//
+//        dataBinding.radioInputConditionGroup.setOnCheckedChangeListener { _, checkedId ->
+//            when(checkedId) {
+//                R.id.radio_input_condition_high ->
+//                    viewModel.getCondition().value = Condition.HIGH
+//                R.id.radio_input_condition_middle ->
+//                    viewModel.getCondition().value = Condition.MIDDLE
+//                R.id.radio_input_condition_low ->
+//                    viewModel.getCondition().value = Condition.LOW
+//            }
+//        }
+//
+//        clearData()
+    }
+
+    fun onSplitTypeChanged(radioGroup: RadioGroup, checkedId: Int) {
+        log.debug { "id : $checkedId" }
+        when(checkedId) {
                 R.id.radio_input_condition_high ->
-                    viewModel.getCondition().value = Condition.HIGH
+                    viewModel.getProducts().value.condition = Condition.HIGH
                 R.id.radio_input_condition_middle ->
-                    viewModel.getCondition().value = Condition.MIDDLE
+                    viewModel.getProducts().value.condition = Condition.MIDDLE
                 R.id.radio_input_condition_low ->
-                    viewModel.getCondition().value = Condition.LOW
+                    viewModel.getProducts().value.condition = Condition.LOW
+        }
+    }
+
+    // 삭제버튼
+    fun onClickClear() {
+        viewModel.getProducts().postValue(Product())
+        Toast.makeText(context, R.string.message_success_delete, Toast.LENGTH_SHORT).show()
+    }
+
+    // 저장버튼
+    fun onClickSave() {
+        isValidManufactureSize()
+
+        if(isValidManufacturerDate()) {
+            val product = viewModel.getProducts()
+            context?.let {
+                Executors.newSingleThreadExecutor().execute {
+                    ProductDB.getInstance(it).productDao().also { dao ->
+                        DKLog.debug("bbong") { "saveData() : ${product.value}" }
+                        dao.insert(product.value)
+                    }
+                }
+                Toast.makeText(it, R.string.message_success_save, Toast.LENGTH_SHORT).show()
+                onClickClear()
+            }
+        } else {
+            context?.let {
+                Toast.makeText(it, R.string.message_invalid_date, Toast.LENGTH_SHORT).show()
             }
         }
-
-        clearData()
     }
 
-    private fun clearData() {
-
-        context?.let {
-            ed_input_label.text = null
-            btn_take_picture.setImageDrawable(ContextCompat.getDrawable(it, R.drawable.ic_camera))
-            btn_take_picture.scaleType = ImageView.ScaleType.CENTER
-            // et_input_location.text = null
-            et_input_name.text = null
-            et_input_manufacturer.text = null
-            et_input_model.text = null
-
-            ed_input_size_length.text = null
-            ed_input_size_width.text = null
-            ed_input_size_height.text = null
-
-            et_input_manufacture_date.text = null
-            et_input_amount.text = null
-
-            radio_input_condition_high.isSelected = false
-            radio_input_condition_middle.isSelected = false
-            radio_input_condition_low.isSelected = false
-
-            et_input_note.text = null
+    /**
+     * 날짜 포멧타입 확인
+     */
+    private fun isValidManufacturerDate(): Boolean {
+        val product = viewModel.getProducts()
+        if(!viewModel.manufactureDate.value.isNullOrBlank()
+            && product.value.manufactureDate.time == DEFAULT_DATE.time) {
+            return false
         }
+        return true
     }
 
-    private fun saveData() {
-        context?.let {
-            ProductDB.getInstance(it).productDao().also { dao ->
-                val product = Product(
-                    viewModel.getLabel().value?: "",
-                    viewModel.getImagePath().value?: "",
-                    viewModel.getLocation().value?: "",
-                    viewModel.getName().value?: "",
-                    viewModel.getManufacturer().value?: "",
-                    DateUtils.convertStringToDate(et_input_manufacture_date.text.toString()),
-                    viewModel.getCondition().value?: Condition.NONE,
-                    viewModel.getSize(),
-                    viewModel.getModel().value?: "",
-                    viewModel.getAmount().value?: 1
-                )
-                log.debug { "saveData() : $product" }
-
-                dao.insert(product)
-            }
+    /**
+     * 모델 사이즈 값이 Default 동일하다면, "" 처리
+     */
+    private fun isValidManufactureSize() {
+        val product = viewModel.getProducts()
+        if(product.value.size == DEFAULT_SIZE) {
+            product.value.size = ""
         }
-
-        Toast.makeText(context, R.string.message_success_save, Toast.LENGTH_SHORT).show()
-    }
-
-    fun onClearClick(view: View?) {
-        clearData()
-    }
-
-    fun onSaveClick(view: View?) {
-        saveData()
-        clearData()
     }
 
 
@@ -155,7 +167,7 @@ class InputFragment : BaseFragment() {
                     }
                 }
 
-                viewModel.getImagePath().postValue(imageFile.path)
+                viewModel.getProducts().value.imagePath = imageFile.path
             }
         }
     }

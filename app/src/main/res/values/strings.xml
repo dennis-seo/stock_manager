@@ -32,7 +32,10 @@
     <string name="input_text_condition_low">하</string>
 
     <string name="hint_input_amount">안넣으면 1</string>
+    <string name="hint_input_manufacture_date">1900.01.01</string>
 
+    <string name="message_invalid_date">제조일 정보가 정확하지 않습니다.</string>
     <string name="message_success_save">자료가 저장되었습니다.</string>
+    <string name="message_success_delete">자료가 삭제되었습니다.</string>
     <string name="message_alert_delete_data">저장된 모든 데이터를 삭제하시겠습니까?</string>
 </resources>
