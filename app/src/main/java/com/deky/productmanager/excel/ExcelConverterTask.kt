@@ -8,12 +8,15 @@ import android.os.AsyncTask
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
 import org.apache.poi.ss.usermodel.*
+import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.util.IOUtils
 import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import org.apache.poi.xssf.usermodel.XSSFRow
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileInputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -41,6 +44,11 @@ class ExcelConverterTask private constructor(
 
         // sheet name
         private const val DEFAULT_SHEET_NAME = "관리품목"
+
+        // Row Number
+        private const val ROW_NO_TITLE = 1
+        private const val ROW_NO_COLUMN = 4
+        private const val ROW_NO_ITEM = 5
 
         private val columnArray = arrayOf(
             CellInfo.CELL_NO,
@@ -139,10 +147,22 @@ class ExcelConverterTask private constructor(
     private fun saveExcelFile(file: File) {
         DKLog.info(TAG) { "saveExcelFile() - file : ${file.absolutePath}" }
 
-        file.outputStream().use {
+        file.outputStream().use { stream ->
             val workBook = XSSFWorkbook()//HSSFWorkbook()
             workBook.createSheet(getNextSheetName(workBook)).let { sheet ->
-                sheet.createRow(0).apply {
+
+                sheet.addMergedRegion(CellRangeAddress(1,2,0,columnArray.lastIndex))
+                sheet.createRow(ROW_NO_TITLE).apply {
+                    createCell(0).apply {
+                        (CellInfo.createStyle(workBook, CellInfo.STYLE_TYPE_TITLE) as? XSSFCellStyle)?.let {
+                            cellStyle = it
+                        }
+
+                        setCellValue("수기조사 목록")
+                    }
+                }
+
+                sheet.createRow(ROW_NO_COLUMN).apply {
                     for (cellInfo in columnArray) {
                         createCell(columnArray.indexOf(cellInfo), Cell.CELL_TYPE_STRING).apply {
                             (CellInfo.createStyle(workBook, CellInfo.STYLE_TYPE_COLUMN) as? XSSFCellStyle)?.let {
@@ -155,13 +175,13 @@ class ExcelConverterTask private constructor(
                 }
 
                 for (itemIndex in 0..productList.lastIndex) {
-                    val rowIndex = itemIndex + 1
+                    val rowIndex = ROW_NO_ITEM + itemIndex
                     writeProductData(workBook, productList[itemIndex], sheet.createRow(rowIndex), rowIndex)
                     publishProgress((itemIndex + 1) * 100 / productList.size)
                 }
             }
 
-            workBook.write(it)
+            workBook.write(stream)
         }
     }
 
@@ -194,7 +214,13 @@ class ExcelConverterTask private constructor(
                     CellInfo.CELL_MANUFACTURER -> setCellValue(product.manufacturer)
                     CellInfo.CELL_MODEL -> setCellValue(product.model)
                     CellInfo.CELL_SIZE -> setCellValue(product.size)
-                    CellInfo.CELL_MANUFACTURE_DATE -> setCellValue(product.manufactureDate)
+                    CellInfo.CELL_MANUFACTURE_DATE -> {
+                        SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+                            .format(product.manufactureDate)
+                            .toString().let {
+                                setCellValue(it)
+                            }
+                    }
                     CellInfo.CELL_CONDITION -> setCellValue(product.condition.name)
                     CellInfo.CELL_AMOUNT -> setCellValue(product.amount.toString())
                     CellInfo.CELL_NOTE -> setCellValue(product.note)
@@ -269,26 +295,26 @@ data class CellInfo(
 
         const val STYLE_TYPE_ITEM = 0
         const val STYLE_TYPE_COLUMN = 1
+        const val STYLE_TYPE_TITLE = 2
 
         fun createStyle(workBook: Workbook, styleType: Int): CellStyle {
             return workBook.createCellStyle().apply {
-
-                // 보더
-                borderTop = CellStyle.BORDER_MEDIUM
-                borderBottom = CellStyle.BORDER_MEDIUM
-                borderLeft = CellStyle.BORDER_MEDIUM
-                borderRight = CellStyle.BORDER_MEDIUM
 
                 // 정렬
                 verticalAlignment = CellStyle.VERTICAL_CENTER // 세로 정렬
                 alignment = CellStyle.ALIGN_CENTER // 가로 정렬
 
-                // 색 채우기
-                fillPattern = CellStyle.SOLID_FOREGROUND // 채우기 적용
-
                 when (styleType) {
                     STYLE_TYPE_COLUMN -> {
-                        fillForegroundColor = IndexedColors.BRIGHT_GREEN.index //채우기 선택
+                        // 보더
+                        borderTop = CellStyle.BORDER_MEDIUM
+                        borderBottom = CellStyle.BORDER_MEDIUM
+                        borderLeft = CellStyle.BORDER_MEDIUM
+                        borderRight = CellStyle.BORDER_MEDIUM
+
+                        // 색 채우기
+                        fillPattern = CellStyle.SOLID_FOREGROUND // 채우기 적용
+                        fillForegroundColor = IndexedColors.SEA_GREEN.index //채우기 선택
 
                         // 폰트
                         setFont(workBook.createFont().apply {
@@ -297,11 +323,22 @@ data class CellInfo(
                     }
 
                     STYLE_TYPE_ITEM -> {
-                        fillForegroundColor = IndexedColors.GREY_25_PERCENT.index //채우기 선택
+                        // 보더
+                        borderTop = CellStyle.BORDER_MEDIUM
+                        borderBottom = CellStyle.BORDER_MEDIUM
+                        borderLeft = CellStyle.BORDER_MEDIUM
+                        borderRight = CellStyle.BORDER_MEDIUM
 
+                        // 색 채우기
+                        fillPattern = CellStyle.SOLID_FOREGROUND // 채우기 적용
+                        fillForegroundColor = IndexedColors.GREY_25_PERCENT.index //채우기 선택
+                    }
+
+                    STYLE_TYPE_TITLE -> {
                         // 폰트
                         setFont(workBook.createFont().apply {
-                            boldweight = Font.BOLDWEIGHT_NORMAL
+                            fontHeight = 20 * 22
+                            boldweight = Font.BOLDWEIGHT_BOLD
                         })
                     }
                 }
