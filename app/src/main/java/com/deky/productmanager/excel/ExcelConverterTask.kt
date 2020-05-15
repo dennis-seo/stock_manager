@@ -7,9 +7,9 @@ import android.net.Uri
 import android.os.AsyncTask
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
-import org.apache.poi.ss.usermodel.Cell
-import org.apache.poi.ss.usermodel.Workbook
+import org.apache.poi.ss.usermodel.*
 import org.apache.poi.util.IOUtils
+import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import org.apache.poi.xssf.usermodel.XSSFRow
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
@@ -145,6 +145,10 @@ class ExcelConverterTask private constructor(
                 sheet.createRow(0).apply {
                     for (cellInfo in columnArray) {
                         createCell(columnArray.indexOf(cellInfo), Cell.CELL_TYPE_STRING).apply {
+                            (CellInfo.createStyle(workBook, CellInfo.STYLE_TYPE_COLUMN) as? XSSFCellStyle)?.let {
+                                cellStyle = it
+                            }
+
                             setCellValue(cellInfo.name)
                         }
                     }
@@ -152,7 +156,7 @@ class ExcelConverterTask private constructor(
 
                 for (itemIndex in 0..productList.lastIndex) {
                     val rowIndex = itemIndex + 1
-                    writeProductData(productList[itemIndex], sheet.createRow(rowIndex), rowIndex)
+                    writeProductData(workBook, productList[itemIndex], sheet.createRow(rowIndex), rowIndex)
                     publishProgress((itemIndex + 1) * 100 / productList.size)
                 }
             }
@@ -163,7 +167,7 @@ class ExcelConverterTask private constructor(
 
     private fun getNextSheetName(workBook: Workbook) = "$DEFAULT_SHEET_NAME-${workBook.numberOfSheets + 1}"
 
-    private fun writeProductData(product: Product, row: XSSFRow, index: Int) {
+    private fun writeProductData(workBook: XSSFWorkbook, product: Product, row: XSSFRow, index: Int) {
         DKLog.info(TAG) { "writeProductData() - product : $product" }
 
         val imageFile: File? = try {
@@ -177,6 +181,10 @@ class ExcelConverterTask private constructor(
 
         columnArray.forEach { column ->
             row.createCell(columnArray.indexOf(column), column.type).apply {
+                (CellInfo.createStyle(workBook, CellInfo.STYLE_TYPE_ITEM) as? XSSFCellStyle)?.let {
+                    cellStyle = it
+                }
+
                 when (column) {
                     CellInfo.CELL_NO -> setCellValue(index.toDouble())
                     CellInfo.CELL_IMAGE_ID -> setCellValue(imageId)
@@ -258,5 +266,46 @@ data class CellInfo(
         val CELL_CONDITION = CellInfo(Cell.CELL_TYPE_STRING, "상태")
         val CELL_AMOUNT = CellInfo(Cell.CELL_TYPE_STRING, "수량")
         val CELL_NOTE = CellInfo(Cell.CELL_TYPE_STRING, "비고")
+
+        const val STYLE_TYPE_ITEM = 0
+        const val STYLE_TYPE_COLUMN = 1
+
+        fun createStyle(workBook: Workbook, styleType: Int): CellStyle {
+            return workBook.createCellStyle().apply {
+
+                // 보더
+                borderTop = CellStyle.BORDER_MEDIUM
+                borderBottom = CellStyle.BORDER_MEDIUM
+                borderLeft = CellStyle.BORDER_MEDIUM
+                borderRight = CellStyle.BORDER_MEDIUM
+
+                // 정렬
+                verticalAlignment = CellStyle.VERTICAL_CENTER // 세로 정렬
+                alignment = CellStyle.ALIGN_CENTER // 가로 정렬
+
+                // 색 채우기
+                fillPattern = CellStyle.SOLID_FOREGROUND // 채우기 적용
+
+                when (styleType) {
+                    STYLE_TYPE_COLUMN -> {
+                        fillForegroundColor = IndexedColors.BRIGHT_GREEN.index //채우기 선택
+
+                        // 폰트
+                        setFont(workBook.createFont().apply {
+                            boldweight = Font.BOLDWEIGHT_BOLD
+                        })
+                    }
+
+                    STYLE_TYPE_ITEM -> {
+                        fillForegroundColor = IndexedColors.GREY_25_PERCENT.index //채우기 선택
+
+                        // 폰트
+                        setFont(workBook.createFont().apply {
+                            boldweight = Font.BOLDWEIGHT_NORMAL
+                        })
+                    }
+                }
+            }
+        }
     }
 }
