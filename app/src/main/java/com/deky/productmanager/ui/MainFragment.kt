@@ -93,7 +93,7 @@ class MainFragment : BaseFragment() {
                         Locale.getDefault()
                     ).format(System.currentTimeMillis()).let {
                         val directory = File(FileUtils.getDataDirectory(context), it)
-                        excelTask = ExcelConverterTask.convert(productDao().getAll(), directory,
+                        excelTask = ExcelConverterTask.convert(context, productDao().getAll(), directory,
                             object : ExcelConverterTask.OnTaskListener {
                                 override fun onStartTask() {
                                     log.debug { "ExcelConverterTask.onStartTask()" }
