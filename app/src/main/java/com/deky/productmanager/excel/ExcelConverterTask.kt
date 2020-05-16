@@ -10,6 +10,7 @@ import com.deky.productmanager.util.DKLog
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.util.IOUtils
+import org.apache.poi.xssf.usermodel.XSSFCell
 import org.apache.poi.xssf.usermodel.XSSFRow
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -17,6 +18,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.min
 
 
 /**
@@ -55,6 +57,10 @@ class ExcelConverterTask private constructor(
 
     private val workBook by lazy {
         XSSFWorkbook()
+    }
+
+    private val columnResizeMap by lazy {
+        mutableMapOf<Column, Int>()
     }
 
     override fun onPreExecute() {
@@ -177,27 +183,48 @@ class ExcelConverterTask private constructor(
             null
         }
 
+        val sheet = row.sheet
         Column.values().forEach { column ->
             row.createCell(column.ordinal, column.type).apply {
                 cellStyle = ExcelManager.createCellStyle(workBook, Style.ITEM)
 
                 when (column) {
-                    Column.NO -> setCellValue(itemIndex.toString())
-                    Column.LABEL -> setCellValue(product.label)
-                    Column.IMAGE_ID -> setCellValue(getImageIdFromFile(imageFile))
-                    Column.IMAGE -> setCellValue("")
-                    Column.LOCATION -> setCellValue(product.location)
-                    Column.PRODUCT_NAME -> setCellValue(product.name)
-                    Column.MANUFACTURER -> setCellValue(product.manufacturer)
-                    Column.MODEL -> setCellValue(product.model)
-                    Column.SIZE -> setCellValue(product.size)
-                    Column.MANUFACTURE_DATE -> setCellValue(parseManufactureDate(product.manufactureDate))
-                    Column.CONDITION -> setCellValue(product.condition.name)
-                    Column.AMOUNT -> setCellValue(product.amount.toString())
-                    Column.NOTE -> setCellValue(product.note)
+                    Column.NO -> setValueWithResize(sheet, column, itemIndex.toString())
+                    Column.LABEL -> setValueWithResize(sheet, column, product.label)
+                    Column.IMAGE_ID -> setValueWithResize(sheet, column, getImageIdFromFile(imageFile))
+                    Column.IMAGE -> setValueWithResize(sheet, column, "")
+                    Column.LOCATION -> setValueWithResize(sheet, column, product.location)
+                    Column.PRODUCT_NAME -> setValueWithResize(sheet, column, product.name)
+                    Column.MANUFACTURER -> setValueWithResize(sheet, column, product.manufacturer)
+                    Column.MODEL -> setValueWithResize(sheet, column, product.model)
+                    Column.SIZE -> setValueWithResize(sheet, column, product.size)
+                    Column.MANUFACTURE_DATE -> setValueWithResize(sheet, column, parseManufactureDate(product.manufactureDate))
+                    Column.CONDITION -> setValueWithResize(sheet, column, product.condition.name)
+                    Column.AMOUNT -> setValueWithResize(sheet, column, product.amount.toString())
+                    Column.NOTE -> setValueWithResize(sheet, column, product.note)
                 }
             }
         }
+    }
+
+    private fun XSSFCell.setValueWithResize(sheet: XSSFSheet, column: Column, value: String) {
+
+        if (!columnResizeMap.containsKey(column)) {
+            columnResizeMap[column] = sheet.getColumnWidth(column.ordinal)
+        }
+
+        columnResizeMap[column]?.let { columnWidth ->
+            min(255 * 256, ExcelManager.measureWidth(cellStyle.font, value)).let {
+                if (it > columnWidth) {
+                    sheet.setColumnWidth(column.ordinal, it)
+                    columnResizeMap[column] = it
+
+                    DKLog.debug(TAG) { "setValueWithResize() - ${column.name} : $columnWidth >> $it" }
+                }
+            }
+        }
+
+        setCellValue(value)
     }
 
     private fun getImageIdFromFile(imageFile: File?): String = imageFile?.nameWithoutExtension ?: "-"

@@ -5,12 +5,16 @@ import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.Font
 import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.xssf.usermodel.XSSFCellStyle
+import org.apache.poi.xssf.usermodel.XSSFFont
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
 /**
  * Copyright (C) 2020 Kakao corp. All rights reserved.
  *
  */
+
+private const val PER_FONT_HEIGHT = 20
+
 object ExcelManager {
     private const val TAG = "ExcelManager"
 
@@ -22,13 +26,17 @@ object ExcelManager {
         }
     }
 
+    fun measureWidth(font: XSSFFont, value: String): Int {
+        return (value.length + 3) * font.fontHeight
+    }
+
     private fun createTitleStyle(workbook: XSSFWorkbook): XSSFCellStyle {
         return workbook.createCellStyle().apply {
             setDefaultStyle()
 
             setFont(workbook.createFont().apply {
                 boldweight = Font.BOLDWEIGHT_BOLD
-                fontHeight = 20 * 22
+                fontHeight = (PER_FONT_HEIGHT * 22).toShort()
             })
         }
     }
