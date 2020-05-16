@@ -13,5 +13,5 @@ import com.deky.productmanager.database.entity.Product
 */
 class DataListViewModel(application: Application): ProductsBaseViewModel(application){
 
-    internal val products : LiveData<List<Product>> = database.productDao().getAllProducts()
+    internal val products : LiveData<List<Product>> = getAllProducts()
 }

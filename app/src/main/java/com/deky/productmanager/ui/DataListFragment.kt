@@ -1,11 +1,13 @@
 package com.deky.productmanager.ui
 
+import android.content.DialogInterface
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -69,14 +71,38 @@ class DataListFragment : BaseFragment() {
 
     private fun prepareRecyclerView(products: List<Product>) {
         product_recycler_view.apply {
-            adapter = ProductsAdapter(products)
+            val productsAdapter = ProductsAdapter(products)
+            productsAdapter.onItemLongClick = { product ->
+                showAlertDelete(product)
+            }
+
+            adapter = productsAdapter
             layoutManager =  LinearLayoutManager(context)
             addItemDecoration(ItemDecoration())
             setHasFixedSize(true)
         }
     }
 
+    private fun showAlertDelete(product: Product) {
+        context?.let {
+            val builder = AlertDialog.Builder(it).apply {
+                setMessage(R.string.message_alert_delete_data)
+                setPositiveButton(
+                    R.string.btn_confirm,
+                    DialogInterface.OnClickListener { _, _ ->
+                        dataModel.delete(product)
+                    }
+                )
+                setNegativeButton(android.R.string.no, null)
+            }
+            builder.show()
+        }
+    }
+
     class ProductsAdapter(private val products: List<Product>) : RecyclerView.Adapter<ProductsAdapter.ProductViewHolder>() {
+
+        var onItemClick: ((Product) -> Unit)? = null
+        var onItemLongClick: ((Product) -> Unit)? = null
 
          override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
              return ProductViewHolder(
@@ -114,8 +140,16 @@ class DataListFragment : BaseFragment() {
             }
         }
 
-        class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
+        inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            init {
+                itemView.setOnClickListener {
+                    onItemClick?.invoke(products[adapterPosition])
+                }
+                itemView.setOnLongClickListener {
+                    onItemLongClick?.invoke(products[adapterPosition])
+                    return@setOnLongClickListener true
+                }
+            }
         }
     }
 

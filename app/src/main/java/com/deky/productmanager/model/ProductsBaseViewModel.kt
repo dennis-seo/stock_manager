@@ -2,6 +2,7 @@ package com.deky.productmanager.model
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.deky.productmanager.database.ProductDB
@@ -19,6 +20,14 @@ open class ProductsBaseViewModel(application: Application): AndroidViewModel(app
 
     fun insert(product: Product){
         database.productDao().insert(product)
+    }
+
+    fun delete(product: Product) {
+        database.productDao().delete(product)
+    }
+
+    fun getAllProducts(): LiveData<List<Product>> {
+        return database.productDao().getAllProducts()
     }
 
     class Factory(private val application: Application) : ViewModelProvider.Factory {

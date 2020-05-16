@@ -125,7 +125,7 @@ class MainFragment : BaseFragment() {
     private fun showAlertDelete() {
         context?.let {
             val builder = AlertDialog.Builder(it).apply {
-                setMessage(R.string.message_alert_delete_data)
+                setMessage(R.string.message_alert_delete_all)
                 setPositiveButton(
                     R.string.btn_confirm,
                     DialogInterface.OnClickListener(function = removeButtonClick)

@@ -3,6 +3,7 @@ package com.deky.productmanager.database
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
@@ -23,6 +24,9 @@ interface ProductDao {
 
     @Insert(onConflict = REPLACE)
     fun insert(product: Product)
+
+    @Delete
+    fun delete(product: Product)
 
     @Query("DELETE from Product")
     fun deleteAll()
