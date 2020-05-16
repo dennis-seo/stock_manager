@@ -1,6 +1,7 @@
 package com.deky.productmanager.ui
 
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.ProductsBaseViewModel
 import com.deky.productmanager.util.DateUtils
+import com.deky.productmanager.util.ScreenUtils
 import kotlinx.android.synthetic.main.datalist_fragment.*
 import kotlinx.android.synthetic.main.datalist_item.view.*
 
@@ -69,6 +71,7 @@ class DataListFragment : BaseFragment() {
         product_recycler_view.apply {
             adapter = ProductsAdapter(products)
             layoutManager =  LinearLayoutManager(context)
+            addItemDecoration(ItemDecoration())
             setHasFixedSize(true)
         }
     }
@@ -83,6 +86,7 @@ class DataListFragment : BaseFragment() {
         override fun getItemCount(): Int {
             return products.count()
         }
+
         override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
             products[position].let { product ->
                 with(holder.itemView) {
@@ -115,4 +119,18 @@ class DataListFragment : BaseFragment() {
         }
     }
 
+    inner class ItemDecoration : RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+            outRect.top = ScreenUtils.dipToPixel(context, 5f)
+            outRect.bottom = ScreenUtils.dipToPixel(context, 5f)
+            outRect.left = ScreenUtils.dipToPixel(context, 5f)
+            outRect.right = ScreenUtils.dipToPixel(context, 5f)
+
+            if (parent.getChildAdapterPosition(view) == parent.adapter!!.itemCount - 1) {
+                outRect.bottom = ScreenUtils.dipToPixel(context, 7.5f)
+            } else if (parent.getChildAdapterPosition(view) == 0) {
+                outRect.top = ScreenUtils.dipToPixel(context, 7.5f)
+            }
+        }
+    }
 }
