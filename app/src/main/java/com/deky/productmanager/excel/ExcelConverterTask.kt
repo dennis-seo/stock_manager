@@ -7,11 +7,11 @@ import android.net.Uri
 import android.os.AsyncTask
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
-import org.apache.poi.ss.usermodel.*
+import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.util.IOUtils
-import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import org.apache.poi.xssf.usermodel.XSSFRow
+import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileInputStream
@@ -45,33 +45,16 @@ class ExcelConverterTask private constructor(
         // sheet name
         private const val DEFAULT_SHEET_NAME = "관리품목"
 
-        // Row Number
-        private const val ROW_NO_TITLE = 1
-        private const val ROW_NO_COLUMN = 4
-        private const val ROW_NO_ITEM = 5
-
-        private val columnArray = arrayOf(
-            CellInfo.CELL_NO,
-            CellInfo.CELL_IMAGE_ID,
-            CellInfo.CELL_LABEL,
-            CellInfo.CELL_IMAGE,
-            CellInfo.CELL_LOCATION,
-            CellInfo.CELL_NAME,
-            CellInfo.CELL_MANUFACTURER,
-            CellInfo.CELL_MODEL,
-            CellInfo.CELL_SIZE,
-            CellInfo.CELL_MANUFACTURE_DATE,
-            CellInfo.CELL_CONDITION,
-            CellInfo.CELL_AMOUNT,
-            CellInfo.CELL_NOTE
-        )
-
         @JvmStatic
         fun convert(context: Context, productList: List<Product>, directory: File, listener: OnTaskListener?): ExcelConverterTask {
             return ExcelConverterTask(context, productList, directory, listener).apply {
                 executeOnExecutor(THREAD_POOL_EXECUTOR)
             }
         }
+    }
+
+    private val workBook by lazy {
+        XSSFWorkbook()
     }
 
     override fun onPreExecute() {
@@ -123,13 +106,9 @@ class ExcelConverterTask private constructor(
     override fun onCancelled(e:Exception?) {
         DKLog.debug(TAG) { "onCancelled() - exception : ${e?.message ?: ""} " }
 
-        super.onCancelled(e)
-    }
-
-    override fun onCancelled() {
-        DKLog.debug(TAG) { "onCancelled(" }
-
-        super.onCancelled()
+        listener?.run {
+            onCompleteTask(e)
+        }
     }
 
     @Throws(Exception::class)
@@ -147,47 +126,48 @@ class ExcelConverterTask private constructor(
     private fun saveExcelFile(file: File) {
         DKLog.info(TAG) { "saveExcelFile() - file : ${file.absolutePath}" }
 
-        file.outputStream().use { stream ->
-            val workBook = XSSFWorkbook()//HSSFWorkbook()
-            workBook.createSheet(getNextSheetName(workBook)).let { sheet ->
+        createSheet().let { sheet ->
+            // 타이틀 셀 병합
+            sheet.addMergedRegion(CellRangeAddress(1, 2, 0, Column.values().lastIndex))
 
-                sheet.addMergedRegion(CellRangeAddress(1,2,0,columnArray.lastIndex))
-                sheet.createRow(ROW_NO_TITLE).apply {
-                    createCell(0).apply {
-                        (CellInfo.createStyle(workBook, CellInfo.STYLE_TYPE_TITLE) as? XSSFCellStyle)?.let {
-                            cellStyle = it
-                        }
-
-                        setCellValue("수기조사 목록")
-                    }
-                }
-
-                sheet.createRow(ROW_NO_COLUMN).apply {
-                    for (cellInfo in columnArray) {
-                        createCell(columnArray.indexOf(cellInfo), Cell.CELL_TYPE_STRING).apply {
-                            (CellInfo.createStyle(workBook, CellInfo.STYLE_TYPE_COLUMN) as? XSSFCellStyle)?.let {
-                                cellStyle = it
-                            }
-
-                            setCellValue(cellInfo.name)
-                        }
-                    }
-                }
-
-                for (itemIndex in 0..productList.lastIndex) {
-                    val rowIndex = ROW_NO_ITEM + itemIndex
-                    writeProductData(workBook, productList[itemIndex], sheet.createRow(rowIndex), rowIndex)
-                    publishProgress((itemIndex + 1) * 100 / productList.size)
+            // 타이틀 row
+            sheet.createRow(Row.TITLE.index).let { row ->
+                row.createCell(0, Cell.CELL_TYPE_STRING).apply {
+                    cellStyle = ExcelManager.createCellStyle(workBook, Style.TITLE)
+                    setCellValue("수기조사 목록")
                 }
             }
 
+            // 컬럼 row
+            sheet.createRow(Row.COLUMN.index).let { row ->
+                Column.values().forEach { column ->
+                    row.createCell(column.ordinal, column.type).apply {
+                        cellStyle = ExcelManager.createCellStyle(workBook, Style.COLUMN)
+                        setCellValue(column.title)
+                    }
+                }
+            }
+
+            // 아이템 row
+            for (itemIndex in 0..productList.lastIndex) {
+                val rowIndex = Row.ITEM.index + itemIndex
+                writeProductData(productList[itemIndex], sheet.createRow(rowIndex), itemIndex + 1)
+                publishProgress((itemIndex + 1) * 100 / productList.size)
+            }
+        }
+
+        file.outputStream().use { stream ->
             workBook.write(stream)
         }
     }
 
-    private fun getNextSheetName(workBook: Workbook) = "$DEFAULT_SHEET_NAME-${workBook.numberOfSheets + 1}"
+    private fun createSheet(sheetName: String = nextSheetName()): XSSFSheet {
+        return workBook.createSheet(sheetName)
+    }
 
-    private fun writeProductData(workBook: XSSFWorkbook, product: Product, row: XSSFRow, index: Int) {
+    private fun nextSheetName(): String = "$DEFAULT_SHEET_NAME-${workBook.numberOfSheets + 1}"
+
+    private fun writeProductData(product: Product, row: XSSFRow, itemIndex: Int) {
         DKLog.info(TAG) { "writeProductData() - product : $product" }
 
         val imageFile: File? = try {
@@ -197,37 +177,35 @@ class ExcelConverterTask private constructor(
             null
         }
 
-        val imageId = imageFile?.nameWithoutExtension ?: "-"
-
-        columnArray.forEach { column ->
-            row.createCell(columnArray.indexOf(column), column.type).apply {
-                (CellInfo.createStyle(workBook, CellInfo.STYLE_TYPE_ITEM) as? XSSFCellStyle)?.let {
-                    cellStyle = it
-                }
+        Column.values().forEach { column ->
+            row.createCell(column.ordinal, column.type).apply {
+                cellStyle = ExcelManager.createCellStyle(workBook, Style.ITEM)
 
                 when (column) {
-                    CellInfo.CELL_NO -> setCellValue(index.toDouble())
-                    CellInfo.CELL_IMAGE_ID -> setCellValue(imageId)
-                    CellInfo.CELL_LABEL -> setCellValue(product.label)
-                    CellInfo.CELL_LOCATION -> setCellValue(product.location)
-                    CellInfo.CELL_NAME -> setCellValue(product.name)
-                    CellInfo.CELL_MANUFACTURER -> setCellValue(product.manufacturer)
-                    CellInfo.CELL_MODEL -> setCellValue(product.model)
-                    CellInfo.CELL_SIZE -> setCellValue(product.size)
-                    CellInfo.CELL_MANUFACTURE_DATE -> {
-                        SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
-                            .format(product.manufactureDate)
-                            .toString().let {
-                                setCellValue(it)
-                            }
-                    }
-                    CellInfo.CELL_CONDITION -> setCellValue(product.condition.name)
-                    CellInfo.CELL_AMOUNT -> setCellValue(product.amount.toString())
-                    CellInfo.CELL_NOTE -> setCellValue(product.note)
-                    CellInfo.CELL_IMAGE -> setCellValue("")
+                    Column.NO -> setCellValue(itemIndex.toString())
+                    Column.LABEL -> setCellValue(product.label)
+                    Column.IMAGE_ID -> setCellValue(getImageIdFromFile(imageFile))
+                    Column.IMAGE -> setCellValue("")
+                    Column.LOCATION -> setCellValue(product.location)
+                    Column.PRODUCT_NAME -> setCellValue(product.name)
+                    Column.MANUFACTURER -> setCellValue(product.manufacturer)
+                    Column.MODEL -> setCellValue(product.model)
+                    Column.SIZE -> setCellValue(product.size)
+                    Column.MANUFACTURE_DATE -> setCellValue(parseManufactureDate(product.manufactureDate))
+                    Column.CONDITION -> setCellValue(product.condition.name)
+                    Column.AMOUNT -> setCellValue(product.amount.toString())
+                    Column.NOTE -> setCellValue(product.note)
                 }
             }
         }
+    }
+
+    private fun getImageIdFromFile(imageFile: File?): String = imageFile?.nameWithoutExtension ?: "-"
+
+    private fun parseManufactureDate(manufactureDate: Date): String {
+        return SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+            .format(manufactureDate)
+            .toString()
     }
 
     @Throws(Exception::class)
@@ -270,79 +248,6 @@ class ExcelConverterTask private constructor(
 //                    resize()
                 } ?: throw Exception("Failed to create picture.")
             } ?: throw Exception("IllegalState : drawingPatriarch is null")
-        }
-    }
-}
-
-data class CellInfo(
-    val type: Int,
-    val name: String
-) {
-    companion object {
-        val CELL_NO = CellInfo(Cell.CELL_TYPE_STRING, "No")
-        val CELL_IMAGE_ID = CellInfo(Cell.CELL_TYPE_STRING, "이미지 ID")
-        val CELL_LABEL = CellInfo(Cell.CELL_TYPE_STRING, "라벨번호")
-        val CELL_IMAGE = CellInfo(Cell.CELL_TYPE_STRING, "사진")
-        val CELL_LOCATION = CellInfo(Cell.CELL_TYPE_STRING, "위치")
-        val CELL_NAME = CellInfo(Cell.CELL_TYPE_STRING, "품명")
-        val CELL_MANUFACTURER = CellInfo(Cell.CELL_TYPE_STRING, "제조사")
-        val CELL_MODEL = CellInfo(Cell.CELL_TYPE_STRING, "모델명")
-        val CELL_SIZE = CellInfo(Cell.CELL_TYPE_STRING, "규격")
-        val CELL_MANUFACTURE_DATE = CellInfo(Cell.CELL_TYPE_STRING, "제조일자")
-        val CELL_CONDITION = CellInfo(Cell.CELL_TYPE_STRING, "상태")
-        val CELL_AMOUNT = CellInfo(Cell.CELL_TYPE_STRING, "수량")
-        val CELL_NOTE = CellInfo(Cell.CELL_TYPE_STRING, "비고")
-
-        const val STYLE_TYPE_ITEM = 0
-        const val STYLE_TYPE_COLUMN = 1
-        const val STYLE_TYPE_TITLE = 2
-
-        fun createStyle(workBook: Workbook, styleType: Int): CellStyle {
-            return workBook.createCellStyle().apply {
-
-                // 정렬
-                verticalAlignment = CellStyle.VERTICAL_CENTER // 세로 정렬
-                alignment = CellStyle.ALIGN_CENTER // 가로 정렬
-
-                when (styleType) {
-                    STYLE_TYPE_COLUMN -> {
-                        // 보더
-                        borderTop = CellStyle.BORDER_MEDIUM
-                        borderBottom = CellStyle.BORDER_MEDIUM
-                        borderLeft = CellStyle.BORDER_MEDIUM
-                        borderRight = CellStyle.BORDER_MEDIUM
-
-                        // 색 채우기
-                        fillPattern = CellStyle.SOLID_FOREGROUND // 채우기 적용
-                        fillForegroundColor = IndexedColors.SEA_GREEN.index //채우기 선택
-
-                        // 폰트
-                        setFont(workBook.createFont().apply {
-                            boldweight = Font.BOLDWEIGHT_BOLD
-                        })
-                    }
-
-                    STYLE_TYPE_ITEM -> {
-                        // 보더
-                        borderTop = CellStyle.BORDER_MEDIUM
-                        borderBottom = CellStyle.BORDER_MEDIUM
-                        borderLeft = CellStyle.BORDER_MEDIUM
-                        borderRight = CellStyle.BORDER_MEDIUM
-
-                        // 색 채우기
-                        fillPattern = CellStyle.SOLID_FOREGROUND // 채우기 적용
-                        fillForegroundColor = IndexedColors.GREY_25_PERCENT.index //채우기 선택
-                    }
-
-                    STYLE_TYPE_TITLE -> {
-                        // 폰트
-                        setFont(workBook.createFont().apply {
-                            fontHeight = 20 * 22
-                            boldweight = Font.BOLDWEIGHT_BOLD
-                        })
-                    }
-                }
-            }
         }
     }
 }
