@@ -1,19 +1,23 @@
 package com.deky.productmanager.model
 
+import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.NotNullMutableLiveData
 
 
-class InputViewModel: ViewModel() {
+class InputViewModel(application: Application): ProductsBaseViewModel(application) {
     companion object {
         private const val TAG = "InputViewModel"
     }
+
+    private val context = getApplication<Application>().applicationContext
 
     private var products: NotNullMutableLiveData<Product> = NotNullMutableLiveData(Product())
     fun getProducts() = products
@@ -95,10 +99,10 @@ class InputViewModel: ViewModel() {
     }
 
 
-//    class Factory(private val application: Application) : ViewModelProvider.Factory {
-//        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-//            return InputViewModel(application) as T
-//        }
-//    }
+    // 삭제버튼
+    fun onClickClear() {
+        products.postValue(Product())
+        Toast.makeText(context, R.string.message_success_delete, Toast.LENGTH_SHORT).show()
+    }
 }
 

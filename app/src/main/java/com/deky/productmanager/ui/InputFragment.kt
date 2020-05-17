@@ -23,6 +23,7 @@ import com.deky.productmanager.database.entity.DEFAULT_SIZE
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
+import com.deky.productmanager.model.ProductsBaseViewModel
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.DateUtils
 import kotlinx.android.synthetic.main.input_fragment.*
@@ -45,7 +46,7 @@ class InputFragment : BaseFragment() {
 
     private lateinit var dataBinding: InputFragmentBinding
     private val viewModel: InputViewModel by lazy {
-        ViewModelProvider(this).get(InputViewModel::class.java)
+        ViewModelProvider(this, ProductsBaseViewModel.Factory(activity!!.application)).get(InputViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -57,27 +58,6 @@ class InputFragment : BaseFragment() {
                 listener = this@InputFragment
             }
         return dataBinding.root
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-
-//
-//
-//
-//        dataBinding.radioInputConditionGroup.setOnCheckedChangeListener { _, checkedId ->
-//            when(checkedId) {
-//                R.id.radio_input_condition_high ->
-//                    viewModel.getCondition().value = Condition.HIGH
-//                R.id.radio_input_condition_middle ->
-//                    viewModel.getCondition().value = Condition.MIDDLE
-//                R.id.radio_input_condition_low ->
-//                    viewModel.getCondition().value = Condition.LOW
-//            }
-//        }
-//
-//        clearData()
     }
 
     fun onSplitTypeChanged(radioGroup: RadioGroup, checkedId: Int) {

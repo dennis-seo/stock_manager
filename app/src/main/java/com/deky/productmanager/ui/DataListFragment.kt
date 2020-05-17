@@ -72,6 +72,9 @@ class DataListFragment : BaseFragment() {
     private fun prepareRecyclerView(products: List<Product>) {
         product_recycler_view.apply {
             val productsAdapter = ProductsAdapter(products)
+            productsAdapter.onItemClick = {
+
+            }
             productsAdapter.onItemLongClick = { product ->
                 showAlertDelete(product)
             }
