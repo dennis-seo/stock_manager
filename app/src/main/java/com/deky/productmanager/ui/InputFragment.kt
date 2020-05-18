@@ -1,6 +1,5 @@
 package com.deky.productmanager.ui
 
-import android.app.Application
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -12,24 +11,15 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RadioGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import com.deky.productmanager.R
-import com.deky.productmanager.database.ProductDB
 import com.deky.productmanager.database.entity.Condition
-import com.deky.productmanager.database.entity.DEFAULT_DATE
-import com.deky.productmanager.database.entity.DEFAULT_SIZE
-import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
 import com.deky.productmanager.model.ProductsBaseViewModel
-import com.deky.productmanager.util.DKLog
-import com.deky.productmanager.util.DateUtils
-import kotlinx.android.synthetic.main.input_fragment.*
-import java.util.*
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
+import com.deky.productmanager.util.toast
 
 
 /*
@@ -60,6 +50,19 @@ class InputFragment : BaseFragment() {
         return dataBinding.root
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        initObservers()
+    }
+
+    private fun initObservers() {
+        viewModel.toastMessage.observe(this, Observer { event ->
+            event.getContentIfNotHandled()?.let { messageRes ->
+                context.toast(messageRes)
+            }
+        })
+    }
+
     fun onSplitTypeChanged(radioGroup: RadioGroup, checkedId: Int) {
         log.debug { "id : $checkedId" }
         when(checkedId) {
@@ -73,55 +76,33 @@ class InputFragment : BaseFragment() {
     }
 
     // 삭제버튼
-    fun onClickClear() {
-        viewModel.getProducts().postValue(Product())
-        Toast.makeText(context, R.string.message_success_delete, Toast.LENGTH_SHORT).show()
-    }
+//    fun onClickClear() {
+//        viewModel.getProducts().postValue(Product())
+//        Toast.makeText(context, R.string.message_success_delete, Toast.LENGTH_SHORT).show()
+//    }
 
     // 저장버튼
-    fun onClickSave() {
-        isValidManufactureSize()
-
-        if(isValidManufacturerDate()) {
-            val product = viewModel.getProducts()
-            context?.let {
-                Executors.newSingleThreadExecutor().execute {
-                    ProductDB.getInstance(it).productDao().also { dao ->
-                        DKLog.debug("bbong") { "saveData() : ${product.value}" }
-                        dao.insert(product.value)
-                    }
-                }
-                Toast.makeText(it, R.string.message_success_save, Toast.LENGTH_SHORT).show()
-                onClickClear()
-            }
-        } else {
-            context?.let {
-                Toast.makeText(it, R.string.message_invalid_date, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    /**
-     * 날짜 포멧타입 확인
-     */
-    private fun isValidManufacturerDate(): Boolean {
-        val product = viewModel.getProducts()
-        if(!viewModel.manufactureDate.value.isNullOrBlank()
-            && product.value.manufactureDate.time == DEFAULT_DATE.time) {
-            return false
-        }
-        return true
-    }
-
-    /**
-     * 모델 사이즈 값이 Default 동일하다면, "" 처리
-     */
-    private fun isValidManufactureSize() {
-        val product = viewModel.getProducts()
-        if(product.value.size == DEFAULT_SIZE) {
-            product.value.size = ""
-        }
-    }
+//    fun onClickSave() {
+//        isValidManufactureSize()
+//
+//        if(isValidManufacturerDate()) {
+//            val product = viewModel.getProducts()
+//            context?.let {
+//                Executors.newSingleThreadExecutor().execute {
+//                    ProductDB.getInstance(it).productDao().also { dao ->
+//                        DKLog.debug("bbong") { "saveData() : ${product.value}" }
+//                        dao.insert(product.value)
+//                    }
+//                }
+//                Toast.makeText(it, R.string.message_success_save, Toast.LENGTH_SHORT).show()
+//                onClickClear()
+//            }
+//        } else {
+//            context?.let {
+//                Toast.makeText(it, R.string.message_invalid_date, Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
 
 
     fun onClickTakePicture(view: View?) {

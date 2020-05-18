@@ -1,12 +1,11 @@
 package com.deky.productmanager.model
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.annotation.StringRes
+import androidx.lifecycle.*
 import com.deky.productmanager.database.ProductDB
 import com.deky.productmanager.database.entity.Product
+import com.deky.productmanager.util.Event
 
 
 /*
@@ -18,14 +17,33 @@ import com.deky.productmanager.database.entity.Product
 open class ProductsBaseViewModel(application: Application): AndroidViewModel(application){
     internal val database = ProductDB.getInstance(application)
 
+    // Mutable/LiveData of String resource reference Event
+    private val _toastMessage = MutableLiveData<Event<Int>>()
+    val toastMessage : LiveData<Event<Int>>
+        get() = _toastMessage
+
+    // Post in background thread
+    fun showToastMessage(@StringRes message: Int) {
+        _toastMessage.postValue(Event(message))
+    }
+
+    // Post in main thread
+    fun setToastMessage(@StringRes message: Int) {
+        _toastMessage.value = Event(message)
+    }
+
+
+    @Deprecated (message = "구조변경중")
     fun insert(product: Product){
         database.productDao().insert(product)
     }
 
+    @Deprecated (message = "구조변경중")
     fun delete(product: Product) {
         database.productDao().delete(product)
     }
 
+    @Deprecated (message = "구조변경중")
     fun getAllProducts(): LiveData<List<Product>> {
         return database.productDao().getAllProducts()
     }

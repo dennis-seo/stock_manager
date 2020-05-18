@@ -5,11 +5,16 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.R
+import com.deky.productmanager.database.entity.DEFAULT_DATE
+import com.deky.productmanager.database.entity.DEFAULT_SIZE
 import com.deky.productmanager.database.entity.Product
+import com.deky.productmanager.database.repository.ProductRepository
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.NotNullMutableLiveData
+import kotlinx.coroutines.launch
 
 
 class InputViewModel(application: Application): ProductsBaseViewModel(application) {
@@ -17,7 +22,7 @@ class InputViewModel(application: Application): ProductsBaseViewModel(applicatio
         private const val TAG = "InputViewModel"
     }
 
-    private val context = getApplication<Application>().applicationContext
+    private var repository: ProductRepository = ProductRepository(application)
 
     private var products: NotNullMutableLiveData<Product> = NotNullMutableLiveData(Product())
     fun getProducts() = products
@@ -53,7 +58,6 @@ class InputViewModel(application: Application): ProductsBaseViewModel(applicatio
 
     fun onNameChange(text: CharSequence) {
         products.value.name = if(text.isNotEmpty()) text.toString() else ""
-        DKLog.debug("bbong") { "name : ${products.value.name}"}
     }
 
     fun onManufacturerChange(text: CharSequence) {
@@ -102,7 +106,43 @@ class InputViewModel(application: Application): ProductsBaseViewModel(applicatio
     // 삭제버튼
     fun onClickClear() {
         products.postValue(Product())
-        Toast.makeText(context, R.string.message_success_delete, Toast.LENGTH_SHORT).show()
+        showToastMessage(R.string.message_success_delete)
+    }
+
+    // 저장버튼
+    fun onClickSave() {
+        isValidManufactureSize()
+
+        if(isValidManufacturerDate()) {
+            viewModelScope.launch {
+                DKLog.debug("bbong") { "saveData() : ${products.value}" }
+                repository.insert(products.value)
+                showToastMessage(R.string.message_success_save)
+                products.postValue(Product())
+            }
+        } else {
+            showToastMessage(R.string.message_invalid_date)
+        }
+    }
+
+    /**
+     * 날짜 포멧타입 확인
+     */
+    private fun isValidManufacturerDate(): Boolean {
+        if(!manufactureDate.value.isNullOrBlank()
+            && products.value.manufactureDate.time == DEFAULT_DATE.time) {
+            return false
+        }
+        return true
+    }
+
+    /**
+     * 모델 사이즈 값이 Default 동일하다면, "" 처리
+     */
+    private fun isValidManufactureSize() {
+        if(products.value.size == DEFAULT_SIZE) {
+            products.value.size = ""
+        }
     }
 }
 

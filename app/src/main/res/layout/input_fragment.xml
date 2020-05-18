@@ -45,6 +45,7 @@
                     android:layout_toEndOf="@id/tv_input_label"
                     android:lines="1"
                     android:inputType="text|textCapSentences"
+                    android:text="@{productViewModel.products.label}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onLabelChange(text)}"  />
             </RelativeLayout>
 
@@ -355,7 +356,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:text="@string/input_btn_clear"
-                    android:onClick="@{() -> listener.onClickClear()}"/>
+                    android:onClick="@{() -> productViewModel.onClickClear()}"/>
                 <Button
                     android:id="@+id/btn_confirm"
                     android:layout_width="100dp"
@@ -364,7 +365,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/btn_clear_data"
                     android:text="@string/input_btn_confirm"
-                    android:onClick="@{() -> listener.onClickSave()}"/>
+                    android:onClick="@{() -> productViewModel.onClickSave()}"/>
             </RelativeLayout>
         </LinearLayout>
     </ScrollView>
