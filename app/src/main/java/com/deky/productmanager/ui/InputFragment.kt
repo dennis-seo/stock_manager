@@ -18,7 +18,7 @@ import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
-import com.deky.productmanager.model.ProductsBaseViewModel
+import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.util.toast
 
 
@@ -36,7 +36,7 @@ class InputFragment : BaseFragment() {
 
     private lateinit var dataBinding: InputFragmentBinding
     private val viewModel: InputViewModel by lazy {
-        ViewModelProvider(this, ProductsBaseViewModel.Factory(activity!!.application)).get(InputViewModel::class.java)
+        ViewModelProvider(this, BaseViewModel.Factory(activity!!.application)).get(InputViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

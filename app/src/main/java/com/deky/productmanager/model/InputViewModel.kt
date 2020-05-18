@@ -1,7 +1,6 @@
 package com.deky.productmanager.model
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -17,7 +16,7 @@ import com.deky.productmanager.util.NotNullMutableLiveData
 import kotlinx.coroutines.launch
 
 
-class InputViewModel(application: Application): ProductsBaseViewModel(application) {
+class InputViewModel(application: Application): BaseViewModel(application) {
     companion object {
         private const val TAG = "InputViewModel"
     }

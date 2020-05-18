@@ -3,6 +3,7 @@ package com.deky.productmanager.model
 import android.app.Application
 import androidx.lifecycle.LiveData
 import com.deky.productmanager.database.entity.Product
+import com.deky.productmanager.database.repository.ProductRepository
 
 
 /*
@@ -11,7 +12,12 @@ import com.deky.productmanager.database.entity.Product
 * Created by Dennis.Seo on 15/05/2020
 *
 */
-class DataListViewModel(application: Application): ProductsBaseViewModel(application){
+class DataListViewModel(application: Application): BaseViewModel(application){
 
-    internal val products : LiveData<List<Product>> = getAllProducts()
+    private var repository: ProductRepository = ProductRepository(application)
+    internal val products : LiveData<List<Product>> = repository.getAllProducts()
+
+    fun delete(product: Product) {
+        repository.delete(product)
+    }
 }

@@ -18,7 +18,7 @@ import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
-import com.deky.productmanager.model.ProductsBaseViewModel
+import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.ScreenUtils
 import kotlinx.android.synthetic.main.datalist_fragment.*
@@ -47,7 +47,7 @@ class DataListFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        dataModel = ViewModelProvider(this, ProductsBaseViewModel.Factory(activity!!.application)).get(DataListViewModel::class.java)
+        dataModel = ViewModelProvider(this, BaseViewModel.Factory(activity!!.application)).get(DataListViewModel::class.java)
 
         dataBinding = DataBindingUtil.inflate<DatalistFragmentBinding>(
             inflater, R.layout.datalist_fragment, container, false

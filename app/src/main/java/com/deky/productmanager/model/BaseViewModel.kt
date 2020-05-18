@@ -14,7 +14,7 @@ import com.deky.productmanager.util.Event
 * Created by Dennis.Seo on 15/05/2020
 *
 */
-open class ProductsBaseViewModel(application: Application): AndroidViewModel(application){
+open class BaseViewModel(application: Application): AndroidViewModel(application){
     internal val database = ProductDB.getInstance(application)
 
     // Mutable/LiveData of String resource reference Event
@@ -30,22 +30,6 @@ open class ProductsBaseViewModel(application: Application): AndroidViewModel(app
     // Post in main thread
     fun setToastMessage(@StringRes message: Int) {
         _toastMessage.value = Event(message)
-    }
-
-
-    @Deprecated (message = "구조변경중")
-    fun insert(product: Product){
-        database.productDao().insert(product)
-    }
-
-    @Deprecated (message = "구조변경중")
-    fun delete(product: Product) {
-        database.productDao().delete(product)
-    }
-
-    @Deprecated (message = "구조변경중")
-    fun getAllProducts(): LiveData<List<Product>> {
-        return database.productDao().getAllProducts()
     }
 
     class Factory(private val application: Application) : ViewModelProvider.Factory {
