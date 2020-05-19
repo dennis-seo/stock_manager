@@ -2,8 +2,10 @@ package com.deky.productmanager.model
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.database.repository.ProductRepository
+import kotlinx.coroutines.launch
 
 
 /*
@@ -18,6 +20,8 @@ class DataListViewModel(application: Application): BaseViewModel(application){
     internal val products : LiveData<List<Product>> = repository.getAllProducts()
 
     fun delete(product: Product) {
-        repository.delete(product)
+        viewModelScope.launch {
+            repository.delete(product)
+        }
     }
 }

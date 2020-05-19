@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.recyclerview.widget.RecyclerView
 
 /**
  * Copyright (C) 2020 Kakao corp. All rights reserved.
@@ -30,3 +31,19 @@ fun dpToPx(dp: Int): Int {
  */
 fun Context?.toast(@StringRes textId: Int, duration: Int = Toast.LENGTH_SHORT)
         = this?.let { Toast.makeText(it, textId, duration).show() }
+
+/**
+ * example)
+ *   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
+ *       val view = LayoutInflater.from(parent.context).inflate(R.layout.datalist_item, parent, false)
+ *       return ProductViewHolder(view).listen { position, type ->
+ *           val product = products[position]
+ *       }
+ *   }
+ **/
+fun <T : RecyclerView.ViewHolder> T.listen(event: (position: Int, type: Int) -> Unit): T {
+    itemView.setOnClickListener {
+        event.invoke(adapterPosition, itemViewType)
+    }
+    return this
+}

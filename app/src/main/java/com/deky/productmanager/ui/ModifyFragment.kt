@@ -10,15 +10,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.RadioGroup
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.deky.productmanager.R
-import com.deky.productmanager.database.entity.Condition
-import com.deky.productmanager.databinding.InputFragmentBinding
-import com.deky.productmanager.model.InputViewModel
+import com.deky.productmanager.database.entity.Product
+import com.deky.productmanager.databinding.ModifyFragmentBinding
 import com.deky.productmanager.model.BaseViewModel
+import com.deky.productmanager.model.ModifyViewModel
 import com.deky.productmanager.util.toast
 
 
@@ -28,25 +28,42 @@ import com.deky.productmanager.util.toast
 * Created by Dennis.Seo on 07/05/2020
 *
 */
-class InputFragment : BaseFragment() {
+class ModifyFragment : BaseFragment() {
 
     companion object {
-        fun newInstance() = InputFragment()
+        private val ARG_PRODUCT_ID = "product_id"
+
+        fun newInstance(productId: Long) = ModifyFragment().apply {
+            arguments = bundleOf (
+                ARG_PRODUCT_ID to productId
+            )
+        }
     }
 
-    private lateinit var dataBinding: InputFragmentBinding
-    private val viewModel: InputViewModel by lazy {
-        ViewModelProvider(this, BaseViewModel.Factory(activity!!.application)).get(InputViewModel::class.java)
+    private var productId: Long = -1
+    private lateinit var dataBinding: ModifyFragmentBinding
+    private val viewModel: ModifyViewModel by lazy {
+        ViewModelProvider(this, BaseViewModel.Factory(activity!!.application)).get(ModifyViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.apply {
+            productId = getLong(ARG_PRODUCT_ID)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        dataBinding = DataBindingUtil.inflate<InputFragmentBinding>(
-            inflater, R.layout.input_fragment, container, false).apply {
-                lifecycleOwner = this@InputFragment
+        dataBinding = DataBindingUtil.inflate<ModifyFragmentBinding>(
+            inflater, R.layout.modify_fragment, container, false).apply {
+                lifecycleOwner = this@ModifyFragment
                 productViewModel = viewModel
-                listener = this@InputFragment
+                listener = this@ModifyFragment
             }
+
+        viewModel.loadProductData(productId)
+
         return dataBinding.root
     }
 
@@ -86,7 +103,7 @@ class InputFragment : BaseFragment() {
                     }
                 }
 
-                viewModel.getProducts().value.imagePath = imageFile.path
+                viewModel.setImageFilePath(imageFile.path)
             }
         }
     }

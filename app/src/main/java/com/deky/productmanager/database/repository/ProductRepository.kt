@@ -2,9 +2,11 @@ package com.deky.productmanager.database.repository
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.deky.productmanager.database.ProductDB
 import com.deky.productmanager.database.ProductDao
 import com.deky.productmanager.database.entity.Product
+import com.deky.productmanager.util.NotNullMutableLiveData
 
 
 /*
@@ -22,12 +24,16 @@ class ProductRepository(application: Application) {
         productDao = database.productDao()
     }
 
-    suspend fun insert(product: Product){
+    suspend fun insert(product: Product) {
         productDao.insert(product)
     }
 
-    fun delete(product: Product) {
+    suspend fun delete(product: Product) {
         productDao.delete(product)
+    }
+
+    fun getProductById(productId: Long): Product {
+        return productDao.getProductById(productId)
     }
 
     fun getAllProducts(): LiveData<List<Product>> {

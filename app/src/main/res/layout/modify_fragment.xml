@@ -7,11 +7,11 @@
         <import type="com.deky.productmanager.database.entity.Condition"/>
         <variable
             name="listener"
-            type="com.deky.productmanager.ui.InputFragment"/>
+            type="com.deky.productmanager.ui.ModifyFragment"/>
 
         <variable
             name="productViewModel"
-            type="com.deky.productmanager.model.InputViewModel"/>
+            type="com.deky.productmanager.model.ModifyViewModel"/>
     </data>
 
     <ScrollView
