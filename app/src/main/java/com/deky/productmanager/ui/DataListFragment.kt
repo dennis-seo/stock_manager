@@ -7,22 +7,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.BaseViewModel
+import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.ScreenUtils
 import kotlinx.android.synthetic.main.datalist_fragment.*
 import kotlinx.android.synthetic.main.datalist_item.view.*
+import java.io.File
 
 
 /*
@@ -37,9 +41,7 @@ class DataListFragment : BaseFragment() {
     }
 
     private lateinit var dataBinding: DatalistFragmentBinding
-//    private val dataModel: DataListViewModel by lazy {
-//        ViewModelProvider(this, ProductsBaseViewModel.Factory(activity!!.application)).get(DataListViewModel::class.java)
-//    }
+
     private lateinit var dataModel: DataListViewModel
 
     override fun onCreateView(
@@ -60,23 +62,31 @@ class DataListFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        log.debug { "onViewCreated()" }
         getProductList()
     }
 
     private fun getProductList() {
+        log.debug { "getProductList()" }
+
         dataModel.products.observe(this, Observer { products ->
+            log.debug { "getProductList.onChanged()" }
             prepareRecyclerView(products)
         })
     }
 
     private fun prepareRecyclerView(products: List<Product>) {
-        product_recycler_view.apply {
-            val productsAdapter = ProductsAdapter(products)
-            productsAdapter.onItemClick = {
+        log.debug { "prepareRecyclerView()" }
 
-            }
-            productsAdapter.onItemLongClick = { product ->
-                showAlertDelete(product)
+        product_recycler_view.apply {
+            val productsAdapter = ProductsAdapter(products).apply {
+                onItemClick = {
+
+                }
+
+                onItemLongClick = { product ->
+                    showAlertDelete(product)
+                }
             }
 
             adapter = productsAdapter
@@ -87,6 +97,8 @@ class DataListFragment : BaseFragment() {
     }
 
     private fun showAlertDelete(product: Product) {
+        log.debug { "showAlertDelete()" }
+
         context?.let {
             val builder = AlertDialog.Builder(it).apply {
                 setMessage(R.string.message_alert_delete_data)
@@ -119,8 +131,10 @@ class DataListFragment : BaseFragment() {
         override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
             products[position].let { product ->
                 with(holder.itemView) {
-                    val picture = BitmapFactory.decodeFile(product.imagePath)
-                    img_picture.setImageBitmap(picture)
+                    File(product.imagePath).takeIf { it.exists() }?.let { imageFile ->
+                        img_picture.load(imageFile)
+                    }
+
                     tv_location_value.text = product.location
                     tv_name_value.text = product.name
                     tv_manufacturer_value.text = product.manufacturer
