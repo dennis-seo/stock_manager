@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
 import android.net.Uri
 import android.os.AsyncTask
+import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
 import org.apache.poi.ss.usermodel.Cell
@@ -199,7 +200,7 @@ class ExcelConverterTask private constructor(
                     Column.MODEL -> setValueWithResize(sheet, column, product.model)
                     Column.SIZE -> setValueWithResize(sheet, column, product.size)
                     Column.MANUFACTURE_DATE -> setValueWithResize(sheet, column, parseManufactureDate(product.manufactureDate))
-                    Column.CONDITION -> setValueWithResize(sheet, column, product.condition.name)
+                    Column.CONDITION -> setValueWithResize(sheet, column, parseCondition(product.condition))
                     Column.AMOUNT -> setValueWithResize(sheet, column, product.amount.toString())
                     Column.NOTE -> setValueWithResize(sheet, column, product.note)
                 }
@@ -233,6 +234,15 @@ class ExcelConverterTask private constructor(
         return SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
             .format(manufactureDate)
             .toString()
+    }
+
+    private fun parseCondition(condition: Condition): String {
+        return when (condition) {
+            Condition.HIGH -> "상"
+            Condition.MIDDLE -> "중"
+            Condition.LOW -> "하"
+            Condition.NONE -> ""
+        }
     }
 
     @Throws(Exception::class)

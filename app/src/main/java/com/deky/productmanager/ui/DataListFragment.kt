@@ -19,10 +19,12 @@ import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.BaseViewModel
+import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.ScreenUtils
 import kotlinx.android.synthetic.main.datalist_fragment.*
 import kotlinx.android.synthetic.main.datalist_item.view.*
+import java.io.File
 
 
 /*
@@ -37,9 +39,7 @@ class DataListFragment : BaseFragment() {
     }
 
     private lateinit var dataBinding: DatalistFragmentBinding
-//    private val dataModel: DataListViewModel by lazy {
-//        ViewModelProvider(this, ProductsBaseViewModel.Factory(activity!!.application)).get(DataListViewModel::class.java)
-//    }
+
     private lateinit var dataModel: DataListViewModel
 
     override fun onCreateView(
@@ -60,16 +60,22 @@ class DataListFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        log.debug { "onViewCreated()" }
         getProductList()
     }
 
     private fun getProductList() {
+        log.debug { "getProductList()" }
+
         dataModel.products.observe(this, Observer { products ->
+            log.debug { "getProductList.onChanged()" }
             prepareRecyclerView(products)
         })
     }
 
     private fun prepareRecyclerView(products: List<Product>) {
+        log.debug { "prepareRecyclerView()" }
+
         product_recycler_view.apply {
             val productsAdapter = ProductsAdapter(products)
             productsAdapter.onItemClick = { product ->
@@ -91,6 +97,8 @@ class DataListFragment : BaseFragment() {
     }
 
     private fun showAlertDelete(product: Product) {
+        log.debug { "showAlertDelete()" }
+
         context?.let {
             val builder = AlertDialog.Builder(it).apply {
                 setMessage(R.string.message_alert_delete_data)
@@ -123,8 +131,10 @@ class DataListFragment : BaseFragment() {
         override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
             products[position].let { product ->
                 with(holder.itemView) {
-                    val picture = BitmapFactory.decodeFile(product.imagePath)
-                    img_picture.setImageBitmap(picture)
+                    File(product.imagePath).takeIf { it.exists() }?.let { imageFile ->
+                        img_picture.load(imageFile)
+                    }
+
                     tv_location_value.text = product.location
                     tv_name_value.text = product.name
                     tv_manufacturer_value.text = product.manufacturer

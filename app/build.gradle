@@ -27,6 +27,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
@@ -68,4 +72,7 @@ dependencies {
     implementation "org.apache.poi:poi-ooxml:$poi_version"
 
     implementation "com.google.android.material:material:1.1.0"
+
+    // coil (Image loader)
+    implementation("io.coil-kt:coil:0.10.0")
 }

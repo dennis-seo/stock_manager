@@ -270,11 +270,12 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_amount"
-                    android:lines="1"
-                    android:inputType="text|numberDecimal"
                     android:hint="@string/hint_input_amount"
-                    android:text="@{Integer.toString(productViewModel.products.amount)}"
-                    android:onTextChanged="@{(text, start, before, count) -> productViewModel.onAmountChange(text)}" />
+                    android:inputType="text|numberDecimal"
+                    android:lines="1"
+                    android:onTextChanged="@{(text, start, before, count) -> productViewModel.onAmountChange(text)}"
+                    android:selectAllOnFocus="true"
+                    android:text="@{Integer.toString(productViewModel.products.amount)}" />
             </RelativeLayout>
 
             <!-- 상태 -->
