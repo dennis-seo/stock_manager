@@ -39,6 +39,7 @@ class ModifyViewModel(application: Application): BaseViewModel(application) {
     var manufactureDate: MutableLiveData<String> = MutableLiveData()        // 제조일자
 
     fun loadProductData(productId: Long) {
+        DKLog.debug("bbong") { "productId : $productId" }
         val loadProduct = repository.getProductById(productId)
         _products.postValue(loadProduct)
     }

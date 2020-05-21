@@ -1,7 +1,6 @@
 package com.deky.productmanager.ui
 
 import android.content.DialogInterface
-import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,13 +12,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.BaseViewModel
-import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.ScreenUtils
 import kotlinx.android.synthetic.main.datalist_fragment.*
