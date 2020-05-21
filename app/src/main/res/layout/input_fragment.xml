@@ -246,7 +246,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_manufacture_date"
                     android:lines="1"
-                    android:inputType="text|numberDecimal"
+                    android:inputType="numberDecimal"
                     android:hint="@string/hint_input_manufacture_date"
                     android:text="@={productViewModel.manufactureDate}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onManufactureDateChange(text)}" />
@@ -271,7 +271,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_amount"
                     android:hint="@string/hint_input_amount"
-                    android:inputType="text|numberDecimal"
+                    android:inputType="numberDecimal"
                     android:lines="1"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onAmountChange(text)}"
                     android:selectAllOnFocus="true"
