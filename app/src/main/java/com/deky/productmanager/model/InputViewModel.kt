@@ -3,9 +3,12 @@ package com.deky.productmanager.model
 import android.app.Application
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
+import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import coil.api.load
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.DEFAULT_DATE
@@ -15,7 +18,10 @@ import com.deky.productmanager.database.repository.ProductRepository
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.NotNullMutableLiveData
+import kotlinx.android.synthetic.main.datalist_item.view.*
+import kotlinx.coroutines.DEBUG_PROPERTY_VALUE_OFF
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 class InputViewModel(application: Application): BaseViewModel(application) {
