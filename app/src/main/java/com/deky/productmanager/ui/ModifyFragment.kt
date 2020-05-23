@@ -28,6 +28,7 @@ import com.deky.productmanager.util.toast
 * Created by Dennis.Seo on 07/05/2020
 *
 */
+@Deprecated ("InputFragment 사용")
 class ModifyFragment : BaseFragment() {
 
     companion object {

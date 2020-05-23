@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RadioGroup
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
@@ -31,12 +32,27 @@ import com.deky.productmanager.util.toast
 class InputFragment : BaseFragment() {
 
     companion object {
-        fun newInstance() = InputFragment()
+        private const val ARG_PRODUCT_ID = "product_id"
+        const val DEFAULT_PRODUCT_ID: Long = -1
+
+        fun newInstance(productId: Long) = InputFragment().apply {
+            arguments = bundleOf (
+                ARG_PRODUCT_ID to productId
+            )
+        }
     }
 
+    private var productId: Long = DEFAULT_PRODUCT_ID
     private lateinit var dataBinding: InputFragmentBinding
     private val viewModel: InputViewModel by lazy {
         ViewModelProvider(this, BaseViewModel.Factory(activity!!.application)).get(InputViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.apply {
+            productId = getLong(ARG_PRODUCT_ID, DEFAULT_PRODUCT_ID)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -47,6 +63,9 @@ class InputFragment : BaseFragment() {
                 productViewModel = viewModel
                 listener = this@InputFragment
             }
+        if(productId != DEFAULT_PRODUCT_ID) {
+            viewModel.loadProductData(productId)
+        }
         return dataBinding.root
     }
 
@@ -86,7 +105,7 @@ class InputFragment : BaseFragment() {
                     }
                 }
 
-                viewModel.getProducts().value.imagePath = imageFile.path
+                viewModel.setImageFilePath(imageFile.path)
             }
         }
     }

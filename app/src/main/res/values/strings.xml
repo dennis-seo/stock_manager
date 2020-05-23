@@ -27,6 +27,13 @@
     <string name="input_text_size_width">세로</string>
     <string name="input_text_size_height">높이</string>
 
+    <string name="input_name_cabinet">캐비닛</string>
+    <string name="input_name_table">수강용테이블</string>
+    <string name="input_name_round_table">응접탁자</string>
+    <string name="input_name_chair">작업용의자</string>
+    <string name="input_name_foldable_chair">접이식의자</string>
+    <string name="input_name_sofa">소파</string>
+
     <string name="text_condition_high">상</string>
     <string name="text_condition_middle">중</string>
     <string name="text_condition_low">하</string>

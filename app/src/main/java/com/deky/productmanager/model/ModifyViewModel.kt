@@ -17,9 +17,10 @@ import com.deky.productmanager.util.NotNullMutableLiveData
 import kotlinx.coroutines.launch
 
 
+@Deprecated ("InputViewModel 사용")
 class ModifyViewModel(application: Application): BaseViewModel(application) {
     companion object {
-        private const val TAG = "InputViewModel"
+        private const val TAG = "ModifyViewModel"
     }
 
     private var repository: ProductRepository = ProductRepository(application)
@@ -39,7 +40,6 @@ class ModifyViewModel(application: Application): BaseViewModel(application) {
     var manufactureDate: MutableLiveData<String> = MutableLiveData()        // 제조일자
 
     fun loadProductData(productId: Long) {
-        DKLog.debug("bbong") { "productId : $productId" }
         val loadProduct = repository.getProductById(productId)
         _products.postValue(loadProduct)
     }

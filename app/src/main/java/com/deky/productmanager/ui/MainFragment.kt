@@ -53,10 +53,10 @@ class MainFragment : BaseFragment() {
             val transaction = it.beginTransaction()
             when(view?.id) {
                 R.id.btn_input ->
-                    transaction.replace(R.id.container, InputFragment.newInstance())
+                    transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
 
-                R.id.btn_modify ->
-                    transaction.replace(R.id.container, InputFragment.newInstance())
+//                R.id.btn_modify ->
+//                    transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
 
                 R.id.btn_confirm ->
                     transaction.replace(R.id.container, DataListFragment.newInstance())

@@ -2,9 +2,9 @@ package com.deky.productmanager.model
 
 import android.app.Application
 import android.view.View
+import android.widget.Button
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
@@ -25,21 +25,21 @@ class InputViewModel(application: Application): BaseViewModel(application) {
 
     private var repository: ProductRepository = ProductRepository(application)
 
-    private val products: NotNullMutableLiveData<Product> = NotNullMutableLiveData(Product())
-    fun getProducts() = products
+    private val _products: NotNullMutableLiveData<Product> = NotNullMutableLiveData(Product())
+    val products: LiveData<Product> = _products
 
-    var sizeLength: LiveData<String> = Transformations.map(products) { product ->
-        getManufactureSize(product, 0)
-    }
-    val sizeWidth: LiveData<String> = Transformations.map(products) { product ->
-        getManufactureSize(product, 1)
-    }
-    val sizeHeight: LiveData<String> = Transformations.map(products) { product ->
-        getManufactureSize(product, 2)
-    }
     var manufactureDate: MutableLiveData<String> = MutableLiveData()        // 제조일자
 
-    private fun getManufactureSize(product: Product, index: Int): String {
+    fun loadProductData(productId: Long) {
+        val loadProduct = repository.getProductById(productId)
+        _products.postValue(loadProduct)
+    }
+
+    fun setImageFilePath(filePath: String) {
+        _products.value.imagePath = filePath
+    }
+
+    fun getManufactureSize(product: Product, index: Int): String {
         val arrayProductSize = product.size.split("x")
         if(arrayProductSize.size == 3) {
             if(arrayProductSize[index] != "0") {
@@ -50,27 +50,27 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun onLabelChange(text: CharSequence) {
-        products.value.label = if (text.isNotEmpty()) text.toString() else ""
+        _products.value.label = if (text.isNotEmpty()) text.toString() else ""
     }
 
     fun onLocationChange(text: CharSequence) {
-        products.value.location = if(text.isNotEmpty()) text.toString() else ""
+        _products.value.location = if(text.isNotEmpty()) text.toString() else ""
     }
 
     fun onNameChange(text: CharSequence) {
-        products.value.name = if(text.isNotEmpty()) text.toString() else ""
+        _products.value.name = if(text.isNotEmpty()) text.toString() else ""
     }
 
     fun onManufacturerChange(text: CharSequence) {
-        products.value.manufacturer = if (text.isNotEmpty()) text.toString() else ""
+        _products.value.manufacturer = if (text.isNotEmpty()) text.toString() else ""
     }
 
     fun onModelChange(text: CharSequence) {
-        products.value.model = if (text.isNotEmpty()) text.toString() else ""
+        _products.value.model = if (text.isNotEmpty()) text.toString() else ""
     }
 
     fun onReplaceSize(index: Int, newValue: String) {
-        val strOldSize = products.value.size
+        val strOldSize = _products.value.size
         val intValue = newValue.toIntOrNull()
 
         if(newValue.isEmpty() || intValue == null)
@@ -79,7 +79,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         val arrayProductSize: MutableList<String> = strOldSize.split("x").toMutableList()
         if(arrayProductSize.size == 3) {
             arrayProductSize[index] = newValue
-            products.value.size = buildString {
+            _products.value.size = buildString {
                 append(arrayProductSize[0])
                     .append("x").append(arrayProductSize[1])
                     .append("x").append(arrayProductSize[2])
@@ -91,16 +91,16 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         manufactureDate.value = text.toString()
 
         DateUtils.convertStringToDate(text.toString())?.let {
-            products.value.manufactureDate = it
+            _products.value.manufactureDate = it
         }
     }
 
     fun onAmountChange(text: CharSequence) {
-        products.value.amount = if (text.isNotEmpty()) text.toString().toInt() else 0
+        _products.value.amount = if (text.isNotEmpty()) text.toString().toInt() else 0
     }
 
     fun onNoteChange(text: CharSequence) {
-        products.value.note = if (text.isNotEmpty()) text.toString() else ""
+        _products.value.note = if (text.isNotEmpty()) text.toString() else ""
     }
 
     /**
@@ -108,7 +108,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
      */
     private fun isValidManufacturerDate(): Boolean {
         if(!manufactureDate.value.isNullOrBlank()
-            && products.value.manufactureDate.time == DEFAULT_DATE.time) {
+            && _products.value.manufactureDate.time == DEFAULT_DATE.time) {
             return false
         }
         return true
@@ -118,8 +118,8 @@ class InputViewModel(application: Application): BaseViewModel(application) {
      * 모델 사이즈 값이 Default 동일하다면, "" 처리
      */
     private fun isValidManufactureSize() {
-        if(products.value.size == DEFAULT_SIZE) {
-            products.value.size = ""
+        if(_products.value.size == DEFAULT_SIZE) {
+            _products.value.size = ""
         }
     }
 
@@ -128,17 +128,25 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         DKLog.debug(TAG) { "id : $checkedId" }
         when(checkedId) {
             R.id.radio_input_condition_high ->
-                products.value.condition = Condition.HIGH
+                _products.value.condition = Condition.HIGH
             R.id.radio_input_condition_middle ->
-                products.value.condition = Condition.MIDDLE
+                _products.value.condition = Condition.MIDDLE
             R.id.radio_input_condition_low ->
-                products.value.condition = Condition.LOW
+                _products.value.condition = Condition.LOW
+        }
+    }
+
+    // 품명 입력버튼
+    fun onClickNameButton(view: View) {
+        if(view is Button) {
+            _products.value.name = view.text.toString()
+            _products.postValue(_products.value)
         }
     }
 
     // 삭제버튼
     fun onClickClear() {
-        products.postValue(Product())
+        _products.postValue(Product())
         showToastMessage(R.string.message_success_delete)
     }
 
@@ -149,9 +157,9 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         if(isValidManufacturerDate()) {
             viewModelScope.launch {
                 DKLog.debug("bbong") { "saveData() : ${products.value}" }
-                repository.insert(products.value)
+                repository.insert(_products.value)
                 showToastMessage(R.string.message_success_save)
-                products.postValue(Product())
+                _products.postValue(Product())
             }
         } else {
             showToastMessage(R.string.message_invalid_date)

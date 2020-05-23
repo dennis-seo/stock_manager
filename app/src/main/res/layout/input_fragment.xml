@@ -45,6 +45,7 @@
                     android:layout_toEndOf="@id/tv_input_label"
                     android:lines="1"
                     android:inputType="text|textCapSentences"
+                    android:selectAllOnFocus="true"
                     android:text="@{productViewModel.products.label}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onLabelChange(text)}"  />
             </RelativeLayout>
@@ -72,13 +73,14 @@
                     android:layout_centerVertical="true"
                     android:text="@string/text_location"/>
 
-                <androidx.appcompat.widget.AppCompatEditText
+                <EditText
                     android:id="@+id/et_input_location"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_location"
                     android:inputType="text"
+                    android:selectAllOnFocus="true"
                     android:lines="1"
                     android:text="@{productViewModel.products.location}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onLocationChange(text)}" />
@@ -97,15 +99,65 @@
                     android:text="@string/text_name"/>
                 <EditText
                     android:id="@+id/et_input_name"
-                    android:layout_width="100dp"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_name"
                     android:lines="1"
                     android:inputType="text"
+                    android:selectAllOnFocus="true"
                     android:text="@{productViewModel.products.name}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onNameChange(text)}" />
+            </RelativeLayout>
+
+            <!-- 품명 목록 -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/btn_name_cabinet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/input_name_cabinet"
+                    android:onClick="@{productViewModel::onClickNameButton}"/>
+                <Button
+                    android:id="@+id/btn_name_table"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/btn_name_cabinet"
+                    android:text="@string/input_name_table"
+                    android:onClick="@{productViewModel::onClickNameButton}"/>
+                <Button
+                    android:id="@+id/btn_name_round_table"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/btn_name_table"
+                    android:text="@string/input_name_round_table"
+                    android:onClick="@{productViewModel::onClickNameButton}"/>
+                <Button
+                    android:id="@+id/btn_name_chair"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/btn_name_round_table"
+                    android:text="@string/input_name_chair"
+                    android:onClick="@{productViewModel::onClickNameButton}"/>
+                <Button
+                    android:id="@+id/btn_name_foldable_chair"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/btn_name_cabinet"
+                    android:text="@string/input_name_foldable_chair"
+                    android:onClick="@{productViewModel::onClickNameButton}"/>
+                <Button
+                    android:id="@+id/btn_name_sofa"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/btn_name_cabinet"
+                    android:layout_toEndOf="@id/btn_name_foldable_chair"
+                    android:text="@string/input_name_sofa"
+                android:onClick="@{productViewModel::onClickNameButton}"/>
             </RelativeLayout>
 
             <!-- 제조사 -->
@@ -128,6 +180,7 @@
                     android:layout_toEndOf="@id/tv_input_manufacturer"
                     android:lines="1"
                     android:inputType="text"
+                    android:selectAllOnFocus="true"
                     android:text="@{productViewModel.products.manufacturer}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onManufacturerChange(text)}" />
             </RelativeLayout>
@@ -152,6 +205,7 @@
                     android:layout_toEndOf="@id/tv_input_model"
                     android:lines="1"
                     android:inputType="text"
+                    android:selectAllOnFocus="true"
                     android:text="@{productViewModel.products.model}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onModelChange(text)}" />
             </RelativeLayout>
@@ -177,7 +231,8 @@
                     android:gravity="center"
                     android:hint="@string/input_text_size_length"
                     android:inputType="numberDecimal"
-                    android:text="@{productViewModel.sizeLength}"
+                    android:selectAllOnFocus="true"
+                    android:text="@{productViewModel.getManufactureSize(productViewModel.products, 0)}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onReplaceSize(0, text.toString())}" />
 
                 <TextView
@@ -200,7 +255,8 @@
                     android:gravity="center"
                     android:hint="@string/input_text_size_width"
                     android:inputType="numberDecimal"
-                    android:text="@{productViewModel.sizeWidth}"
+                    android:selectAllOnFocus="true"
+                    android:text="@{productViewModel.getManufactureSize(productViewModel.products, 1)}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onReplaceSize(1, text.toString())}" />
 
                 <TextView
@@ -223,7 +279,8 @@
                     android:gravity="center"
                     android:hint="@string/input_text_size_height"
                     android:inputType="numberDecimal"
-                    android:text="@{productViewModel.sizeHeight}"
+                    android:selectAllOnFocus="true"
+                    android:text="@{productViewModel.getManufactureSize(productViewModel.products, 0)}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onReplaceSize(2, text.toString())}" />
             </RelativeLayout>
 
@@ -247,6 +304,7 @@
                     android:layout_toEndOf="@id/tv_input_manufacture_date"
                     android:lines="1"
                     android:inputType="numberDecimal"
+                    android:selectAllOnFocus="true"
                     android:hint="@string/hint_input_manufacture_date"
                     android:text="@={productViewModel.manufactureDate}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onManufactureDateChange(text)}" />
@@ -341,6 +399,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_below="@id/tv_input_note"
                     android:inputType="text"
+                    android:selectAllOnFocus="true"
                     android:text="@={productViewModel.products.note}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onNoteChange(text)}" />
             </RelativeLayout>

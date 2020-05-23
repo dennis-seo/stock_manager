@@ -80,7 +80,7 @@ class DataListFragment : BaseFragment() {
             productsAdapter.onItemClick = { product ->
                 fragmentManager?.let {
                     val transaction = it.beginTransaction()
-                    transaction.replace(R.id.container, ModifyFragment.newInstance(product.id))
+                    transaction.replace(R.id.container, InputFragment.newInstance(product.id))
                     transaction.addToBackStack(null).commitAllowingStateLoss()
                 }
             }
