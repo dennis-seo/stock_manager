@@ -129,6 +129,8 @@ class DataListFragment : BaseFragment() {
 
         override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
             products[position].let { product ->
+                holder.initialize()
+
                 with(holder.itemView) {
                     File(product.imagePath).takeIf { it.exists() }?.let { imageFile ->
                         img_picture.load(imageFile)
@@ -158,6 +160,8 @@ class DataListFragment : BaseFragment() {
 
         inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             init {
+                initialize()
+
                 itemView.setOnClickListener {
                     onItemClick?.invoke(products[adapterPosition])
                 }
@@ -165,6 +169,19 @@ class DataListFragment : BaseFragment() {
                     onItemLongClick?.invoke(products[adapterPosition])
                     return@setOnLongClickListener true
                 }
+            }
+
+            fun initialize() {
+                itemView.img_picture.load(R.drawable.ic_camera)
+                itemView.tv_location_value.text = ""
+                itemView.tv_name_value.text = ""
+                itemView.tv_manufacturer_value.text = ""
+                itemView.tv_model_value.text = ""
+                itemView.tv_size_value.text = ""
+                itemView.tv_condition_value.text = ""
+                itemView.tv_amount_value.text = ""
+                itemView.tv_manufacture_date_value.text = ""
+                itemView.tv_note_value.text = ""
             }
         }
     }
