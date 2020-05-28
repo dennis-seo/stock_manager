@@ -91,8 +91,8 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         manufactureDate.value = text.toString()
 
         DateUtils.convertStringToDate(text.toString())?.let {
-            _products.value.manufactureDate = it
-            DKLog.debug("bbong") { "_products : ${_products.value.manufactureDate}" }
+            _products.value.manufactureDateX = it
+            DKLog.debug("bbong") { "_products : ${_products.value.manufactureDateX}" }
         }
     }
 
@@ -109,7 +109,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
      */
     private fun isValidManufacturerDate(): Boolean {
         if(!manufactureDate.value.isNullOrBlank()
-            && _products.value.manufactureDate.time == DEFAULT_DATE.time) {
+            && _products.value.manufactureDateX.time == DEFAULT_DATE.time) {
             return false
         }
         return true
