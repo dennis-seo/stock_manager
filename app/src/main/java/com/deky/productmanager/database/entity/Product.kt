@@ -21,8 +21,9 @@ data class Product(
     @ColumnInfo(name = "location") var location: String = "",
     @ColumnInfo(name = "name") var name: String = "",
     @ColumnInfo(name = "manufacturer") var manufacturer: String = "",
+    @ColumnInfo(name = "manufacture_date") var manufactureDate: String = "",
     @Deprecated(message = "The property will be removed")
-    @ColumnInfo(name = "manufacture_date") var manufactureDateX: Date = DEFAULT_DATE,
+    @ColumnInfo(name = "manufacture_date_x") var manufactureDateX: Date = DEFAULT_DATE,
     @ColumnInfo(name = "condition") var condition: Condition = Condition.NONE,
     @ColumnInfo(name = "size") var size: String = DEFAULT_SIZE,
     @ColumnInfo(name = "model") var model: String = "",
@@ -37,6 +38,7 @@ data class Product(
             append("location : $location".prependIndent(1)).append("\n")
             append("name : $name".prependIndent(1)).append("\n")
             append("manufacturer : $manufacturer".prependIndent(1)).append("\n")
+            append("manufactureDate : $manufactureDate".prependIndent(1)).append("\n")
             append("manufactureDateX : $manufactureDateX".prependIndent(1)).append("\n")
             append("condition : $condition".prependIndent(1)).append("\n")
             append("size : $size".prependIndent(1)).append("\n")

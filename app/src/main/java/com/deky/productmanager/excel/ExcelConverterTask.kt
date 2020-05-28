@@ -199,7 +199,7 @@ class ExcelConverterTask private constructor(
                     Column.MANUFACTURER -> setValueWithResize(sheet, column, product.manufacturer)
                     Column.MODEL -> setValueWithResize(sheet, column, product.model)
                     Column.SIZE -> setValueWithResize(sheet, column, product.size)
-                    Column.MANUFACTURE_DATE -> setValueWithResize(sheet, column, parseManufactureDate(product.manufactureDateX))
+                    Column.MANUFACTURE_DATE -> setValueWithResize(sheet, column, product.manufactureDate)
                     Column.CONDITION -> setValueWithResize(sheet, column, parseCondition(product.condition))
                     Column.AMOUNT -> setValueWithResize(sheet, column, product.amount.toString())
                     Column.NOTE -> setValueWithResize(sheet, column, product.note)
