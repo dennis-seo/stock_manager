@@ -159,6 +159,22 @@
                     android:layout_toEndOf="@id/btn_name_foldable_chair"
                     android:text="@string/input_name_sofa"
                 android:onClick="@{productViewModel::onClickNameButton}"/>
+                <Button
+                    android:id="@+id/btn_name_work_table"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/btn_name_cabinet"
+                    android:layout_toEndOf="@id/btn_name_sofa"
+                    android:text="@string/input_name_work_table"
+                    android:onClick="@{productViewModel::onClickNameButton}"/>
+                <Button
+                    android:id="@+id/btn_name_filebox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/btn_name_cabinet"
+                    android:layout_toEndOf="@id/btn_name_work_table"
+                    android:text="@string/input_name_file_box"
+                    android:onClick="@{productViewModel::onClickNameButton}"/>
             </RelativeLayout>
 
             <!-- 제조사 -->
@@ -180,7 +196,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_manufacturer"
                     android:lines="1"
-                    android:inputType="text"
+                    android:inputType="text|textCapCharacters"
                     android:selectAllOnFocus="true"
                     android:text="@{productViewModel.products.manufacturer}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onManufacturerChange(text)}" />
@@ -205,7 +221,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_model"
                     android:lines="1"
-                    android:inputType="text"
+                    android:inputType="text|textCapCharacters"
                     android:selectAllOnFocus="true"
                     android:text="@{productViewModel.products.model}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onModelChange(text)}" />
@@ -304,7 +320,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_manufacture_date"
                     android:lines="1"
-                    android:inputType="numberDecimal"
+                    android:inputType="date"
                     android:selectAllOnFocus="true"
                     android:hint="@string/hint_input_manufacture_date"
                     android:text="@={productViewModel.manufactureDate}"
@@ -357,6 +373,14 @@
                     android:orientation="horizontal"
                     android:layout_toEndOf="@id/tv_input_condition"
                     android:onCheckedChanged="@{(radioGroup, checkedId) -> productViewModel.onConditionTypeChanged(checkedId)}">
+
+                    <RadioButton
+                        android:id="@+id/radio_input_condition_none"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="15dp"
+                        android:text="@string/text_condition_none"
+                        android:checked="@{Condition.NONE.equals(productViewModel.products.condition)}"/>
 
                     <RadioButton
                         android:id="@+id/radio_input_condition_high"

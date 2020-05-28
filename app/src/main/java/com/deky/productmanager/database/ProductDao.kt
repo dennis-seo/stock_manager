@@ -22,7 +22,7 @@ interface ProductDao {
     @Query("SELECT * FROM Product WHERE _id = :productId")
     fun getProductById(productId: Long): Product
 
-    @Query("SELECT * FROM Product")
+    @Query("SELECT * FROM Product ORDER BY _id DESC")
     fun getAllProducts(): LiveData<List<Product>>
 
     @Insert(onConflict = REPLACE)

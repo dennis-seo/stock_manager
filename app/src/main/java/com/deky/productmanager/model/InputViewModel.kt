@@ -92,6 +92,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
 
         DateUtils.convertStringToDate(text.toString())?.let {
             _products.value.manufactureDate = it
+            DKLog.debug("bbong") { "_products : ${_products.value.manufactureDate}" }
         }
     }
 
@@ -146,6 +147,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
 
     // 삭제버튼
     fun onClickClear() {
+        manufactureDate.value = ""
         _products.postValue(Product())
         showToastMessage(R.string.message_success_delete)
     }
@@ -159,6 +161,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
                 DKLog.debug("bbong") { "saveData() : ${products.value}" }
                 repository.insert(_products.value)
                 showToastMessage(R.string.message_success_save)
+                manufactureDate.value = ""
                 _products.postValue(Product())
             }
         } else {

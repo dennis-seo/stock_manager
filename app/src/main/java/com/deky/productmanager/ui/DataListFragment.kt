@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
+import com.deky.productmanager.database.entity.DEFAULT_DATE
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
@@ -151,8 +152,9 @@ class DataListFragment : BaseFragment() {
                             resources.getString(R.string.text_condition_low)
                     }
                     tv_amount_value.text = product.amount.toString()
-                    tv_manufacture_date_value.text =
-                        DateUtils.convertDateToString(product.manufactureDate)
+                    val strDate = if(product.manufactureDate == DEFAULT_DATE) ""
+                                            else DateUtils.convertDateToString(product.manufactureDate)
+                    tv_manufacture_date_value.text = strDate
                     tv_note_value.text = product.note
                 }
             }
