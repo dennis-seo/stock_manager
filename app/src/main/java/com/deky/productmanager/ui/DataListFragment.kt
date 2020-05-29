@@ -152,8 +152,7 @@ class DataListFragment : BaseFragment() {
                             resources.getString(R.string.text_condition_low)
                     }
                     tv_amount_value.text = product.amount.toString()
-                    val strDate = if(product.manufactureDateX == DEFAULT_DATE) ""
-                                            else DateUtils.convertDateToString(product.manufactureDateX)
+                    val strDate = product.manufactureDate
                     tv_manufacture_date_value.text = strDate
                     tv_note_value.text = product.note
                 }

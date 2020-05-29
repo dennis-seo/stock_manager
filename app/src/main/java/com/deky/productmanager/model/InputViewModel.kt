@@ -8,14 +8,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
-import com.deky.productmanager.database.entity.DEFAULT_DATE
 import com.deky.productmanager.database.entity.DEFAULT_SIZE
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.database.repository.ProductRepository
 import com.deky.productmanager.util.DKLog
-import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.NotNullMutableLiveData
 import kotlinx.coroutines.launch
+import java.lang.StringBuilder
 
 
 class InputViewModel(application: Application): BaseViewModel(application) {
@@ -88,12 +87,13 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun onManufactureDateChange(text: CharSequence) {
-        manufactureDate.value = text.toString()
+//        manufactureDate.postValue(if (text.isNotEmpty()) splitDate(text.toString()) else "")
+//        _products.value.manufactureDate = manufactureDate.value.toString()
 
-        DateUtils.convertStringToDate(text.toString())?.let {
-            _products.value.manufactureDateX = it
-            DKLog.debug("bbong") { "_products : ${_products.value.manufactureDateX}" }
-        }
+        _products.value.manufactureDate = if (text.isNotEmpty()) splitDate(text.toString()) else ""
+
+//        _products.value.manufactureDate = if (text.isNotEmpty()) splitDate(text.toString()) else ""
+//        _products.postValue(_products.value)
     }
 
     fun onAmountChange(text: CharSequence) {
@@ -104,15 +104,42 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         _products.value.note = if (text.isNotEmpty()) text.toString() else ""
     }
 
-    /**
-     * 날짜 포멧타입 확인
-     */
-    private fun isValidManufacturerDate(): Boolean {
-        if(!manufactureDate.value.isNullOrBlank()
-            && _products.value.manufactureDateX.time == DEFAULT_DATE.time) {
-            return false
+    fun splitDate(strDate: String): String {
+        var tempDate: String = strDate
+        if(strDate.contains(".")) {
+            tempDate = strDate.replace(".","")
         }
-        return true
+
+        val length = tempDate.length
+        val result: StringBuilder = StringBuilder()
+
+        when {
+            length >= 8 -> {
+                val year = tempDate.subSequence(0, 4)
+                val month = tempDate.subSequence(4, 6)
+                val day = tempDate.subSequence(6, 8)
+                result.append(year).append(".").append(month).append(".").append(day)
+                return result.toString()
+
+            }
+            length >= 6 -> {
+                val year = tempDate.subSequence(0, 4)
+                val month = tempDate.subSequence(4, 6)
+                val other = tempDate.substring(6)
+                result.append(year).append(".").append(month).append(".").append(other)
+                return result.toString()
+
+            }
+            length >= 4 -> {
+                val year = tempDate.subSequence(0, 4)
+                val other = tempDate.substring(4)
+                result.append(year).append(".").append(other)
+                return result.toString()
+            }
+            else -> {
+                return strDate
+            }
+        }
     }
 
     /**
@@ -156,16 +183,13 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     fun onClickSave() {
         isValidManufactureSize()
 
-        if(isValidManufacturerDate()) {
-            viewModelScope.launch {
-                DKLog.debug("bbong") { "saveData() : ${products.value}" }
-                repository.insert(_products.value)
-                showToastMessage(R.string.message_success_save)
-                manufactureDate.value = ""
-                _products.postValue(Product())
-            }
-        } else {
-            showToastMessage(R.string.message_invalid_date)
+        viewModelScope.launch {
+            DKLog.debug("bbong") { "saveData() : ${products.value}" }
+            repository.insert(_products.value)
+            showToastMessage(R.string.message_success_save)
+            manufactureDate.value = ""
+            _products.postValue(Product())
+
         }
     }
 }

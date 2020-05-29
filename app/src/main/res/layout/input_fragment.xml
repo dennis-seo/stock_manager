@@ -320,10 +320,8 @@
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/tv_input_manufacture_date"
                     android:lines="1"
-                    android:inputType="date"
-                    android:selectAllOnFocus="true"
-                    android:hint="@string/hint_input_manufacture_date"
-                    android:text="@={productViewModel.manufactureDate}"
+                    android:inputType="number"
+                    android:text="@{productViewModel.products.manufactureDate}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onManufactureDateChange(text)}" />
             </RelativeLayout>
 

@@ -76,7 +76,7 @@
                             android:id="@+id/tv_name_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
+                            android:layout_marginStart="5dp"
                             android:layout_toEndOf="@id/tv_name"
                             android:lines="1"
                             tools:text="휴대폰"
@@ -98,9 +98,9 @@
 
                         <TextView
                             android:id="@+id/tv_manufacturer_value"
-                            android:layout_width="100dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
+                            android:layout_marginStart="5dp"
                             android:layout_toEndOf="@id/tv_manufacturer"
                             android:lines="1"
                             tools:text="삼성"
