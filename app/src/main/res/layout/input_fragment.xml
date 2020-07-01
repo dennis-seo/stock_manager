@@ -297,7 +297,7 @@
                     android:hint="@string/input_text_size_height"
                     android:inputType="numberDecimal"
                     android:selectAllOnFocus="true"
-                    android:text="@{productViewModel.getManufactureSize(productViewModel.products, 0)}"
+                    android:text="@{productViewModel.getManufactureSize(productViewModel.products, 2)}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onReplaceSize(2, text.toString())}" />
             </RelativeLayout>
 
