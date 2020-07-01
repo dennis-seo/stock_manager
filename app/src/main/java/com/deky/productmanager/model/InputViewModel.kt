@@ -40,7 +40,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
 
     fun getManufactureSize(product: Product, index: Int): String {
         val arrayProductSize = product.size.split("x")
-        if(arrayProductSize.size == 3) {
+        if(arrayProductSize.size > index) {
             if(arrayProductSize[index] != "0") {
                 return arrayProductSize[index]
             }
@@ -76,14 +76,19 @@ class InputViewModel(application: Application): BaseViewModel(application) {
             return
 
         val arrayProductSize: MutableList<String> = strOldSize.split("x").toMutableList()
-        if(arrayProductSize.size == 3) {
-            arrayProductSize[index] = newValue
-            _products.value.size = buildString {
-                append(arrayProductSize[0])
-                    .append("x").append(arrayProductSize[1])
-                    .append("x").append(arrayProductSize[2])
-            }
+        DKLog.debug("bbong") { "onReplaceSize() : ${arrayProductSize.size} > index : $index - newValue : $newValue" }
+
+        arrayProductSize[index] = newValue
+
+        val length = if(arrayProductSize.size > 0) arrayProductSize[0] else ""
+        val width = if(arrayProductSize.size > 1) arrayProductSize[1] else ""
+        val height = if(arrayProductSize.size > 2) arrayProductSize[2] else ""
+
+        _products.value.size = buildString {
+            append(length).append("x").append(width).append("x").append(height)
         }
+
+        DKLog.debug("bbong") { "onReplaceSize() : ${_products.value.size}" }
     }
 
     fun onManufactureDateChange(text: CharSequence) {
@@ -189,7 +194,6 @@ class InputViewModel(application: Application): BaseViewModel(application) {
             showToastMessage(R.string.message_success_save)
             manufactureDate.value = ""
             _products.postValue(Product())
-
         }
     }
 }
