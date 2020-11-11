@@ -49,4 +49,5 @@
     <string name="message_success_delete">자료가 삭제되었습니다.</string>
     <string name="message_alert_delete_data">선택하신 데이터를 삭제하시겠습니까?</string>
     <string name="message_alert_delete_all">저장된 모든 데이터를 삭제하시겠습니까?</string>
+    <string name="message_toast_input_value_only_number">숫자만 입력해 주세요.</string>
 </resources>

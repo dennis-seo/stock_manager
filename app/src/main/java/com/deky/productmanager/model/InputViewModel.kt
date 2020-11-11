@@ -1,6 +1,7 @@
 package com.deky.productmanager.model
 
 import android.app.Application
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.lifecycle.LiveData
@@ -28,6 +29,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     val products: LiveData<Product> = _products
 
     var manufactureDate: MutableLiveData<String> = MutableLiveData()        // 제조일자
+    val numberFormatExceptionEvent: MutableLiveData<String> = MutableLiveData() // 수량 입력시 숫자 아닌거 입력했을때 처리
 
     fun loadProductData(productId: Long) {
         val loadProduct = repository.getProductById(productId)
@@ -102,7 +104,13 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun onAmountChange(text: CharSequence) {
-        _products.value.amount = if (text.isNotEmpty()) text.toString().toInt() else 0
+        _products.value.amount = try {
+            if (text.isNotEmpty()) text.toString().toInt() else 0
+        } catch (e: NumberFormatException) {
+            Log.d("dayun","numberFormatException~")
+            numberFormatExceptionEvent.postValue(_products.value.amount.toString())
+            _products.value.amount
+        }
     }
 
     fun onNoteChange(text: CharSequence) {

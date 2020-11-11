@@ -10,17 +10,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
 import com.deky.productmanager.R
-import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
 import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.util.toast
+import kotlinx.android.synthetic.main.input_fragment.*
 
 
 /*
@@ -79,6 +79,10 @@ class InputFragment : BaseFragment() {
             event.getContentIfNotHandled()?.let { messageRes ->
                 context.toast(messageRes)
             }
+        })
+        viewModel.numberFormatExceptionEvent.observe(this, Observer {
+            et_input_amount.setText(it)
+            Toast.makeText(context, R.string.message_toast_input_value_only_number, Toast.LENGTH_SHORT).show()
         })
     }
 
