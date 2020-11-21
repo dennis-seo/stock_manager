@@ -50,18 +50,6 @@
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onLabelChange(text)}"  />
             </RelativeLayout>
 
-            <ImageButton
-                android:id="@+id/btn_take_picture"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="5dp"
-                android:text="@string/btn_picture"
-                android:src="@drawable/ic_camera"
-                app:loadImage="@{productViewModel.products.imagePath}"
-                android:background="@drawable/shape_round_05"
-                android:onClick="@{listener::onClickTakePicture}"/>
-
             <!-- 위치 -->
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -86,6 +74,18 @@
                     android:text="@{productViewModel.products.location}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onLocationChange(text)}" />
             </RelativeLayout>
+
+            <ImageButton
+                android:id="@+id/btn_take_picture"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:text="@string/btn_picture"
+                android:src="@drawable/ic_camera"
+                app:loadImage="@{productViewModel.products.imagePath}"
+                android:background="@drawable/shape_round_05"
+                android:onClick="@{listener::onClickTakePicture}"/>
 
             <!-- 품명 -->
             <RelativeLayout
