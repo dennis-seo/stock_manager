@@ -113,9 +113,13 @@
             </RelativeLayout>
 
             <!-- 품명 목록 -->
-            <RelativeLayout
+            <com.google.android.flexbox.FlexboxLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:alignContent="flex_start"
+                app:justifyContent="center">
 
                 <Button
                     android:id="@+id/btn_name_cabinet"
@@ -127,28 +131,24 @@
                     android:id="@+id/btn_name_table"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/btn_name_cabinet"
                     android:text="@string/input_name_table"
                     android:onClick="@{productViewModel::onClickNameButton}"/>
                 <Button
                     android:id="@+id/btn_name_round_table"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/btn_name_table"
                     android:text="@string/input_name_round_table"
                     android:onClick="@{productViewModel::onClickNameButton}"/>
                 <Button
                     android:id="@+id/btn_name_chair"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/btn_name_round_table"
                     android:text="@string/input_name_chair"
                     android:onClick="@{productViewModel::onClickNameButton}"/>
                 <Button
                     android:id="@+id/btn_name_foldable_chair"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/btn_name_cabinet"
                     android:text="@string/input_name_foldable_chair"
                     android:onClick="@{productViewModel::onClickNameButton}"/>
                 <Button
@@ -156,26 +156,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/btn_name_cabinet"
-                    android:layout_toEndOf="@id/btn_name_foldable_chair"
                     android:text="@string/input_name_sofa"
-                android:onClick="@{productViewModel::onClickNameButton}"/>
+                    android:onClick="@{productViewModel::onClickNameButton}"/>
                 <Button
                     android:id="@+id/btn_name_work_table"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/btn_name_cabinet"
-                    android:layout_toEndOf="@id/btn_name_sofa"
                     android:text="@string/input_name_work_table"
                     android:onClick="@{productViewModel::onClickNameButton}"/>
                 <Button
                     android:id="@+id/btn_name_filebox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/btn_name_cabinet"
-                    android:layout_toEndOf="@id/btn_name_work_table"
                     android:text="@string/input_name_file_box"
                     android:onClick="@{productViewModel::onClickNameButton}"/>
-            </RelativeLayout>
+            </com.google.android.flexbox.FlexboxLayout>
 
             <!-- 제조사 -->
             <RelativeLayout
