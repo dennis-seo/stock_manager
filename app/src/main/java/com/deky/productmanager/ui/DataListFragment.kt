@@ -1,5 +1,6 @@
 package com.deky.productmanager.ui
 
+import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Rect
 import android.os.Bundle
@@ -12,18 +13,18 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.PagerAdapter
 import coil.api.load
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
-import com.deky.productmanager.database.entity.DEFAULT_DATE
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.BaseViewModel
-import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.ScreenUtils
 import kotlinx.android.synthetic.main.datalist_fragment.*
 import kotlinx.android.synthetic.main.datalist_item.view.*
+import kotlinx.android.synthetic.main.datalist_pager_recylerview_layout.view.*
 import java.io.File
 
 
@@ -42,12 +43,18 @@ class DataListFragment : BaseFragment() {
 
     private lateinit var dataModel: DataListViewModel
 
+    private val viewPagerAdapter by lazy {
+        DataListPagerAdapter()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        dataModel = ViewModelProvider(this, BaseViewModel.Factory(activity!!.application)).get(DataListViewModel::class.java)
+        dataModel = ViewModelProvider(this, BaseViewModel.Factory(activity!!.application)).get(
+            DataListViewModel::class.java
+        )
 
         dataBinding = DataBindingUtil.inflate<DatalistFragmentBinding>(
             inflater, R.layout.datalist_fragment, container, false
@@ -68,32 +75,10 @@ class DataListFragment : BaseFragment() {
         log.debug { "getProductList()" }
 
         dataModel.products.observe(this, Observer { products ->
-            log.debug { "getProductList.onChanged()" }
-            prepareRecyclerView(products)
+            log.debug { "getProductList.onChanged(), products = ${products.size}" }
+            datalist_viewpager.adapter = viewPagerAdapter
+            viewPagerAdapter.notifyDataSetChanged()
         })
-    }
-
-    private fun prepareRecyclerView(products: List<Product>) {
-        log.debug { "prepareRecyclerView()" }
-
-        product_recycler_view.apply {
-            val productsAdapter = ProductsAdapter(products)
-            productsAdapter.onItemClick = { product ->
-                fragmentManager?.let {
-                    val transaction = it.beginTransaction()
-                    transaction.replace(R.id.container, InputFragment.newInstance(product.id))
-                    transaction.addToBackStack(null).commitAllowingStateLoss()
-                }
-            }
-            productsAdapter.onItemLongClick = { product ->
-                showAlertDelete(product)
-            }
-
-            adapter = productsAdapter
-            layoutManager =  LinearLayoutManager(context)
-            addItemDecoration(ItemDecoration())
-            setHasFixedSize(true)
-        }
     }
 
     private fun showAlertDelete(product: Product) {
@@ -114,14 +99,16 @@ class DataListFragment : BaseFragment() {
         }
     }
 
-    class ProductsAdapter(private val products: List<Product>) : RecyclerView.Adapter<ProductsAdapter.ProductViewHolder>() {
+    class ProductsAdapter(private val products: List<Product>) :
+        RecyclerView.Adapter<ProductsAdapter.ProductViewHolder>() {
 
         var onItemClick: ((Product) -> Unit)? = null
         var onItemLongClick: ((Product) -> Unit)? = null
 
-         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-             return ProductViewHolder(
-                     LayoutInflater.from(parent.context).inflate(R.layout.datalist_item, parent, false))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
+            return ProductViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.datalist_item, parent, false)
+            )
         }
 
         override fun getItemCount(): Int {
@@ -142,7 +129,7 @@ class DataListFragment : BaseFragment() {
                     tv_manufacturer_value.text = product.manufacturer
                     tv_model_value.text = product.model
                     tv_size_value.text = product.size
-                    tv_condition_value.text = when(product.condition){
+                    tv_condition_value.text = when (product.condition) {
                         Condition.NONE -> ""
                         Condition.HIGH ->
                             resources.getString(R.string.text_condition_high)
@@ -188,7 +175,12 @@ class DataListFragment : BaseFragment() {
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+        override fun getItemOffsets(
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
             outRect.top = ScreenUtils.dipToPixel(context, 5f)
             outRect.bottom = ScreenUtils.dipToPixel(context, 5f)
             outRect.left = ScreenUtils.dipToPixel(context, 5f)
@@ -199,6 +191,57 @@ class DataListFragment : BaseFragment() {
             } else if (parent.getChildAdapterPosition(view) == 0) {
                 outRect.top = ScreenUtils.dipToPixel(context, 7.5f)
             }
+        }
+    }
+
+    inner class DataListPagerAdapter() : PagerAdapter() {
+        override fun isViewFromObject(view: View, `object`: Any): Boolean {
+            return view == `object`
+        }
+
+        override fun getCount(): Int {
+            val size = dataModel.products.value?.size ?: 0
+            return (size / 20) + 1
+        }
+
+        override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
+            if (any is View) container.removeView(any)
+        }
+
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
+            val inflater: LayoutInflater =
+                context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val view =
+                inflater.inflate(R.layout.datalist_pager_recylerview_layout, container, false)
+            val products = dataModel.products.value
+            val size = dataModel.products.value?.size ?: 0
+            val pageCnt = (size / 20) + 1
+            view.index_tv.text = "${position+1}/${pageCnt}"
+            val startPosition = position.times(20)
+            var endPosition = (position+1).times(20)
+            if (endPosition > products?.size?: 0) endPosition = products?.size?: 1
+            if(endPosition <= 0) endPosition = 1
+            val productsAdapter =
+                ProductsAdapter(products?.subList(startPosition, endPosition - 1) ?: ArrayList())
+            view.product_recycler_view.apply {
+                adapter = productsAdapter
+                productsAdapter.onItemClick = { product ->
+                    fragmentManager?.let {
+                        val transaction = it.beginTransaction()
+                        transaction.replace(R.id.container, InputFragment.newInstance(product.id))
+                        transaction.addToBackStack(null).commitAllowingStateLoss()
+                    }
+                }
+                productsAdapter.onItemLongClick = { product ->
+                    showAlertDelete(product)
+                }
+                productsAdapter.notifyDataSetChanged()
+                layoutManager = LinearLayoutManager(context)
+                addItemDecoration(ItemDecoration())
+                setHasFixedSize(true)
+            }
+            container.addView(view)
+            return view
         }
     }
 }

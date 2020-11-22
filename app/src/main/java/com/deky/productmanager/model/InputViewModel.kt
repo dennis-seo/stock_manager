@@ -107,7 +107,6 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         _products.value.amount = try {
             if (text.isNotEmpty()) text.toString().toInt() else 0
         } catch (e: NumberFormatException) {
-            Log.d("dayun","numberFormatException~")
             numberFormatExceptionEvent.postValue(_products.value.amount.toString())
             _products.value.amount
         }
