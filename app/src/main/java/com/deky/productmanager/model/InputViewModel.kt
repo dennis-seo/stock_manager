@@ -15,6 +15,7 @@ import com.deky.productmanager.database.repository.ProductRepository
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.NotNullMutableLiveData
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DEBUG_PROPERTY_VALUE_OFF
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.StringBuilder
@@ -206,7 +207,9 @@ class InputViewModel(application: Application): BaseViewModel(application) {
             repository.insert(_products.value)
             showToastMessage(R.string.message_success_save)
             manufactureDate.value = ""
-            _products.postValue(Product())
+            val newProduct = Product()
+            newProduct.location = _products.value.location
+            _products.postValue(newProduct)
         }
     }
 }
