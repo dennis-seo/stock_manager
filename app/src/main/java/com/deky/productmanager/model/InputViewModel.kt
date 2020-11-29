@@ -14,6 +14,8 @@ import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.database.repository.ProductRepository
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.NotNullMutableLiveData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.StringBuilder
 
@@ -186,9 +188,13 @@ class InputViewModel(application: Application): BaseViewModel(application) {
 
     // 삭제버튼
     fun onClickClear() {
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.delete(_products.value)
+            _products.postValue(Product())
+            showToastMessage(R.string.message_success_delete)
+        }
         manufactureDate.value = ""
-        _products.postValue(Product())
-        showToastMessage(R.string.message_success_delete)
+
     }
 
     // 저장버튼

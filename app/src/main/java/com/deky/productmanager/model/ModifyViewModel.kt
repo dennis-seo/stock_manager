@@ -14,6 +14,8 @@ import com.deky.productmanager.database.repository.ProductRepository
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.DateUtils
 import com.deky.productmanager.util.NotNullMutableLiveData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -147,7 +149,11 @@ class ModifyViewModel(application: Application): BaseViewModel(application) {
 
     // 삭제버튼
     fun onClickClear() {
-        _products.postValue(Product())
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.delete(_products.value)
+            _products.postValue(Product())
+            showToastMessage(R.string.message_success_delete)
+        }
         showToastMessage(R.string.message_success_delete)
     }
 
