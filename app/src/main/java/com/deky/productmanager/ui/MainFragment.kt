@@ -55,8 +55,8 @@ class MainFragment : BaseFragment() {
                 R.id.btn_input ->
                     transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
 
-//                R.id.btn_modify ->
-//                    transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
+                R.id.btn_main_category ->
+                    transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
 
                 R.id.btn_confirm ->
                     transaction.replace(R.id.container, DataListFragment.newInstance())
@@ -72,6 +72,7 @@ class MainFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        /* [테스트] 사진찍고 DB 저장
         btn_picture.setOnClickListener {
             takePictureByIntent { imageFile ->
                 if (imageFile.exists()) {
@@ -82,6 +83,7 @@ class MainFragment : BaseFragment() {
                 }
             }
         }
+        */
 
         btn_test.setOnClickListener {
             if (excelTask != null) return@setOnClickListener

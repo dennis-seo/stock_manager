@@ -45,7 +45,7 @@ class InputFragment : BaseFragment() {
     private var productId: Long = DEFAULT_PRODUCT_ID
     private lateinit var dataBinding: InputFragmentBinding
     private val viewModel: InputViewModel by lazy {
-        ViewModelProvider(this, BaseViewModel.Factory(activity!!.application)).get(InputViewModel::class.java)
+        ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application)).get(InputViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

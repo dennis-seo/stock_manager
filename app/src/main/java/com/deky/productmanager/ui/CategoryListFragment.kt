@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,10 +19,13 @@ import coil.api.load
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
+import com.deky.productmanager.databinding.CategoryFragmentBinding
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.BaseViewModel
+import com.deky.productmanager.model.CategoryListViewModel
 import com.deky.productmanager.util.ScreenUtils
+import kotlinx.android.synthetic.main.category_fragment.*
 import kotlinx.android.synthetic.main.datalist_fragment.*
 import kotlinx.android.synthetic.main.datalist_item.view.*
 import kotlinx.android.synthetic.main.datalist_pager_recylerview_layout.view.*
@@ -34,32 +38,25 @@ import java.io.File
 * Created by Dennis.Seo on 15/05/2020
 *
 */
-class DataListFragment : BaseFragment() {
+class CategoryListFragment : Fragment() {
     companion object {
-        fun newInstance() = DataListFragment()
+        fun newInstance() = CategoryListFragment()
     }
 
-    private lateinit var dataBinding: DatalistFragmentBinding
+    private lateinit var dataBinding: CategoryFragmentBinding
 
-    private lateinit var dataModel: DataListViewModel
+    private lateinit var viewModel: CategoryListViewModel
 
-    private val viewPagerAdapter by lazy {
-        DataListPagerAdapter()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application))
+            .get(CategoryListViewModel::class.java)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application)).get(
-            DataListViewModel::class.java
-        )
-
-        dataBinding = DataBindingUtil.inflate<DatalistFragmentBinding>(
-            inflater, R.layout.datalist_fragment, container, false
-        ).apply {
-            lifecycleOwner = this@DataListFragment
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        dataBinding = DataBindingUtil.inflate<CategoryFragmentBinding>(
+            inflater, R.layout.category_fragment, container, false).apply {
+            lifecycleOwner = this@CategoryListFragment
         }
 
         return dataBinding.root
@@ -67,22 +64,22 @@ class DataListFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        log.debug { "onViewCreated()" }
-        getProductList()
+
+        val categoryAdapter = CategoryAdapter(viewModel.mainCategory)
+        recycler_main_category.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = categoryAdapter
+        }
     }
 
-    private fun getProductList() {
-        log.debug { "getProductList()" }
-
-        dataModel.products.observe(this, Observer { products ->
-            log.debug { "getProductList.onChanged(), products = ${products.size}" }
-            datalist_viewpager.adapter = viewPagerAdapter
-            viewPagerAdapter.notifyDataSetChanged()
+    private fun getMainCategoryList() {
+        viewModel.mainCategory.observe(this, Observer { mainCategory ->
+            // subCategory 갱신
         })
     }
 
     private fun showAlertDelete(product: Product) {
-        log.debug { "showAlertDelete()" }
 
         context?.let {
             val builder = AlertDialog.Builder(it).apply {
@@ -90,7 +87,7 @@ class DataListFragment : BaseFragment() {
                 setPositiveButton(
                     R.string.btn_confirm,
                     DialogInterface.OnClickListener { _, _ ->
-                        dataModel.delete(product)
+                        viewModel.delete(product)
                     }
                 )
                 setNegativeButton(android.R.string.no, null)
@@ -99,8 +96,8 @@ class DataListFragment : BaseFragment() {
         }
     }
 
-    class ProductsAdapter(private val products: List<Product>) :
-        RecyclerView.Adapter<ProductsAdapter.ProductViewHolder>() {
+    class CategoryAdapter(private val category: List<String>) :
+        RecyclerView.Adapter<CategoryAdapter.ProductViewHolder>() {
 
         var onItemClick: ((Product) -> Unit)? = null
         var onItemLongClick: ((Product) -> Unit)? = null
@@ -160,16 +157,6 @@ class DataListFragment : BaseFragment() {
             }
 
             fun initialize() {
-                itemView.img_picture.load(R.drawable.ic_camera)
-                itemView.tv_location_value.text = ""
-                itemView.tv_name_value.text = ""
-                itemView.tv_manufacturer_value.text = ""
-                itemView.tv_model_value.text = ""
-                itemView.tv_size_value.text = ""
-                itemView.tv_condition_value.text = ""
-                itemView.tv_amount_value.text = ""
-                itemView.tv_manufacture_date_value.text = ""
-                itemView.tv_note_value.text = ""
             }
         }
     }
@@ -194,7 +181,7 @@ class DataListFragment : BaseFragment() {
         }
     }
 
-    inner class DataListPagerAdapter() : PagerAdapter() {
+    inner class CategoryListPagerAdapter() : PagerAdapter() {
         override fun isViewFromObject(view: View, `object`: Any): Boolean {
             return view == `object`
         }
