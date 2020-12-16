@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import com.deky.productmanager.R
+import com.deky.productmanager.database.CategoryDB
 import com.deky.productmanager.database.ProductDB
 import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.excel.ExcelConverterTask
@@ -56,7 +57,7 @@ class MainFragment : BaseFragment() {
                     transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
 
                 R.id.btn_main_category ->
-                    transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
+                    transaction.replace(R.id.container, CategoryListFragment.newInstance())
 
                 R.id.btn_confirm ->
                     transaction.replace(R.id.container, DataListFragment.newInstance())
@@ -67,6 +68,14 @@ class MainFragment : BaseFragment() {
 
     fun onClickDeleteButton() {
         showAlertDelete()
+    }
+
+    fun onClickInsertDataButton() {
+        context?.let { context ->
+            CategoryDB.getInstance(context).run {
+                setSampleDataSet()
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

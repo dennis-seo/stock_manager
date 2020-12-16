@@ -1,13 +1,10 @@
 package com.deky.productmanager.database.repository
 
 import android.app.Application
-import android.preference.PreferenceManager
 import androidx.lifecycle.LiveData
-import com.deky.productmanager.database.ProductDB
-import com.deky.productmanager.database.ProductDao
-import com.deky.productmanager.database.entity.Product
-import org.json.JSONArray
-import org.json.JSONException
+import com.deky.productmanager.database.CategoryDB
+import com.deky.productmanager.database.CategoryDao
+import com.deky.productmanager.database.entity.Category
 
 
 /*
@@ -18,26 +15,26 @@ import org.json.JSONException
 */
 class CategoryRepository(application: Application) {
 
-    private var productDao: ProductDao
+    private var categoryDao: CategoryDao
 
     init {
-        val database = ProductDB.getInstance(application.applicationContext)
-        productDao = database.productDao()
+        val database = CategoryDB.getInstance(application.applicationContext)
+        categoryDao = database.categoryDao()
     }
 
-    suspend fun insert(product: Product) {
-        productDao.insert(product)
+    suspend fun insert(product: Category) {
+        categoryDao.insert(product)
     }
 
-    suspend fun delete(product: Product) {
-        productDao.delete(product)
+    suspend fun delete(product: Category) {
+        categoryDao.delete(product)
     }
 
-    fun getProductById(productId: Long): Product {
-        return productDao.getProductById(productId)
+    fun getProductByParentId(parentId: String): LiveData<List<Category>> {
+        return categoryDao.getCategoryByParentId(parentId)
     }
 
-    fun getAllProducts(): LiveData<List<Product>> {
-        return productDao.getAllProducts()
+    fun getMainCategory(): LiveData<List<Category>> {
+        return categoryDao.getMainCategory()
     }
 }

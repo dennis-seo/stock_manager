@@ -1,35 +1,38 @@
 package com.deky.productmanager.ui
 
-import android.content.Context
 import android.content.DialogInterface
-import android.graphics.Rect
+import android.media.Image
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.selection.*
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.PagerAdapter
-import coil.api.load
 import com.deky.productmanager.R
-import com.deky.productmanager.database.entity.Condition
-import com.deky.productmanager.database.entity.Product
+import com.deky.productmanager.database.entity.Category
 import com.deky.productmanager.databinding.CategoryFragmentBinding
-import com.deky.productmanager.databinding.DatalistFragmentBinding
-import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.model.CategoryListViewModel
-import com.deky.productmanager.util.ScreenUtils
+import com.deky.productmanager.util.DKLog
+import com.deky.productmanager.util.simpleTag
 import kotlinx.android.synthetic.main.category_fragment.*
 import kotlinx.android.synthetic.main.datalist_fragment.*
 import kotlinx.android.synthetic.main.datalist_item.view.*
 import kotlinx.android.synthetic.main.datalist_pager_recylerview_layout.view.*
-import java.io.File
+import java.util.logging.LogManager
 
 
 /*
@@ -40,12 +43,14 @@ import java.io.File
 */
 class CategoryListFragment : Fragment() {
     companion object {
+        private const val TAG = "CategoryListFragment"
         fun newInstance() = CategoryListFragment()
     }
 
     private lateinit var dataBinding: CategoryFragmentBinding
-
     private lateinit var viewModel: CategoryListViewModel
+
+    private var selectionTracker : SelectionTracker<Long>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,21 +70,47 @@ class CategoryListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val categoryAdapter = CategoryAdapter(viewModel.mainCategory)
+        val categoryAdapter = CategoryAdapter()
         recycler_main_category.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = categoryAdapter
+//            (adapter as CategoryAdapter).tracker = selectionTracker
+        }
+
+        initTracker()
+        (recycler_main_category.adapter as CategoryAdapter).tracker = selectionTracker
+
+        viewModel.mainCategory.observe(this, Observer { mainCategory ->
+            categoryAdapter.submitList(mainCategory)
+        })
+
+        val a = viewModel.mainCategory.value
+        for(category in a) {
+
         }
     }
 
-    private fun getMainCategoryList() {
-        viewModel.mainCategory.observe(this, Observer { mainCategory ->
-            // subCategory 갱신
+    private fun initTracker() {
+        selectionTracker = SelectionTracker.Builder<Long>(
+            "id",
+            recycler_main_category,
+            StableIdKeyProvider(recycler_main_category),
+            SelectionDetailsLookup(recycler_main_category),
+            StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(SelectionPredicates.createSelectSingleAnything()).build()
+
+        selectionTracker?.addObserver(object: SelectionTracker.SelectionObserver<Long>() {
+            override fun onItemStateChanged(key: Long, selected: Boolean) {
+                // TODO
+                DKLog.debug(TAG) {"onItemStateChanged() - key : $key  /   selected : $selected"}
+                super.onItemStateChanged(key, selected)
+            }
         })
     }
 
-    private fun showAlertDelete(product: Product) {
+
+    private fun showAlertDelete(category: Category) {
 
         context?.let {
             val builder = AlertDialog.Builder(it).apply {
@@ -87,7 +118,7 @@ class CategoryListFragment : Fragment() {
                 setPositiveButton(
                     R.string.btn_confirm,
                     DialogInterface.OnClickListener { _, _ ->
-                        viewModel.delete(product)
+                        viewModel.delete(category)
                     }
                 )
                 setNegativeButton(android.R.string.no, null)
@@ -96,139 +127,72 @@ class CategoryListFragment : Fragment() {
         }
     }
 
-    class CategoryAdapter(private val category: List<String>) :
-        RecyclerView.Adapter<CategoryAdapter.ProductViewHolder>() {
+    private inner class CategoryAdapter :
+        ListAdapter<Category, CategoryAdapter.CategoryViewHolder>(diffItemCallback) {
 
-        var onItemClick: ((Product) -> Unit)? = null
-        var onItemLongClick: ((Product) -> Unit)? = null
+        var tracker: SelectionTracker<Long>? = null
+        var onItemClick: ((Category) -> Unit)? = null
+        var onItemLongClick: ((Category) -> Unit)? = null
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-            return ProductViewHolder(
-                LayoutInflater.from(parent.context).inflate(R.layout.datalist_item, parent, false)
+        init {
+            setHasStableIds(true)
+        }
+
+        override fun getItemId(position: Int): Long {
+            return getItem(position).id
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
+            return CategoryViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.category_list_item, parent, false)
             )
         }
 
-        override fun getItemCount(): Int {
-            return products.count()
-        }
 
-        override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-            products[position].let { product ->
-                holder.initialize()
-
-                with(holder.itemView) {
-                    File(product.imagePath).takeIf { it.exists() }?.let { imageFile ->
-                        img_picture.load(imageFile)
-                    }
-
-                    tv_location_value.text = product.location
-                    tv_name_value.text = product.name
-                    tv_manufacturer_value.text = product.manufacturer
-                    tv_model_value.text = product.model
-                    tv_size_value.text = product.size
-                    tv_condition_value.text = when (product.condition) {
-                        Condition.NONE -> ""
-                        Condition.HIGH ->
-                            resources.getString(R.string.text_condition_high)
-                        Condition.MIDDLE ->
-                            resources.getString(R.string.text_condition_middle)
-                        Condition.LOW ->
-                            resources.getString(R.string.text_condition_low)
-                    }
-                    tv_amount_value.text = product.amount.toString()
-                    val strDate = product.manufactureDate
-                    tv_manufacture_date_value.text = strDate
-                    tv_note_value.text = product.note
-                }
+        override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
+            tracker?.let {
+                holder.bind(getItem(position), it.isSelected(position.toLong()))
             }
         }
 
-        inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            init {
-                initialize()
+        inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val containerItem by lazy { itemView.findViewById(R.id.container_category_item)  as LinearLayout}
+            val tvName: TextView by lazy { itemView.findViewById(R.id.tv_category_name) as TextView }
+            val btnDelete: ImageButton by lazy { itemView.findViewById(R.id.btn_category_delete) as ImageButton}
 
-                itemView.setOnClickListener {
-                    onItemClick?.invoke(products[adapterPosition])
-                }
-                itemView.setOnLongClickListener {
-                    onItemLongClick?.invoke(products[adapterPosition])
-                    return@setOnLongClickListener true
-                }
+            fun bind(category: Category, isSelected: Boolean) {
+                tvName.text = category.name
+                containerItem.isSelected = isSelected
             }
 
-            fun initialize() {
-            }
+            fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
+                object : ItemDetailsLookup.ItemDetails<Long>() {
+                    override fun getPosition(): Int = adapterPosition
+                    override fun getSelectionKey(): Long? = itemId
+                }
         }
     }
 
-    inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        override fun getItemOffsets(
-            outRect: Rect,
-            view: View,
-            parent: RecyclerView,
-            state: RecyclerView.State
-        ) {
-            outRect.top = ScreenUtils.dipToPixel(context, 5f)
-            outRect.bottom = ScreenUtils.dipToPixel(context, 5f)
-            outRect.left = ScreenUtils.dipToPixel(context, 5f)
-            outRect.right = ScreenUtils.dipToPixel(context, 5f)
-
-            if (parent.getChildAdapterPosition(view) == parent.adapter!!.itemCount - 1) {
-                outRect.bottom = ScreenUtils.dipToPixel(context, 7.5f)
-            } else if (parent.getChildAdapterPosition(view) == 0) {
-                outRect.top = ScreenUtils.dipToPixel(context, 7.5f)
+    class SelectionDetailsLookup(private val recyclerView: RecyclerView) : ItemDetailsLookup<Long>() {
+        override fun getItemDetails(event: MotionEvent): ItemDetails<Long>? {
+            val view = recyclerView.findChildViewUnder(event.x, event.y)
+            if (view != null) {
+                return (recyclerView.getChildViewHolder(view) as CategoryAdapter.CategoryViewHolder)
+                    .getItemDetails()
             }
+            return null
         }
     }
 
-    inner class CategoryListPagerAdapter() : PagerAdapter() {
-        override fun isViewFromObject(view: View, `object`: Any): Boolean {
-            return view == `object`
+    private val diffItemCallback = object : DiffUtil.ItemCallback<Category>() {
+
+        override fun areItemsTheSame(oldItem: Category, newItem: Category): Boolean {
+            return oldItem.id == newItem.id
         }
 
-        override fun getCount(): Int {
-            val size = dataModel.products.value?.size ?: 0
-            return (size / 20) + 1
-        }
-
-        override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
-            if (any is View) container.removeView(any)
-        }
-
-        override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val inflater: LayoutInflater =
-                context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val view =
-                inflater.inflate(R.layout.datalist_pager_recylerview_layout, container, false)
-            val products = dataModel.products.value
-            val size = dataModel.products.value?.size ?: 0
-            val pageCnt = (size / 20) + 1
-            view.index_tv.text = "${position+1}/${pageCnt}"
-            val startPosition = position.times(20)
-            var endPosition = (position+1).times(20)
-            if (endPosition > products?.size?: 0) endPosition = products?.size?: 1
-            if(endPosition <= 0) endPosition = 1
-            val productsAdapter =
-                ProductsAdapter(products?.subList(startPosition, endPosition - 1) ?: ArrayList())
-            view.product_recycler_view.apply {
-                adapter = productsAdapter
-                productsAdapter.onItemClick = { product ->
-                    fragmentManager?.let {
-                        val transaction = it.beginTransaction()
-                        transaction.replace(R.id.container, InputFragment.newInstance(product.id))
-                        transaction.addToBackStack(null).commitAllowingStateLoss()
-                    }
-                }
-                productsAdapter.onItemLongClick = { product ->
-                    showAlertDelete(product)
-                }
-                productsAdapter.notifyDataSetChanged()
-                layoutManager = LinearLayoutManager(context)
-                addItemDecoration(ItemDecoration())
-                setHasFixedSize(true)
-            }
-            container.addView(view)
-            return view
+        override fun areContentsTheSame(oldItem: Category, newItem: Category): Boolean {
+            return oldItem == newItem
         }
     }
+
 }

@@ -17,14 +17,20 @@ import com.deky.productmanager.database.entity.Product
 
 @Dao
 interface CategoryDao {
-    @Query("SELECT * FROM Category")
-    fun getAll(): List<Category>
-
-    @Query("SELECT * FROM Category WHERE _id = :parentId")
-    fun getCategoryByParentId(parentId: Long): Product
-
-    @Query("SELECT * FROM Category ORDER BY _id DESC")
+    @Query("SELECT * FROM Category WHERE parentCategory = null")
     fun getMainCategory(): LiveData<List<Category>>
+
+    @Query("SELECT * FROM Category WHERE parentCategory = :parentId")
+    fun getCategoryByParentId(parentId: String): LiveData<List<Category>>
+
+//    @Query("SELECT * FROM Category WHERE _id = :id")
+//    fun getCategoryById(id: Long): Category
+
+//    @Query("SELECT * FROM Category ORDER BY _id DESC")
+//    fun getMainCategory(): LiveData<List<Category>>
+
+    @Insert(onConflict = REPLACE)
+    fun insert(category: Category)
 
     @Delete
     fun delete(category: Category)

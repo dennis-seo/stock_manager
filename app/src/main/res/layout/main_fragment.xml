@@ -29,11 +29,11 @@
             app:layout_constraintHorizontal_bias="0.3" />
 
         <Button
-            android:id="@+id/btn_sub_category"
+            android:id="@+id/btn_insert_data"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_data_sub_category"
-            android:onClick="@{listener::onClickButton}"
+            android:text="@string/btn_data_insert_category"
+            android:onClick="@{() -> listener.onClickInsertDataButton()}"
             android:visibility="visible"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -76,6 +76,7 @@
             android:layout_height="wrap_content"
             android:text="@string/btn_data_main_category"
             android:visibility="visible"
+            android:onClick="@{listener::onClickButton}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.7"
             app:layout_constraintLeft_toLeftOf="parent"

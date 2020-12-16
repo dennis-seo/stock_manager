@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -24,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_weight="0.5f">
+            android:layout_weight="0.5">
 
             <EditText
                 android:id="@+id/ed_main_category"
@@ -34,7 +35,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_main_category"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                tools:listitem="@layout/category_list_item">
             </androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
 
@@ -43,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_weight="0.5f">
+            android:layout_weight="0.5">
 
             <EditText
                 android:id="@+id/ed_sub_category"
@@ -53,7 +55,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_sub_category"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                tools:listitem="@layout/category_list_item">
             </androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
 

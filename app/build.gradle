@@ -76,5 +76,7 @@ dependencies {
     // coil (Image loader)
     implementation("io.coil-kt:coil:0.10.0")
 
+    // ui
     implementation 'com.google.android:flexbox:1.1.1'
+    implementation 'androidx.recyclerview:recyclerview-selection:1.0.0'
 }

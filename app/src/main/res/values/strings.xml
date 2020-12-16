@@ -4,8 +4,8 @@
 
     <string name="app_name">Product Manager</string>
     <string name="btn_data_insert">내용입력</string>
-    <string name="btn_data_main_category">대분류 관</string>
-    <string name="btn_data_sub_category">소분류 관리</string>
+    <string name="btn_data_main_category">대분류 관리</string>
+    <string name="btn_data_insert_category">카테고리 데이터 삽입</string>
     <string name="btn_data_confirm">내용 확인</string>
     <string name="btn_data_remove">전체삭제</string>
     <string name="btn_picture">사진찍기</string>
@@ -52,7 +52,8 @@
     <string name="message_invalid_date">제조일 정보가 정확하지 않습니다.</string>
     <string name="message_success_save">자료가 저장되었습니다.</string>
     <string name="message_success_delete">자료가 삭제되었습니다.</string>
-    <string name="message_alert_delete_data">선택하신 데이터를 삭제하시겠습니까?</string>
+    <string name="message_alert_delete_data">선택하신 항목 삭제하시겠습니까?</string>
     <string name="message_alert_delete_all">저장된 모든 데이터를 삭제하시겠습니까?</string>
     <string name="message_toast_input_value_only_number">숫자만 입력해 주세요.</string>
+
 </resources>
