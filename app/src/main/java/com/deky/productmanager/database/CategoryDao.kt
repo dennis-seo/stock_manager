@@ -17,11 +17,11 @@ import com.deky.productmanager.database.entity.Product
 
 @Dao
 interface CategoryDao {
-    @Query("SELECT * FROM Category WHERE parentCategory = null")
+    @Query("SELECT * FROM Category WHERE parentCategory = -1")
     fun getMainCategory(): LiveData<List<Category>>
 
     @Query("SELECT * FROM Category WHERE parentCategory = :parentId")
-    fun getCategoryByParentId(parentId: String): LiveData<List<Category>>
+    fun getCategoryByParentId(parentId: Long): LiveData<List<Category>>
 
 //    @Query("SELECT * FROM Category WHERE _id = :id")
 //    fun getCategoryById(id: Long): Category

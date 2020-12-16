@@ -14,12 +14,12 @@ import java.util.*
 
 @Entity(tableName = "category")
 data class Category(
-    @ColumnInfo(name = "parentCategory") var parentCategory: String = "",
+    @ColumnInfo(name = "parentCategory") var parentCategory: Long = -1,
     @ColumnInfo(name = "name") var name: String = ""
 ) : BaseEntity() {
     override fun toString(): String {
         return buildString {
-            append("Product {").append("\n")
+            append("Category {").append("\n")
             append("ParentCategory : $parentCategory".prependIndent(1)).append("\n")
             append("Name : $name".prependIndent(1)).append("\n")
             append("}")

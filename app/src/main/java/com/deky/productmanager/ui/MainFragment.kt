@@ -75,6 +75,8 @@ class MainFragment : BaseFragment() {
             CategoryDB.getInstance(context).run {
                 setSampleDataSet()
             }
+            val count = CategoryDB.getInstance(context).categoryDao().getCount()
+            log.debug { "count : $count " }
         }
     }
 

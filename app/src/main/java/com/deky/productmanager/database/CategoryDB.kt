@@ -11,8 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
-import java.io.File
-import java.util.*
 import kotlin.random.Random
 
 
@@ -64,16 +62,34 @@ abstract class CategoryDB : RoomDatabase() {
                 dao.deleteAll()
 
                 // 가상 데이터 입력
-                for (index in 1..10) {
-                    dao.insert(createSampleData(index))
+                val limit = Random.nextInt(0, 10)
+                for (index in 1..limit) {
+                    val category = createCategoryData(index)
+                    DKLog.debug(TAG) { "insert sample category : $category"}
+                    dao.insert(category)
+
+                    val parentId = category.id
+                    DKLog.debug(TAG) { "parentId : $parentId"}
+                    val subLimit = Random.nextInt(0, 10)
+                    for (index in 1..subLimit) {
+                        val subCategory = createSubCategoryData(parentId, index)
+                        DKLog.debug(TAG) { "insert sub category : $subCategory"}
+                        dao.insert(subCategory)
+                    }
                 }
             }
         }
     }
 
     @TestOnly
-    fun createSampleData(index: Int): Category {
-        DKLog.debug(TAG) { "createSampleData()" }
-        return Category("", "test $index")
+    fun createCategoryData(index: Int): Category {
+        DKLog.debug(TAG) { "createCategoryData()" }
+        return Category(-1, "test $index")
+    }
+
+    @TestOnly
+    fun createSubCategoryData(parentId: Long, index: Int): Category {
+        DKLog.debug(TAG) { "createSubCategoryData()" }
+        return Category(parentId, "subCategory $parentId - ${100+index}")
     }
 }

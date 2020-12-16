@@ -1,14 +1,13 @@
 package com.deky.productmanager.ui
 
 import android.content.DialogInterface
-import android.media.Image
+import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -27,12 +26,10 @@ import com.deky.productmanager.databinding.CategoryFragmentBinding
 import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.model.CategoryListViewModel
 import com.deky.productmanager.util.DKLog
-import com.deky.productmanager.util.simpleTag
 import kotlinx.android.synthetic.main.category_fragment.*
 import kotlinx.android.synthetic.main.datalist_fragment.*
 import kotlinx.android.synthetic.main.datalist_item.view.*
 import kotlinx.android.synthetic.main.datalist_pager_recylerview_layout.view.*
-import java.util.logging.LogManager
 
 
 /*
@@ -50,7 +47,8 @@ class CategoryListFragment : Fragment() {
     private lateinit var dataBinding: CategoryFragmentBinding
     private lateinit var viewModel: CategoryListViewModel
 
-    private var selectionTracker : SelectionTracker<Long>? = null
+    private lateinit var mainCategoryAdapter: CategoryAdapter
+    private lateinit var subCategoryAdapter: CategoryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,29 +68,35 @@ class CategoryListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val categoryAdapter = CategoryAdapter()
+        mainCategoryAdapter = CategoryAdapter()
+        subCategoryAdapter = CategoryAdapter()
+
         recycler_main_category.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
-            adapter = categoryAdapter
-//            (adapter as CategoryAdapter).tracker = selectionTracker
+            adapter = mainCategoryAdapter
+        }
+        recycler_sub_category.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = subCategoryAdapter
         }
 
-        initTracker()
-        (recycler_main_category.adapter as CategoryAdapter).tracker = selectionTracker
+        (recycler_main_category.adapter as CategoryAdapter).tracker = getTracker()
 
-        viewModel.mainCategory.observe(this, Observer { mainCategory ->
-            categoryAdapter.submitList(mainCategory)
+        viewModel.mainCategory.observe(viewLifecycleOwner, Observer { mainCategory ->
+            DKLog.debug(TAG) { "mainCategory update : ${mainCategory.size}"}
+            mainCategoryAdapter.submitList(mainCategory)
         })
 
-        val a = viewModel.mainCategory.value
-        for(category in a) {
-
-        }
+        viewModel.subCategory?.observe(viewLifecycleOwner, Observer { subCategory ->
+            DKLog.debug(TAG) { "subCategory update : ${subCategory.size}"}
+            subCategoryAdapter.submitList(subCategory)
+        })
     }
 
-    private fun initTracker() {
-        selectionTracker = SelectionTracker.Builder<Long>(
+    private fun getTracker(): SelectionTracker<Long> {
+        val selectionTracker = SelectionTracker.Builder<Long>(
             "id",
             recycler_main_category,
             StableIdKeyProvider(recycler_main_category),
@@ -101,12 +105,18 @@ class CategoryListFragment : Fragment() {
         ).withSelectionPredicate(SelectionPredicates.createSelectSingleAnything()).build()
 
         selectionTracker?.addObserver(object: SelectionTracker.SelectionObserver<Long>() {
-            override fun onItemStateChanged(key: Long, selected: Boolean) {
-                // TODO
-                DKLog.debug(TAG) {"onItemStateChanged() - key : $key  /   selected : $selected"}
-                super.onItemStateChanged(key, selected)
+            override fun onItemStateChanged(id: Long, selected: Boolean) {
+                DKLog.debug(TAG) {"onItemStateChanged() - category id : $id  /   selected : $selected"}
+                // TODO 소분류 항목 업데이트
+                if(selected) {
+                    viewModel.updateSubCategory(id)
+                } else {
+                    viewModel.clearSubCategory()
+                }
+                super.onItemStateChanged(id, selected)
             }
         })
+        return selectionTracker
     }
 
 
@@ -151,18 +161,25 @@ class CategoryListFragment : Fragment() {
 
         override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
             tracker?.let {
-                holder.bind(getItem(position), it.isSelected(position.toLong()))
+                val category = getItem(position)
+                holder.bind(category, it.isSelected(category.id))
             }
         }
 
         inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val containerItem by lazy { itemView.findViewById(R.id.container_category_item)  as LinearLayout}
             val tvName: TextView by lazy { itemView.findViewById(R.id.tv_category_name) as TextView }
-            val btnDelete: ImageButton by lazy { itemView.findViewById(R.id.btn_category_delete) as ImageButton}
+            val btnDelete: ImageView by lazy { itemView.findViewById(R.id.btn_category_delete) as ImageView }
 
             fun bind(category: Category, isSelected: Boolean) {
+                DKLog.debug(TAG) { "category name : ${category.parentCategory}-${category.id}-${category.name} / $isSelected"}
+
                 tvName.text = category.name
-                containerItem.isSelected = isSelected
+                if(isSelected) {
+                    containerItem.setBackgroundColor(Color.BLUE)
+                } else {
+                    containerItem.setBackgroundColor(Color.TRANSPARENT)
+                }
             }
 
             fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
@@ -183,6 +200,8 @@ class CategoryListFragment : Fragment() {
             return null
         }
     }
+
+
 
     private val diffItemCallback = object : DiffUtil.ItemCallback<Category>() {
 

@@ -22,15 +22,15 @@ class CategoryRepository(application: Application) {
         categoryDao = database.categoryDao()
     }
 
-    suspend fun insert(product: Category) {
-        categoryDao.insert(product)
+    suspend fun insert(category: Category) {
+        categoryDao.insert(category)
     }
 
-    suspend fun delete(product: Category) {
-        categoryDao.delete(product)
+    suspend fun delete(category: Category) {
+        categoryDao.delete(category)
     }
 
-    fun getProductByParentId(parentId: String): LiveData<List<Category>> {
+    fun getProductByParentId(parentId: Long): LiveData<List<Category>> {
         return categoryDao.getCategoryByParentId(parentId)
     }
 

@@ -27,11 +27,25 @@
             android:orientation="vertical"
             android:layout_weight="0.5">
 
-            <EditText
-                android:id="@+id/ed_main_category"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/text_main_category_title"/>
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/ed_main_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:hint="@string/text_main_category_title"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/ic_round_category_add_24"/>
+            </LinearLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_main_category"
                 android:layout_width="match_parent"
@@ -47,11 +61,24 @@
             android:orientation="vertical"
             android:layout_weight="0.5">
 
-            <EditText
-                android:id="@+id/ed_sub_category"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/text_sub_category_title"/>
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/ed_sub_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/text_sub_category_title"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/ic_round_category_add_24"/>
+            </LinearLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_sub_category"
                 android:layout_width="match_parent"
