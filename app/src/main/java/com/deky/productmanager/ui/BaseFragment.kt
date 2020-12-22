@@ -2,13 +2,17 @@ package com.deky.productmanager.ui
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import com.deky.productmanager.util.FileUtils
 import com.deky.productmanager.util.DKLog
+import com.deky.productmanager.util.FileUtils
 import com.deky.productmanager.util.simpleTag
 import java.io.File
+import java.io.FileOutputStream
+
 
 /**
  * Copyright (C) 2020 Kakao corp. All rights reserved.
@@ -66,6 +70,10 @@ abstract class BaseFragment : Fragment() {
             REQUEST_IMAGE_CAPTURE -> {
                 if (resultCode == Activity.RESULT_OK) {
                     imageReq?.run {
+                        val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+                        val fos = FileOutputStream(imageFile)
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos)
+
                         log.debug {
                             buildString {
                                 append("onActivityResult() - REQUEST_IMAGE_CAPTURE").append("\n")
