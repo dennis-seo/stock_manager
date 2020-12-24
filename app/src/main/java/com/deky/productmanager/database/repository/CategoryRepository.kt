@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import com.deky.productmanager.database.CategoryDB
 import com.deky.productmanager.database.CategoryDao
 import com.deky.productmanager.database.entity.Category
+import com.deky.productmanager.util.DKLog
 
 
 /*
@@ -24,17 +25,27 @@ class CategoryRepository(application: Application) {
 
     suspend fun insert(category: Category) {
         categoryDao.insert(category)
+        DKLog.debug("bbong") { "Repository > insert : $category"}
     }
 
     suspend fun delete(category: Category) {
         categoryDao.delete(category)
     }
 
-    fun getProductByParentId(parentId: Long): LiveData<List<Category>> {
+//    fun getCategoryByParentId(parentId: Long): LiveData<List<Category>> {
+//        return categoryDao.getCategoryByParentId(parentId)
+//    }
+
+    fun getCategoryByParentId(parentId: Long): List<Category> {
         return categoryDao.getCategoryByParentId(parentId)
     }
 
+
     fun getMainCategory(): LiveData<List<Category>> {
         return categoryDao.getMainCategory()
+    }
+
+    fun getCategoryAll(): List<Category> {
+        return categoryDao.getCategoryAll()
     }
 }

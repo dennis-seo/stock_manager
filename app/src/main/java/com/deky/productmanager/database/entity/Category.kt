@@ -20,6 +20,7 @@ data class Category(
     override fun toString(): String {
         return buildString {
             append("Category {").append("\n")
+            append("id : $id".prependIndent(1)).append("\n")
             append("ParentCategory : $parentCategory".prependIndent(1)).append("\n")
             append("Name : $name".prependIndent(1)).append("\n")
             append("}")
