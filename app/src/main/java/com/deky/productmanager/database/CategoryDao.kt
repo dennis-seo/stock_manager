@@ -26,6 +26,12 @@ interface CategoryDao {
     @Query("SELECT * FROM Category WHERE parentCategory = :parentId")
     fun getCategoryByParentId(parentId: Long): List<Category>
 
+    @Query("SELECT * FROM Category WHERE parentCategory = :parentId")
+    fun getCategoryLiveDataByParentId(parentId: Long): LiveData<List<Category>>
+
+    @Query("SELECT * FROM Category WHERE _id = :id")
+    fun getCategoryById(id: Long): Category
+
     @Query("SELECT * FROM Category")
     fun getCategoryAll(): List<Category>
 

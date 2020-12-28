@@ -40,6 +40,10 @@ class CategoryRepository(application: Application) {
         return categoryDao.getCategoryByParentId(parentId)
     }
 
+    fun getCategoryLiveDataByParentId(parentId: Long): LiveData<List<Category>> {
+        return categoryDao.getCategoryLiveDataByParentId(parentId)
+    }
+
 
     fun getMainCategory(): LiveData<List<Category>> {
         return categoryDao.getMainCategory()
@@ -47,5 +51,9 @@ class CategoryRepository(application: Application) {
 
     fun getCategoryAll(): List<Category> {
         return categoryDao.getCategoryAll()
+    }
+
+    fun getCategoryById(id: Long): Category {
+        return categoryDao.getCategoryById(id)
     }
 }

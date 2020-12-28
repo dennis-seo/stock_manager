@@ -111,66 +111,26 @@
                     android:selectAllOnFocus="true"
                     android:text="@{productViewModel.products.name}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onNameChange(text)}" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_toEndOf="@id/et_input_name"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/clear"
+                    android:onClick="@{productViewModel::setClearProductName}"/>
             </RelativeLayout>
 
             <!-- 품명 목록 -->
             <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/productname_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="10dp"
                 app:flexDirection="row"
                 app:flexWrap="wrap"
                 app:alignContent="flex_start"
                 app:justifyContent="center">
-
-                <Button
-                    android:id="@+id/btn_name_cabinet"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/input_name_cabinet"
-                    android:onClick="@{productViewModel::onClickNameButton}"/>
-                <Button
-                    android:id="@+id/btn_name_table"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/input_name_table"
-                    android:onClick="@{productViewModel::onClickNameButton}"/>
-                <Button
-                    android:id="@+id/btn_name_round_table"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/input_name_round_table"
-                    android:onClick="@{productViewModel::onClickNameButton}"/>
-                <Button
-                    android:id="@+id/btn_name_chair"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/input_name_chair"
-                    android:onClick="@{productViewModel::onClickNameButton}"/>
-                <Button
-                    android:id="@+id/btn_name_foldable_chair"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/input_name_foldable_chair"
-                    android:onClick="@{productViewModel::onClickNameButton}"/>
-                <Button
-                    android:id="@+id/btn_name_sofa"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/btn_name_cabinet"
-                    android:text="@string/input_name_sofa"
-                    android:onClick="@{productViewModel::onClickNameButton}"/>
-                <Button
-                    android:id="@+id/btn_name_work_table"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/input_name_work_table"
-                    android:onClick="@{productViewModel::onClickNameButton}"/>
-                <Button
-                    android:id="@+id/btn_name_filebox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/input_name_file_box"
-                    android:onClick="@{productViewModel::onClickNameButton}"/>
             </com.google.android.flexbox.FlexboxLayout>
 
             <!-- 제조사 -->
