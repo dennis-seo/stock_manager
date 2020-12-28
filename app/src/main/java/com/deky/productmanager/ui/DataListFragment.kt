@@ -52,7 +52,7 @@ class DataListFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        dataModel = ViewModelProvider(this, BaseViewModel.Factory(activity!!.application)).get(
+        dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application)).get(
             DataListViewModel::class.java
         )
 

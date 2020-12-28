@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import com.deky.productmanager.R
+import com.deky.productmanager.database.CategoryDB
 import com.deky.productmanager.database.ProductDB
 import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.excel.ExcelConverterTask
@@ -55,8 +56,8 @@ class MainFragment : BaseFragment() {
                 R.id.btn_input ->
                     transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
 
-//                R.id.btn_modify ->
-//                    transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
+                R.id.btn_main_category ->
+                    transaction.replace(R.id.container, CategoryListFragment.newInstance())
 
                 R.id.btn_confirm ->
                     transaction.replace(R.id.container, DataListFragment.newInstance())
@@ -69,9 +70,20 @@ class MainFragment : BaseFragment() {
         showAlertDelete()
     }
 
+    fun onClickInsertDataButton() {
+        context?.let { context ->
+            CategoryDB.getInstance(context).run {
+                setSampleDataSet()
+            }
+            val count = CategoryDB.getInstance(context).categoryDao().getCount()
+            log.debug { "count : $count " }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        /* [테스트] 사진찍고 DB 저장
         btn_picture.setOnClickListener {
             takePictureByIntent { imageFile ->
                 if (imageFile.exists()) {
@@ -82,6 +94,7 @@ class MainFragment : BaseFragment() {
                 }
             }
         }
+        */
 
         btn_test.setOnClickListener {
             if (excelTask != null) return@setOnClickListener

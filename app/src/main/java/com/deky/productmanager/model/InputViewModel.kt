@@ -1,24 +1,26 @@
 package com.deky.productmanager.model
 
 import android.app.Application
-import android.util.Log
+import android.text.TextUtils
 import android.view.View
 import android.widget.Button
+import androidx.arch.core.util.Function
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.R
+import com.deky.productmanager.database.entity.Category
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.DEFAULT_SIZE
 import com.deky.productmanager.database.entity.Product
+import com.deky.productmanager.database.repository.CategoryRepository
 import com.deky.productmanager.database.repository.ProductRepository
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.NotNullMutableLiveData
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DEBUG_PROPERTY_VALUE_OFF
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.StringBuilder
 
 
 class InputViewModel(application: Application): BaseViewModel(application) {
@@ -27,12 +29,30 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     }
 
     private var repository: ProductRepository = ProductRepository(application)
+    private var productNameRepository: CategoryRepository = CategoryRepository(application)
 
     private val _products: NotNullMutableLiveData<Product> = NotNullMutableLiveData(Product())
     val products: LiveData<Product> = _products
 
+
     var manufactureDate: MutableLiveData<String> = MutableLiveData()        // 제조일자
     val numberFormatExceptionEvent: MutableLiveData<String> = MutableLiveData() // 수량 입력시 숫자 아닌거 입력했을때 처리
+
+    // 품명
+    var categoryParentId = MutableLiveData<Long>()
+    val productNameList :LiveData<List<Category>>
+
+    init {
+        productNameList = Transformations.switchMap(
+            categoryParentId,
+            Function<Long?, LiveData<List<Category>>> { parentId ->
+                if(parentId == null || parentId == -1L) {
+                    return@Function productNameRepository.getMainCategory()
+                }
+                return@Function productNameRepository.getCategoryLiveDataByParentId(parentId)
+            }
+        )
+    }
 
     fun loadProductData(productId: Long) {
         val loadProduct = repository.getProductById(productId)
@@ -51,6 +71,16 @@ class InputViewModel(application: Application): BaseViewModel(application) {
             }
         }
         return ""
+    }
+
+    fun setClearProductName(view: View) {
+        categoryParentId.postValue(-1L)
+        _products.value.name = ""
+        _products.postValue(_products.value)
+    }
+
+    fun getCategory(): Category {
+        return productNameRepository.getCategoryById(categoryParentId.value ?: -1L)
     }
 
     fun onLabelChange(text: CharSequence) {
