@@ -76,6 +76,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     fun setClearProductName(view: View) {
         categoryParentId.postValue(-1L)
         _products.value.name = ""
+        _products.postValue(_products.value)
     }
 
     fun getCategory(): Category {
