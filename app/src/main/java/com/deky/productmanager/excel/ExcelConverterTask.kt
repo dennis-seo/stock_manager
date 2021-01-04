@@ -1,10 +1,15 @@
 package com.deky.productmanager.excel
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
 import android.net.Uri
 import android.os.AsyncTask
+import android.os.Build
+import android.os.ParcelFileDescriptor
+import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
@@ -17,6 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.min
@@ -74,21 +80,10 @@ class ExcelConverterTask private constructor(
     override fun doInBackground(vararg params: Void?): Exception? {
         DKLog.info(TAG) { "doInBackground()" }
 
-        try {
-            if (checkDirectory()) {
-                val targetFile = File(directory, EXCEL_FILE_NAME).apply {
-                    if (exists()) throw Exception("Exist target file : $absolutePath")
-                }
-
-                saveExcelFile(targetFile)
-
-                context.sendBroadcast(Intent(ACTION_MEDIA_SCANNER_SCAN_FILE).apply {
-                    data = Uri.fromFile(targetFile)
-                })
-            }
-        } catch (e: Exception) {
-            DKLog.error(TAG) { "doInBackground() - error : ${e.message}" }
-            return e
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            saveExcelFileAfterQ()
+        } else {
+            saveExcelFileBeforeQ()
         }
 
         return null
@@ -129,9 +124,53 @@ class ExcelConverterTask private constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun saveExcelFileAfterQ() {
+        val resolver = context.contentResolver
+        val saveExcelFile = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+
+        val fileContent = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, EXCEL_FILE_NAME)
+            put(MediaStore.Downloads.IS_PENDING, 1)
+        }
+
+        val savedFileUri = resolver.insert(saveExcelFile, fileContent)
+
+        // savedFileUri 파일 쓰기
+        savedFileUri?.let {
+            //  savedFileUri 위치에 파일을 생성해준다.
+            val pdf = resolver.openFileDescriptor(it, "w", null)
+
+            pdf?.let {
+                val fileOutputStream = FileOutputStream(pdf.fileDescriptor)
+                saveExcelFile(fileOutputStream)
+            }
+        }
+
+        fileContent.put(MediaStore.Downloads.IS_PENDING, 0)
+    }
+
+    private fun saveExcelFileBeforeQ() {
+        try {
+            if (checkDirectory()) {
+                val targetFile = File(directory, EXCEL_FILE_NAME).apply {
+                    if (exists()) throw Exception("Exist target file : $absolutePath")
+                }
+
+                saveExcelFile(targetFile.outputStream())
+
+                context.sendBroadcast(Intent(ACTION_MEDIA_SCANNER_SCAN_FILE).apply {
+                    data = Uri.fromFile(targetFile)
+                })
+            }
+        } catch (e: Exception) {
+            DKLog.error(TAG) { "doInBackground() - error : ${e.message}" }
+        }
+    }
+
     @Throws(Exception::class)
-    private fun saveExcelFile(file: File) {
-        DKLog.info(TAG) { "saveExcelFile() - file : ${file.absolutePath}" }
+    private fun saveExcelFile(fileOutputStream: FileOutputStream) {
+//        DKLog.info(TAG) { "saveExcelFile() - file : ${file.absolutePath}" }
 
         createSheet().let { sheet ->
             // 타이틀 셀 병합
@@ -163,7 +202,7 @@ class ExcelConverterTask private constructor(
             }
         }
 
-        file.outputStream().use { stream ->
+        fileOutputStream.use { stream ->
             workBook.write(stream)
         }
     }
