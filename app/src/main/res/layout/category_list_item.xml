@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/container_category_item"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="10dp">
+
+        <TextView
+            android:id="@+id/tv_category_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            tools:text="캐비닛"
+            android:textSize="20dp"
+            android:ellipsize="marquee"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:id="@+id/btn_category_delete"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_round_category_delete_24" />
+    </LinearLayout>
+</layout>
