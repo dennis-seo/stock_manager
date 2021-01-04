@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
 import android.net.Uri
 import android.os.AsyncTask
+import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
@@ -47,6 +48,8 @@ class ExcelConverterTask private constructor(
 
         // sheet name
         private const val DEFAULT_SHEET_NAME = "관리품목"
+
+        var imageDir: File? = null
 
         @JvmStatic
         fun convert(context: Context, productList: List<Product>, directory: File, listener: OnTaskListener?): ExcelConverterTask {
@@ -257,6 +260,8 @@ class ExcelConverterTask private constructor(
                     if (!mkdirs()) throw Exception("Failed to create image directory.")
                 }
             }
+
+            imageDir = imageDirectory
 
             return File(imageDirectory, "${id}.${imageFile.extension}").let { target ->
                 imageFile.copyTo(target, true)

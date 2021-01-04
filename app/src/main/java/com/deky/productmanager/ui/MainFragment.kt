@@ -1,6 +1,8 @@
 package com.deky.productmanager.ui
 
 import android.content.DialogInterface
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -114,6 +117,11 @@ class MainFragment : BaseFragment() {
                                         Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT)
                                             .show()
                                     }
+                                    val imageFile = File(ExcelConverterTask.imageDir,"-.jpg")
+                                    val bitmap = BitmapFactory.decodeResource(resources, R.drawable.minus)
+                                    val fos = FileOutputStream(imageFile)
+                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 99, fos)
+
                                 }
                             })
                     }
