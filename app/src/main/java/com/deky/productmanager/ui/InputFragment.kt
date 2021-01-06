@@ -105,12 +105,10 @@ class InputFragment : BaseFragment() {
 
     private fun initProductNameLayout(list: List<Category>) {
         productname_layout.removeAllViews()
-        Log.d("dayun","list size = ${list.size}")
         list.forEach { category ->
             val buttonView = inflater.inflate(R.layout.productname_item_layout, productname_layout, false)
             buttonView.btn_name.text = category.name
             buttonView.btn_name.setOnClickListener {
-                Log.d("dayun","click")
                 viewModel.onClickNameButton(it)
                 viewModel.categoryParentId.postValue(category.id)
             }
