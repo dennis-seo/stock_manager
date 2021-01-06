@@ -96,7 +96,7 @@ class InputFragment : BaseFragment() {
         })
         viewModel.productNameList.observe(this, Observer {
             if(it.isEmpty()) {
-                viewModel.products.value?.name = viewModel.getCategory().name
+                viewModel.products.value?.name = viewModel.getCategory()?.name ?: ""
                 viewModel.categoryParentId.postValue(-1L)
             }
             initProductNameLayout(it)
