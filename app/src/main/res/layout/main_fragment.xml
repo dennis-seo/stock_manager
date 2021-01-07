@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:text="@string/btn_data_insert_category"
             android:onClick="@{() -> listener.onClickInsertDataButton()}"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
