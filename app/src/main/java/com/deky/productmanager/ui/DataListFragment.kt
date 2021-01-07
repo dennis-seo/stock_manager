@@ -227,11 +227,11 @@ class DataListFragment : BaseFragment() {
             val products = dataModel.products.value
             val size = dataModel.products.value?.size ?: 0
             val pageCnt = (size / 20) + 1
-            view.index_tv.text = "${position+1}/${pageCnt}"
+            view.index_tv.text = "${position + 1}/${pageCnt}"
             val startPosition = position.times(20)
-            var endPosition = (position+1).times(20)
-            if (endPosition > products?.size?: 0) endPosition = products?.size?: 1
-            if(endPosition <= 0) endPosition = 0
+            var endPosition = (position + 1).times(20)
+            if (endPosition > products?.size ?: 0) endPosition = products?.size ?: 0
+            if (endPosition <= 0) endPosition = 0
             val productsAdapter =
                 ProductsAdapter(products?.subList(startPosition, endPosition) ?: ArrayList())
             view.product_recycler_view.apply {
