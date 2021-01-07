@@ -231,9 +231,9 @@ class DataListFragment : BaseFragment() {
             val startPosition = position.times(20)
             var endPosition = (position+1).times(20)
             if (endPosition > products?.size?: 0) endPosition = products?.size?: 1
-            if(endPosition <= 0) endPosition = 1
+            if(endPosition <= 0) endPosition = 0
             val productsAdapter =
-                ProductsAdapter(products?.subList(startPosition, endPosition - 1) ?: ArrayList())
+                ProductsAdapter(products?.subList(startPosition, endPosition) ?: ArrayList())
             view.product_recycler_view.apply {
                 adapter = productsAdapter
                 productsAdapter.onItemClick = { product ->
