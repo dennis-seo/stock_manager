@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
@@ -22,6 +23,7 @@ import com.deky.productmanager.database.entity.Category
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
 import com.deky.productmanager.model.BaseViewModel
+import com.deky.productmanager.util.PreferenceManager
 import com.deky.productmanager.util.toast
 import kotlinx.android.synthetic.main.input_fragment.*
 import kotlinx.android.synthetic.main.productname_item_layout.view.*
@@ -84,6 +86,22 @@ class InputFragment : BaseFragment() {
         viewModel.categoryParentId.postValue(-1L)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        context?.let {context ->
+            if (PreferenceManager.isImageTagAvailability(context)) {
+                tag_input_container.visibility = View.VISIBLE
+                tag_checkbox.setChecked(true)
+                tag_input.setText(PreferenceManager.getImageTagName(context))
+            } else {
+                tag_input_container.visibility = View.GONE
+                tag_checkbox.setChecked(false)
+                tag_input.setText(PreferenceManager.getImageTagName(context))
+            }
+        }
+    }
+
     private fun initObservers() {
         viewModel.toastMessage.observe(this, Observer { event ->
             event.getContentIfNotHandled()?.let { messageRes ->
@@ -141,6 +159,29 @@ class InputFragment : BaseFragment() {
 
                 viewModel.setImageFilePath(imageFile.path)
             }
+        }
+    }
+
+    fun onClickCheckBox(checkBox: View?) {
+        checkBox as CheckBox
+        if (checkBox.isChecked) {
+            tag_input_container.visibility = View.VISIBLE
+            PreferenceManager.setImageTagAvailablity(context ?: return, true)
+            return
+        }
+        tag_input_container.visibility = View.GONE
+        PreferenceManager.setImageTagAvailablity(context ?: return, false)
+    }
+
+    fun onClickTagSave(button: View?) {
+        val keyword = tag_input.text.toString()
+        if (keyword.isNullOrBlank()) {
+            Toast.makeText(context, R.string.input_tag_name, Toast.LENGTH_SHORT).show()
+            return
+        }
+        context?.let { context ->
+            PreferenceManager.setImageTagName(context, keyword)
+            PreferenceManager.setImageTagAvailablity(context, true)
         }
     }
 }

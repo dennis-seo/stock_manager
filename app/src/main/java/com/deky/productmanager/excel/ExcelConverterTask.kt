@@ -9,6 +9,7 @@ import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
+import com.deky.productmanager.util.PreferenceManager
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.util.IOUtils
@@ -179,9 +180,10 @@ class ExcelConverterTask private constructor(
 
     private fun writeProductData(product: Product, row: XSSFRow, itemIndex: Int) {
         DKLog.info(TAG) { "writeProductData() - product : $product" }
+        val imageName = if (PreferenceManager.isImageTagAvailability(context)) (PreferenceManager.getImageTagName(context) + product.id) else product.id.toString()
 
         val imageFile: File? = try {
-            copyImageFile(product.imagePath, product.id)
+            copyImageFile(product.imagePath, imageName)
         } catch (error: Exception) {
             DKLog.warn(TAG) { "${error.message}" }
             null
@@ -249,7 +251,7 @@ class ExcelConverterTask private constructor(
     }
 
     @Throws(Exception::class)
-    private fun copyImageFile(imagePath: String, id: Long): File {
+    private fun copyImageFile(imagePath: String, id: String): File {
         File(imagePath).let { imageFile ->
             imageFile.takeUnless { it.exists() }?.run {
                 throw Exception("Not found image file.")

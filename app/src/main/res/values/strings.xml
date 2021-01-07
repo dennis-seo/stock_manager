@@ -40,6 +40,11 @@
     <string name="input_name_sofa">소파</string>
     <string name="input_name_work_table">작업용테이블</string>
     <string name="input_name_file_box">이동식파일서랍</string>
+    <string name="input_tag_use">사진 태그 사용 여부</string>
+    <string name="input_tag_name">사용할 태그명을 입력하세요.</string>
+    <string name="input_tag_save">태그 저장</string>
+    <string name="input_tag_save_finish">태그 저장 완료</string>
+
 
     <string name="text_condition_none">None</string>
     <string name="text_condition_high">상</string>

@@ -25,32 +25,6 @@
             android:orientation="vertical"
             android:padding="10dp">
 
-            <!-- 라벨번호 -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/tv_input_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="@string/text_label"/>
-                <EditText
-                    android:id="@+id/ed_input_label"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="10dp"
-                    android:layout_toEndOf="@id/tv_input_label"
-                    android:lines="1"
-                    android:inputType="text|textCapSentences"
-                    android:selectAllOnFocus="true"
-                    android:text="@{productViewModel.products.label}"
-                    android:onTextChanged="@{(text, start, before, count) -> productViewModel.onLabelChange(text)}"  />
-            </RelativeLayout>
-
             <!-- 위치 -->
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -75,6 +49,47 @@
                     android:text="@{productViewModel.products.location}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onLocationChange(text)}" />
             </RelativeLayout>
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:alignContent="flex_start"
+                app:alignItems="center"
+                app:justifyContent="flex_start">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/input_tag_use" />
+
+                <CheckBox
+                    android:id="@+id/tag_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:onClick="@{listener::onClickCheckBox}"/>
+
+                <LinearLayout
+                    android:id="@+id/tag_input_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <EditText
+                        android:id="@+id/tag_input"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:hint="@string/input_tag_name"/>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/input_tag_save"
+                        android:onClick="@{listener::onClickTagSave}"/>
+                </LinearLayout>
+
+            </com.google.android.flexbox.FlexboxLayout>
 
             <ImageButton
                 android:id="@+id/btn_take_picture"
