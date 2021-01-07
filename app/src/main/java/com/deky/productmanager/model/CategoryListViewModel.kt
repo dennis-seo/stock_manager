@@ -49,7 +49,6 @@ class CategoryListViewModel(application: Application): BaseViewModel(application
             val category = Category(parentCategory.id, categoryName)
 //            DKLog.debug(TAG) { "insertSubCategory() : ${parentCategory.id} / ${parentCategory.name}  < ${category.parentCategory} / ${category.id} / ${category.name}"}
             viewModelScope.launch {
-                DKLog.debug(TAG) { "insertSubCategory() : aaaaaa"}
                 repository.insert(category)
                 updateSubCategory(parentCategory.id)
             }

@@ -19,11 +19,14 @@ interface ProductDao {
     @Query("SELECT * FROM Product")
     fun getAll(): List<Product>
 
+    @Query(value = "SELECT * FROM Product WHERE location = :keyword OR name = :keyword")
+    fun findProduct(keyword: String): List<Product>?
+
     @Query("SELECT * FROM Product WHERE _id = :productId")
     fun getProductById(productId: Long): Product
 
     @Query("SELECT * FROM Product ORDER BY _id DESC")
-    fun getAllProducts(): LiveData<List<Product>>
+    fun getAllProducts(): List<Product>
 
     @Insert(onConflict = REPLACE)
     fun insert(product: Product)

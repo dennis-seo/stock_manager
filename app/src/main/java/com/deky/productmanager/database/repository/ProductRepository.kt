@@ -36,7 +36,11 @@ class ProductRepository(application: Application) {
         return productDao.getProductById(productId)
     }
 
-    fun getAllProducts(): LiveData<List<Product>> {
+    fun findProduct(keyword: String): List<Product>? {
+        return productDao.findProduct(keyword)
+    }
+
+    fun getAllProducts(): List<Product> {
         return productDao.getAllProducts()
     }
 }
