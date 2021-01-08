@@ -4,7 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.provider.MediaStore
+import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.deky.productmanager.util.DKLog
@@ -12,6 +15,7 @@ import com.deky.productmanager.util.FileUtils
 import com.deky.productmanager.util.simpleTag
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
 
 /**
@@ -70,9 +74,25 @@ abstract class BaseFragment : Fragment() {
             REQUEST_IMAGE_CAPTURE -> {
                 if (resultCode == Activity.RESULT_OK) {
                     imageReq?.run {
+
+                        val rotateMatrix = Matrix()
+
+                        try {
+                            val exif = ExifInterface(imageFile.absolutePath)
+
+                            val exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+                            val exifDegree = exifOrientationToDegree(exifOrientation)
+                            rotateMatrix.postRotate(exifDegree.toFloat())
+                            Log.d("dayun","the degree is ${exifDegree}")
+                        } catch (e: IOException) {
+
+                        }
+
                         val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+                        val rotateBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, rotateMatrix, false)
+                        val scaleBitmap = Bitmap.createScaledBitmap(rotateBitmap, 1200, 900, false)
                         val fos = FileOutputStream(imageFile)
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos)
+                        scaleBitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos)
 
                         log.debug {
                             buildString {
@@ -101,4 +121,13 @@ abstract class BaseFragment : Fragment() {
         val imageFile: File,
         val block: (File) -> Unit = {}
     )
+
+    private fun exifOrientationToDegree(exifOrientation: Int): Int {
+        return when(exifOrientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270
+            else -> 0
+        }
+    }
 }
