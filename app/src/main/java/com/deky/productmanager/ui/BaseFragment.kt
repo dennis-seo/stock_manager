@@ -83,9 +83,8 @@ abstract class BaseFragment : Fragment() {
                             val exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
                             val exifDegree = exifOrientationToDegree(exifOrientation)
                             rotateMatrix.postRotate(exifDegree.toFloat())
-                            Log.d("dayun","the degree is ${exifDegree}")
                         } catch (e: IOException) {
-
+                            Log.e(TAG, e.stackTrace.toString())
                         }
 
                         val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
