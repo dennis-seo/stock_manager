@@ -44,7 +44,8 @@
     <string name="input_name_file_box">이동식파일서랍</string>
     <string name="input_tag_use">사진 태그 사용 여부</string>
     <string name="input_tag_name">사용할 태그명을 입력하세요.</string>
-    <string name="input_tag_save">태그 저장</string>
+    <string name="input_tag_save">태그 등록</string>
+    <string name="input_tag_editable">잠금 해제</string>
     <string name="input_tag_save_finish">태그 저장 완료</string>
 
 

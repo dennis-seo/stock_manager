@@ -6,14 +6,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -57,6 +53,8 @@ class InputFragment : BaseFragment() {
         context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     }
 
+    var isTagLock = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.apply {
@@ -94,6 +92,9 @@ class InputFragment : BaseFragment() {
                 tag_input_container.visibility = View.VISIBLE
                 tag_checkbox.setChecked(true)
                 tag_input.setText(PreferenceManager.getImageTagName(context))
+                isTagLock = true
+                tag_input.isEnabled = false
+                tag_btn.text = getString(R.string.input_tag_editable)
             } else {
                 tag_input_container.visibility = View.GONE
                 tag_checkbox.setChecked(false)
@@ -167,6 +168,7 @@ class InputFragment : BaseFragment() {
         if (checkBox.isChecked) {
             tag_input_container.visibility = View.VISIBLE
             PreferenceManager.setImageTagAvailablity(context ?: return, true)
+            tag_input.isEnabled = true
             return
         }
         tag_input_container.visibility = View.GONE
@@ -175,6 +177,14 @@ class InputFragment : BaseFragment() {
 
     fun onClickTagSave(button: View?) {
         val keyword = tag_input.text.toString()
+        button as Button
+
+        if(isTagLock) {
+            isTagLock = false
+            tag_input.isEnabled = true
+            button.text = getString(R.string.input_tag_editable)
+            return
+        }
         if (keyword.isNullOrBlank()) {
             Toast.makeText(context, R.string.input_tag_name, Toast.LENGTH_SHORT).show()
             return
@@ -182,6 +192,9 @@ class InputFragment : BaseFragment() {
         context?.let { context ->
             PreferenceManager.setImageTagName(context, keyword)
             PreferenceManager.setImageTagAvailablity(context, true)
+            isTagLock = true
+            button.text = getString(R.string.input_tag_save)
+            tag_input.isEnabled = false
         }
     }
 }
