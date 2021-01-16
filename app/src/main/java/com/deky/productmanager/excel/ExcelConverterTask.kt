@@ -1,15 +1,13 @@
 package com.deky.productmanager.excel
 
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
-import android.os.ParcelFileDescriptor
-import android.provider.MediaStore
 import androidx.annotation.RequiresApi
+import androidx.documentfile.provider.DocumentFile
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
@@ -45,7 +43,7 @@ class ExcelConverterTask private constructor(
         fun onCompleteTask(error: Exception?)
     }
 
-    companion object {
+    companion object {!
         private const val TAG = "ExcelConverterTask"
 
         // file name
@@ -55,7 +53,14 @@ class ExcelConverterTask private constructor(
         private const val DEFAULT_SHEET_NAME = "관리품목"
 
         @JvmStatic
-        fun convert(context: Context, productList: List<Product>, directory: File, listener: OnTaskListener?): ExcelConverterTask {
+        fun convert(context: Context, productList: List<Product>, folder: File, listener: OnTaskListener?): ExcelConverterTask {
+            return ExcelConverterTask(context, productList, folder, listener).apply {
+                executeOnExecutor(THREAD_POOL_EXECUTOR)
+            }
+        }
+
+        @JvmStatic
+        fun convert(context: Context, productList: List<Product>, directory: DocumentFile, listener: OnTaskListener?): ExcelConverterTask {
             return ExcelConverterTask(context, productList, directory, listener).apply {
                 executeOnExecutor(THREAD_POOL_EXECUTOR)
             }
@@ -78,9 +83,9 @@ class ExcelConverterTask private constructor(
     }
 
     override fun doInBackground(vararg params: Void?): Exception? {
-        DKLog.info(TAG) { "doInBackground()" }
+        DKLog.info(TAG) { "doInBackground() : ${Build.VERSION.SDK_INT}" }
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             saveExcelFileAfterQ()
         } else {
             saveExcelFileBeforeQ()
@@ -97,7 +102,7 @@ class ExcelConverterTask private constructor(
         }
     }
 
-    override fun onPostExecute(e:Exception?) {
+    override fun onPostExecute(e: Exception?) {
         DKLog.info(TAG) { "onPostExecute()" }
 
         listener?.run {
@@ -105,7 +110,7 @@ class ExcelConverterTask private constructor(
         }
     }
 
-    override fun onCancelled(e:Exception?) {
+    override fun onCancelled(e: Exception?) {
         DKLog.debug(TAG) { "onCancelled() - exception : ${e?.message ?: ""} " }
 
         listener?.run {
@@ -126,28 +131,43 @@ class ExcelConverterTask private constructor(
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun saveExcelFileAfterQ() {
-        val resolver = context.contentResolver
-        val saveExcelFile = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        val WRITE_REQUEST_CODE: Int = 43
 
-        val fileContent = ContentValues().apply {
-            put(MediaStore.Downloads.DISPLAY_NAME, EXCEL_FILE_NAME)
-            put(MediaStore.Downloads.IS_PENDING, 1)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {  // 2
+            addCategory(Intent.CATEGORY_OPENABLE)   // 3
+            type = "*/*"    // 4
+            putExtra(Intent.EXTRA_TITLE, EXCEL_FILE_NAME)   // 5
         }
 
-        val savedFileUri = resolver.insert(saveExcelFile, fileContent)
+//        startActivityForResult(intent, WRITE_REQUEST_CODE)
 
-        // savedFileUri 파일 쓰기
-        savedFileUri?.let {
-            //  savedFileUri 위치에 파일을 생성해준다.
-            val pdf = resolver.openFileDescriptor(it, "w", null)
-
-            pdf?.let {
-                val fileOutputStream = FileOutputStream(pdf.fileDescriptor)
-                saveExcelFile(fileOutputStream)
-            }
-        }
-
-        fileContent.put(MediaStore.Downloads.IS_PENDING, 0)
+//        val resolver = context.contentResolver
+//        val saveExcelFile = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+//        val saveFolder = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+//
+//        val fileContent = ContentValues().apply {
+//            put(MediaStore.Downloads.DISPLAY_NAME, EXCEL_FILE_NAME)
+//            put(MediaStore.Downloads.MIME_TYPE, "*/*")
+//            put(MediaStore.Downloads.IS_PENDING, 1)
+//        }
+//
+//
+//        val savedFileUri = resolver.insert(saveExcelFile, fileContent)
+//        DKLog.info(TAG) { "saveExcelFileAfterQ() > saveFileUri : $savedFileUri" }
+//
+//        // savedFileUri 파일 쓰기
+//        savedFileUri?.let {
+//            //  savedFileUri 위치에 파일을 생성해준다.
+//            val pdf = resolver.openFileDescriptor(it, "w", null)
+//
+//            pdf?.let {
+//                val fileOutputStream = FileOutputStream(pdf.fileDescriptor)
+//                saveExcelFile(fileOutputStream)
+//            }
+//        }
+//
+//        fileContent.put(MediaStore.Downloads.IS_PENDING, 0)
+//        resolver.update(saveExcelFile, fileContent, null, null)
     }
 
     private fun saveExcelFileBeforeQ() {
@@ -157,6 +177,7 @@ class ExcelConverterTask private constructor(
                     if (exists()) throw Exception("Exist target file : $absolutePath")
                 }
 
+                DKLog.info(TAG) { "saveExcelFileBeforeQ() > saveFileUri : $targetFile" }
                 saveExcelFile(targetFile.outputStream())
 
                 context.sendBroadcast(Intent(ACTION_MEDIA_SCANNER_SCAN_FILE).apply {
@@ -170,7 +191,7 @@ class ExcelConverterTask private constructor(
 
     @Throws(Exception::class)
     private fun saveExcelFile(fileOutputStream: FileOutputStream) {
-//        DKLog.info(TAG) { "saveExcelFile() - file : ${file.absolutePath}" }
+        DKLog.info(TAG) { "saveExcelFile() - FileOutputStream : ${fileOutputStream.fd}" }
 
         createSheet().let { sheet ->
             // 타이틀 셀 병합
@@ -231,15 +252,27 @@ class ExcelConverterTask private constructor(
                 when (column) {
                     Column.NO -> setValueWithResize(sheet, column, itemIndex.toString())
                     Column.LABEL -> setValueWithResize(sheet, column, product.label)
-                    Column.IMAGE_ID -> setValueWithResize(sheet, column, getImageIdFromFile(imageFile))
+                    Column.IMAGE_ID -> setValueWithResize(
+                        sheet, column, getImageIdFromFile(
+                            imageFile
+                        )
+                    )
                     Column.IMAGE -> setValueWithResize(sheet, column, "")
                     Column.LOCATION -> setValueWithResize(sheet, column, product.location)
                     Column.PRODUCT_NAME -> setValueWithResize(sheet, column, product.name)
                     Column.MANUFACTURER -> setValueWithResize(sheet, column, product.manufacturer)
                     Column.MODEL -> setValueWithResize(sheet, column, product.model)
                     Column.SIZE -> setValueWithResize(sheet, column, product.size)
-                    Column.MANUFACTURE_DATE -> setValueWithResize(sheet, column, product.manufactureDate)
-                    Column.CONDITION -> setValueWithResize(sheet, column, parseCondition(product.condition))
+                    Column.MANUFACTURE_DATE -> setValueWithResize(
+                        sheet,
+                        column,
+                        product.manufactureDate
+                    )
+                    Column.CONDITION -> setValueWithResize(
+                        sheet,
+                        column,
+                        parseCondition(product.condition)
+                    )
                     Column.AMOUNT -> setValueWithResize(sheet, column, product.amount.toString())
                     Column.NOTE -> setValueWithResize(sheet, column, product.note)
                 }
