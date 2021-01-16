@@ -72,6 +72,9 @@ class MainFragment : BaseFragment() {
 
                 R.id.btn_confirm ->
                     transaction.replace(R.id.container, DataListFragment.newInstance())
+                R.id.btn_manage_manufacturer ->
+                    transaction.replace(R.id.container, ManufacturerFragment.newInstancne())
+
             }
             transaction.addToBackStack(null).commitAllowingStateLoss()
         }
