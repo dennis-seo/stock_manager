@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Category
+import com.deky.productmanager.database.entity.Manufacturer
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
 import com.deky.productmanager.model.BaseViewModel
@@ -82,6 +84,7 @@ class InputFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         initObservers()
         viewModel.categoryParentId.postValue(-1L)
+        viewModel.manufacturerParentId.postValue(-1L)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -114,11 +117,18 @@ class InputFragment : BaseFragment() {
             Toast.makeText(context, R.string.message_toast_input_value_only_number, Toast.LENGTH_SHORT).show()
         })
         viewModel.productNameList.observe(this, Observer {
-            if(it.isEmpty()) {
+            if (it.isEmpty()) {
                 viewModel.products.value?.name = viewModel.getCategory()?.name ?: ""
                 viewModel.categoryParentId.postValue(-1L)
             }
             initProductNameLayout(it)
+        })
+        viewModel.manufacturerList.observe(this, Observer {
+            if (it.isEmpty()) {
+                viewModel.products.value?.manufacturer = viewModel.getManufacturer()?.name ?: ""
+                viewModel.manufacturerParentId.postValue(-1L)
+            }
+            initManufacturerInputLayout(it)
         })
     }
 
@@ -132,6 +142,19 @@ class InputFragment : BaseFragment() {
                 viewModel.categoryParentId.postValue(category.id)
             }
             productname_layout.addView(buttonView)
+        }
+    }
+
+    private fun initManufacturerInputLayout(list: List<Manufacturer>) {
+        manufacturer_container.removeAllViews()
+        list.forEach { manufaturer ->
+            val buttonView = inflater.inflate(R.layout.productname_item_layout, manufacturer_container, false)
+            buttonView.btn_name.text = manufaturer.name
+            buttonView.btn_name.setOnClickListener {
+                viewModel.onClickManufacturer(it)
+                viewModel.manufacturerParentId.postValue(manufaturer.id)
+            }
+            manufacturer_container.addView(buttonView)
         }
     }
 

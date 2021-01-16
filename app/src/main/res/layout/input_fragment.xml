@@ -125,8 +125,7 @@
                     android:lines="1"
                     android:inputType="text"
                     android:selectAllOnFocus="true"
-                    android:text="@{productViewModel.products.name}"
-                    android:onTextChanged="@{(text, start, before, count) -> productViewModel.onNameChange(text)}" />
+                    android:text="@{productViewModel.products.name}" />
 
                 <ImageView
                     android:layout_width="20dp"
@@ -170,9 +169,26 @@
                     android:lines="1"
                     android:inputType="text|textCapCharacters"
                     android:selectAllOnFocus="true"
-                    android:text="@{productViewModel.products.manufacturer}"
-                    android:onTextChanged="@{(text, start, before, count) -> productViewModel.onManufacturerChange(text)}" />
+                    android:text="@{productViewModel.products.manufacturer}" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_toEndOf="@id/et_input_manufacturer"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/clear"
+                    android:onClick="@{productViewModel::setClearManufacturer}"/>
             </RelativeLayout>
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/manufacturer_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="10dp"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:alignContent="flex_start"
+                app:justifyContent="center"/>
 
             <!-- 모델명 -->
             <RelativeLayout
