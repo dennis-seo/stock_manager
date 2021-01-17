@@ -198,8 +198,7 @@ class MainFragment : BaseFragment() {
                                         if (error != null) {
                                             log.error(true) { "Error : ${error.message}" }
                                         } else {
-                                            Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT)
-                                                .show()
+                                            Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 })

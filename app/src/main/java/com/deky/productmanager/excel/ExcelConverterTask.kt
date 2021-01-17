@@ -6,6 +6,7 @@ import android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
+import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
 import androidx.documentfile.provider.DocumentFile
 import com.deky.productmanager.database.entity.Condition
@@ -21,6 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.min
@@ -33,7 +35,7 @@ import kotlin.math.min
 class ExcelConverterTask private constructor(
     private val context: Context,
     private val productList: List<Product>,
-    private val directory: File,
+    private val directory: Any,        // File or DocumentFile
     private var listener: OnTaskListener?
 ) : AsyncTask<Void, Int, Exception>() {
 
@@ -43,25 +45,25 @@ class ExcelConverterTask private constructor(
         fun onCompleteTask(error: Exception?)
     }
 
-    companion object {!
+    companion object {
         private const val TAG = "ExcelConverterTask"
 
         // file name
         private const val EXCEL_FILE_NAME = "수기조사서.xlsx"
+        // picture directory name
+        private const val PICTURE_DIRECTORY_NAME = "사진"
 
         // sheet name
         private const val DEFAULT_SHEET_NAME = "관리품목"
 
         @JvmStatic
-        fun convert(context: Context, productList: List<Product>, folder: File, listener: OnTaskListener?): ExcelConverterTask {
+        fun convert(
+            context: Context,
+            productList: List<Product>,
+            folder: Any,
+            listener: OnTaskListener?
+        ): ExcelConverterTask {
             return ExcelConverterTask(context, productList, folder, listener).apply {
-                executeOnExecutor(THREAD_POOL_EXECUTOR)
-            }
-        }
-
-        @JvmStatic
-        fun convert(context: Context, productList: List<Product>, directory: DocumentFile, listener: OnTaskListener?): ExcelConverterTask {
-            return ExcelConverterTask(context, productList, directory, listener).apply {
                 executeOnExecutor(THREAD_POOL_EXECUTOR)
             }
         }
@@ -86,8 +88,10 @@ class ExcelConverterTask private constructor(
         DKLog.info(TAG) { "doInBackground() : ${Build.VERSION.SDK_INT}" }
 
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            // directory is DocumentFile
             saveExcelFileAfterQ()
         } else {
+            // directory is File
             saveExcelFileBeforeQ()
         }
 
@@ -120,7 +124,7 @@ class ExcelConverterTask private constructor(
 
     @Throws(Exception::class)
     private fun checkDirectory(): Boolean {
-        return directory.run {
+        return (directory as File).run {
             if (!exists() && !mkdirs()) {
                 throw Exception("Failed to create directory.")
             }
@@ -131,26 +135,13 @@ class ExcelConverterTask private constructor(
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun saveExcelFileAfterQ() {
-        val WRITE_REQUEST_CODE: Int = 43
 
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {  // 2
-            addCategory(Intent.CATEGORY_OPENABLE)   // 3
-            type = "*/*"    // 4
-            putExtra(Intent.EXTRA_TITLE, EXCEL_FILE_NAME)   // 5
+        val file = (directory as DocumentFile).createFile("*/*", EXCEL_FILE_NAME)
+        file?.let { file ->
+            context.contentResolver.openOutputStream(file.uri)?.let { outputStream ->
+                saveExcelFile(outputStream)
+            }
         }
-
-//        startActivityForResult(intent, WRITE_REQUEST_CODE)
-
-//        val resolver = context.contentResolver
-//        val saveExcelFile = MediaStore.Downloads.EXTERNAL_CONTENT_URI
-//        val saveFolder = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-//
-//        val fileContent = ContentValues().apply {
-//            put(MediaStore.Downloads.DISPLAY_NAME, EXCEL_FILE_NAME)
-//            put(MediaStore.Downloads.MIME_TYPE, "*/*")
-//            put(MediaStore.Downloads.IS_PENDING, 1)
-//        }
-//
 //
 //        val savedFileUri = resolver.insert(saveExcelFile, fileContent)
 //        DKLog.info(TAG) { "saveExcelFileAfterQ() > saveFileUri : $savedFileUri" }
@@ -173,7 +164,7 @@ class ExcelConverterTask private constructor(
     private fun saveExcelFileBeforeQ() {
         try {
             if (checkDirectory()) {
-                val targetFile = File(directory, EXCEL_FILE_NAME).apply {
+                val targetFile = File((directory as File), EXCEL_FILE_NAME).apply {
                     if (exists()) throw Exception("Exist target file : $absolutePath")
                 }
 
@@ -190,8 +181,7 @@ class ExcelConverterTask private constructor(
     }
 
     @Throws(Exception::class)
-    private fun saveExcelFile(fileOutputStream: FileOutputStream) {
-        DKLog.info(TAG) { "saveExcelFile() - FileOutputStream : ${fileOutputStream.fd}" }
+    private fun saveExcelFile(outputStream: OutputStream) {
 
         createSheet().let { sheet ->
             // 타이틀 셀 병합
@@ -223,7 +213,7 @@ class ExcelConverterTask private constructor(
             }
         }
 
-        fileOutputStream.use { stream ->
+        outputStream.use { stream ->
             workBook.write(stream)
         }
     }
@@ -237,8 +227,13 @@ class ExcelConverterTask private constructor(
     private fun writeProductData(product: Product, row: XSSFRow, itemIndex: Int) {
         DKLog.info(TAG) { "writeProductData() - product : $product" }
 
-        val imageFile: File? = try {
-            copyImageFile(product.imagePath, product.id)
+        val imageFile: Any? = try {
+            DKLog.info(TAG) { "image path : ${product.imagePath}"}
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                copyImageFileAfterQ(product.imagePath, product.id)
+            } else {
+                copyImageFileBeforeQ(product.imagePath, product.id)
+            }
         } catch (error: Exception) {
             DKLog.warn(TAG) { "${error.message}" }
             null
@@ -252,27 +247,15 @@ class ExcelConverterTask private constructor(
                 when (column) {
                     Column.NO -> setValueWithResize(sheet, column, itemIndex.toString())
                     Column.LABEL -> setValueWithResize(sheet, column, product.label)
-                    Column.IMAGE_ID -> setValueWithResize(
-                        sheet, column, getImageIdFromFile(
-                            imageFile
-                        )
-                    )
+                    Column.IMAGE_ID -> setValueWithResize(sheet, column, getImageIdFromFile(imageFile))
                     Column.IMAGE -> setValueWithResize(sheet, column, "")
                     Column.LOCATION -> setValueWithResize(sheet, column, product.location)
                     Column.PRODUCT_NAME -> setValueWithResize(sheet, column, product.name)
                     Column.MANUFACTURER -> setValueWithResize(sheet, column, product.manufacturer)
                     Column.MODEL -> setValueWithResize(sheet, column, product.model)
                     Column.SIZE -> setValueWithResize(sheet, column, product.size)
-                    Column.MANUFACTURE_DATE -> setValueWithResize(
-                        sheet,
-                        column,
-                        product.manufactureDate
-                    )
-                    Column.CONDITION -> setValueWithResize(
-                        sheet,
-                        column,
-                        parseCondition(product.condition)
-                    )
+                    Column.MANUFACTURE_DATE -> setValueWithResize(sheet, column, product.manufactureDate)
+                    Column.CONDITION -> setValueWithResize(sheet, column, parseCondition(product.condition))
                     Column.AMOUNT -> setValueWithResize(sheet, column, product.amount.toString())
                     Column.NOTE -> setValueWithResize(sheet, column, product.note)
                 }
@@ -300,7 +283,19 @@ class ExcelConverterTask private constructor(
         setCellValue(value)
     }
 
-    private fun getImageIdFromFile(imageFile: File?): String = imageFile?.nameWithoutExtension ?: "-"
+    private fun getImageIdFromFile(imageFile: Any?): String {
+        return when (imageFile) {
+            is File -> {
+                imageFile.nameWithoutExtension
+            }
+            is DocumentFile -> {
+                imageFile.name?.substringBeforeLast(".") ?: "-"
+            }
+            else -> {
+                "-"
+            }
+        }
+    }
 
     private fun parseManufactureDate(manufactureDate: Date): String {
         return SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
@@ -318,13 +313,13 @@ class ExcelConverterTask private constructor(
     }
 
     @Throws(Exception::class)
-    private fun copyImageFile(imagePath: String, id: Long): File {
+    private fun copyImageFileBeforeQ(imagePath: String, id: Long): File {
         File(imagePath).let { imageFile ->
             imageFile.takeUnless { it.exists() }?.run {
                 throw Exception("Not found image file.")
             }
 
-            val imageDirectory = File(directory, "사진").apply {
+            val imageDirectory = File((directory as File), "사진").apply {
                 takeUnless { exists() }?. run {
                     if (!mkdirs()) throw Exception("Failed to create image directory.")
                 }
@@ -333,6 +328,46 @@ class ExcelConverterTask private constructor(
             return File(imageDirectory, "${id}.${imageFile.extension}").let { target ->
                 imageFile.copyTo(target, true)
             }
+        }
+    }
+
+    @Throws(Exception::class)
+    private fun copyImageFileAfterQ(imagePath: String, id: Long): DocumentFile {
+        File(imagePath).let { sourceFile ->
+            sourceFile.takeUnless { it.exists() }?.run {
+                throw Exception("Not found image file.")
+            }
+
+            val mainFolder = directory as DocumentFile
+//            val files = mainFolder.listFiles()
+
+            // 기존 폴더가 있다면 해당 폴더, 없다면 폴더 생성, 실패시 익셉션
+            val pictureFolder: DocumentFile = mainFolder.findFile(PICTURE_DIRECTORY_NAME)
+                ?: mainFolder.createDirectory(PICTURE_DIRECTORY_NAME)
+                ?: throw Exception("Failed to create image directory.")
+
+            val inStream = FileInputStream(sourceFile)
+            val inChannel = inStream.channel
+
+            val mimeType = getMimeType(imagePath)
+            val targetFile = pictureFolder.createFile(mimeType, id.toString())
+            val outStream = targetFile?.let { targetFile ->
+                context.contentResolver.openOutputStream(targetFile.uri)
+            }
+            val outChannel = (outStream as FileOutputStream).channel
+            inChannel.transferTo(0, inChannel.size(), outChannel)
+            outChannel.close()
+            outStream.close()
+            inChannel.close()
+            inStream.close()
+
+            return targetFile
+        }
+    }
+
+    private fun getMimeType(url: String?): String {
+        return MimeTypeMap.getFileExtensionFromUrl(url).let {
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(it)?: "error"
         }
     }
 
