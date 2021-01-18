@@ -22,6 +22,7 @@ import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.util.ScreenUtils
+import com.deky.productmanager.util.afterTextChanged
 import kotlinx.android.synthetic.main.datalist_fragment.*
 import kotlinx.android.synthetic.main.datalist_item.view.*
 import kotlinx.android.synthetic.main.datalist_pager_recylerview_layout.view.*
@@ -68,16 +69,26 @@ class DataListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         log.debug { "onViewCreated()" }
-        getProductList()
+        addObserve()
+
+        ed_search_keyword.afterTextChanged { dataModel.keyword.postValue(it) }
     }
 
-    private fun getProductList() {
+    private fun addObserve() {
         log.debug { "getProductList()" }
 
         dataModel.products.observe(this, Observer { products ->
             log.debug { "getProductList.onChanged(), products = ${products.size}" }
             datalist_viewpager.adapter = viewPagerAdapter
             viewPagerAdapter.notifyDataSetChanged()
+        })
+
+        dataModel.keyword.observe(this, Observer { keyword ->
+            if(keyword.isNullOrBlank()) {
+                dataModel.getAllProduct()
+            } else {
+                dataModel.findProduct(keyword)
+            }
         })
     }
 
@@ -216,13 +227,13 @@ class DataListFragment : BaseFragment() {
             val products = dataModel.products.value
             val size = dataModel.products.value?.size ?: 0
             val pageCnt = (size / 20) + 1
-            view.index_tv.text = "${position+1}/${pageCnt}"
+            view.index_tv.text = "${position + 1}/${pageCnt}"
             val startPosition = position.times(20)
-            var endPosition = (position+1).times(20)
-            if (endPosition > products?.size?: 0) endPosition = products?.size?: 1
-            if(endPosition <= 0) endPosition = 1
+            var endPosition = (position + 1).times(20)
+            if (endPosition > products?.size ?: 0) endPosition = products?.size ?: 0
+            if (endPosition <= 0) endPosition = 0
             val productsAdapter =
-                ProductsAdapter(products?.subList(startPosition, endPosition - 1) ?: ArrayList())
+                ProductsAdapter(products?.subList(startPosition, endPosition) ?: ArrayList())
             view.product_recycler_view.apply {
                 adapter = productsAdapter
                 productsAdapter.onItemClick = { product ->

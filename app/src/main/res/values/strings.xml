@@ -4,16 +4,18 @@
 
     <string name="app_name">Product Manager</string>
     <string name="btn_data_insert">내용입력</string>
-    <string name="btn_data_main_category">대분류 관리</string>
+    <string name="btn_data_main_category">품명 관리</string>
     <string name="btn_data_insert_category">카테고리 데이터 삽입</string>
     <string name="btn_data_confirm">내용 확인</string>
     <string name="btn_data_remove">전체삭제</string>
     <string name="btn_picture">사진찍기</string>
     <string name="btn_make_excel">엑셀파일 출력</string>
 
-    <string name="text_category_title">분류 카테고리</string>
+    <string name="text_category_title">품명관리</string>
     <string name="text_main_category_title">대분류</string>
-    <string name="text_sub_category_title">소분류</string>
+    <string name="text_sub_category_title">품명</string>
+
+    <string name="text_search_keyword">검색</string>
 
     <string name="text_label">라벨번호</string>
     <string name="text_location">위치</string>
@@ -40,6 +42,12 @@
     <string name="input_name_sofa">소파</string>
     <string name="input_name_work_table">작업용테이블</string>
     <string name="input_name_file_box">이동식파일서랍</string>
+    <string name="input_tag_use">사진 태그 사용 여부</string>
+    <string name="input_tag_name">사용할 태그명을 입력하세요.</string>
+    <string name="input_tag_save">태그 등록</string>
+    <string name="input_tag_editable">잠금 해제</string>
+    <string name="input_tag_save_finish">태그 저장 완료</string>
+
 
     <string name="text_condition_none">None</string>
     <string name="text_condition_high">상</string>

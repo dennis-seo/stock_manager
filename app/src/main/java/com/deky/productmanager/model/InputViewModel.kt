@@ -79,7 +79,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         _products.postValue(_products.value)
     }
 
-    fun getCategory(): Category {
+    fun getCategory(): Category? {
         return productNameRepository.getCategoryById(categoryParentId.value ?: -1L)
     }
 

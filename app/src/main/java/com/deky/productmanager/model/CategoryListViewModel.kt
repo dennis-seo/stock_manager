@@ -25,17 +25,14 @@ class CategoryListViewModel(application: Application): BaseViewModel(application
     private var repository: CategoryRepository = CategoryRepository(application)
     internal val mainCategory: LiveData<List<Category>> = repository.getMainCategory()
     internal var subCategory: MutableLiveData<List<Category>?> = MutableLiveData()
-//    internal var subCategory: LiveData<List<Category>> = MutableLiveData()
 
     internal var selectedCategory: MutableLiveData<Category> = MutableLiveData()
 
-//    fun selectCategory(category: Category?) {
-//        selectedCategory.postValue(category)
-//        subCategory = Transformations.switchMap(selectedCategory) {
-//            DKLog.debug(TAG) { "updateSubCategory() - size : ${repository.getCategoryByParentId(it.id).value?.size}" }
-//            repository.getCategoryByParentId(it.id)
-//        }
-//    }
+    init {
+        val allCategory = repository.getCategoryAll()
+        DKLog.info(TAG) { "all Category : $allCategory"}
+    }
+
 
     fun insertMainCategory(categoryName: String) {
         val category = Category(-1, categoryName)
@@ -47,9 +44,7 @@ class CategoryListViewModel(application: Application): BaseViewModel(application
     fun insertSubCategory(categoryName: String) {
         selectedCategory.value?.let { parentCategory ->
             val category = Category(parentCategory.id, categoryName)
-//            DKLog.debug(TAG) { "insertSubCategory() : ${parentCategory.id} / ${parentCategory.name}  < ${category.parentCategory} / ${category.id} / ${category.name}"}
             viewModelScope.launch {
-                DKLog.debug(TAG) { "insertSubCategory() : aaaaaa"}
                 repository.insert(category)
                 updateSubCategory(parentCategory.id)
             }
@@ -68,7 +63,21 @@ class CategoryListViewModel(application: Application): BaseViewModel(application
 
     fun delete(category: Category) {
         viewModelScope.launch {
-            repository.delete(category)
+            // 카테고리라면
+            if(category.parentCategory == -1L) {
+                val childCategory = repository.getCategoryByParentId(category.id)
+                // 품명 아이템 삭제
+                for(item in childCategory) {
+                    repository.delete(item)
+                }
+                // 카테고리 삭제
+                repository.delete(category)
+
+            } else {
+                // 품명 삭제
+                repository.delete(category)
+                updateSubCategory(category.parentCategory)
+            }
         }
     }
 }

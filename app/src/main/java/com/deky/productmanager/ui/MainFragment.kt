@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -140,69 +143,77 @@ class MainFragment : BaseFragment() {
                     override fun onCompleteTask(error: Exception?) {
                         log.debug { "ExcelConverterTask.onCompleteTask()" }
 
-                        excelTask = null
-                        if (error != null) {
-                            log.error(true) { "Error : ${error.message}" }
-                        } else {
-                            Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT)
-                                .show()
-                        }
+                                    excelTask = null
+                                    if (error != null) {
+                                        log.error(true) { "Error : ${error.message}" }
+                                    } else {
+                                        Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                    val imageFile = File(ExcelConverterTask.imageDir,"-.jpg")
+                                    val bitmap = BitmapFactory.decodeResource(resources, R.drawable.minus)
+                                    val fos = FileOutputStream(imageFile)
+                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 99, fos)
+
+                                }
+                            })
                     }
-                })
+                }
+            }
         }
     }
 
-    private fun saveExcelFileAfterQ() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        startActivityForResult(intent, SAF_REQUEST_CODE)
-    }
+private fun saveExcelFileAfterQ() {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+    startActivityForResult(intent, MainFragment.SAF_REQUEST_CODE)
+}
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        super.onActivityResult(requestCode, resultCode, resultData)
+override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
+    super.onActivityResult(requestCode, resultCode, resultData)
 
-        if (requestCode == SAF_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val uri = resultData?.data
-            //uri ex) content://com.android.externalstorage.documents/tree/primary%3A
+    if (requestCode == MainFragment.SAF_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        val uri = resultData?.data
+        //uri ex) content://com.android.externalstorage.documents/tree/primary%3A
 
-            uri?.let {
+        uri?.let {
 
-                //Uri 에 대한 접근 권한허용
-                val takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                context?.run {
-                    contentResolver?.takePersistableUriPermission(it, takeFlags)
+            //Uri 에 대한 접근 권한허용
+            val takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            context?.run {
+                contentResolver?.takePersistableUriPermission(it, takeFlags)
 
-                    val folderDoc = DocumentFile.fromTreeUri(this, it)
-                    folderDoc?.let { doc ->
+                val folderDoc = DocumentFile.fromTreeUri(this, it)
+                folderDoc?.let { doc ->
 
-                        val folderName = SimpleDateFormat(DIRECTORY_PATTERN, Locale.getDefault())
-                            .format(System.currentTimeMillis())
+                    val folderName = SimpleDateFormat(MainFragment.DIRECTORY_PATTERN, Locale.getDefault())
+                        .format(System.currentTimeMillis())
 
-                        val directory = doc.createDirectory(folderName)
-                        val productDao = ProductDB.getInstance(this).productDao()
+                    val directory = doc.createDirectory(folderName)
+                    val productDao = ProductDB.getInstance(this).productDao()
 
-                        directory?.let {
-                            excelTask = ExcelConverterTask.convert(this, productDao.getAll(), directory,
-                                object : ExcelConverterTask.OnTaskListener {
-                                    override fun onStartTask() {
-                                        log.debug { "ExcelConverterTask.onStartTask()" }
+                    directory?.let {
+                        excelTask = ExcelConverterTask.convert(this, productDao.getAll(), directory,
+                            object : ExcelConverterTask.OnTaskListener {
+                                override fun onStartTask() {
+                                    log.debug { "ExcelConverterTask.onStartTask()" }
+                                }
+
+                                override fun onProgressTask(progress: Int) {
+                                    log.debug { "ExcelConverterTask.onProgressTask() - progress : $progress" }
+                                }
+
+                                override fun onCompleteTask(error: Exception?) {
+                                    log.debug { "ExcelConverterTask.onCompleteTask()" }
+
+                                    excelTask = null
+                                    if (error != null) {
+                                        log.error(true) { "Error : ${error.message}" }
+                                    } else {
+                                        Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT).show()
                                     }
-
-                                    override fun onProgressTask(progress: Int) {
-                                        log.debug { "ExcelConverterTask.onProgressTask() - progress : $progress" }
-                                    }
-
-                                    override fun onCompleteTask(error: Exception?) {
-                                        log.debug { "ExcelConverterTask.onCompleteTask()" }
-
-                                        excelTask = null
-                                        if (error != null) {
-                                            log.error(true) { "Error : ${error.message}" }
-                                        } else {
-                                            Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                })
-                        }
+                                }
+                            })
+                    }
 
 
 
@@ -227,11 +238,11 @@ class MainFragment : BaseFragment() {
 ////                                        ?.write("Test Input GO".toByteArray())
 ////                                }
 //                        }
-                    }
                 }
             }
         }
     }
+}
 
     private fun showAlertDelete() {
         context?.let {

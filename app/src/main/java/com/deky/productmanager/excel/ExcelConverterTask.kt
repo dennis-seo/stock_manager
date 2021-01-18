@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
 import android.net.Uri
 import android.os.AsyncTask
+import com.deky.productmanager.R
 import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
@@ -12,6 +13,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
+import com.deky.productmanager.util.PreferenceManager
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.util.IOUtils
@@ -55,6 +57,8 @@ class ExcelConverterTask private constructor(
 
         // sheet name
         private const val DEFAULT_SHEET_NAME = "관리품목"
+
+        var imageDir: File? = null
 
         @JvmStatic
         fun convert(
@@ -226,13 +230,14 @@ class ExcelConverterTask private constructor(
 
     private fun writeProductData(product: Product, row: XSSFRow, itemIndex: Int) {
         DKLog.info(TAG) { "writeProductData() - product : $product" }
+        val imageName = if (PreferenceManager.isImageTagAvailability(context)) (PreferenceManager.getImageTagName(context) + product.id) else product.id.toString()
 
         val imageFile: Any? = try {
             DKLog.info(TAG) { "image path : ${product.imagePath}"}
             if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                copyImageFileAfterQ(product.imagePath, product.id)
+                copyImageFileAfterQ(product.imagePath, imageName)
             } else {
-                copyImageFileBeforeQ(product.imagePath, product.id)
+                copyImageFileBeforeQ(product.imagePath, imageName)
             }
         } catch (error: Exception) {
             DKLog.warn(TAG) { "${error.message}" }
@@ -313,7 +318,7 @@ class ExcelConverterTask private constructor(
     }
 
     @Throws(Exception::class)
-    private fun copyImageFileBeforeQ(imagePath: String, id: Long): File {
+    private fun copyImageFileBeforeQ(imagePath: String, id: String): File {
         File(imagePath).let { imageFile ->
             imageFile.takeUnless { it.exists() }?.run {
                 throw Exception("Not found image file.")
@@ -325,6 +330,8 @@ class ExcelConverterTask private constructor(
                 }
             }
 
+            imageDir = imageDirectory
+
             return File(imageDirectory, "${id}.${imageFile.extension}").let { target ->
                 imageFile.copyTo(target, true)
             }
@@ -332,7 +339,7 @@ class ExcelConverterTask private constructor(
     }
 
     @Throws(Exception::class)
-    private fun copyImageFileAfterQ(imagePath: String, id: Long): DocumentFile {
+    private fun copyImageFileAfterQ(imagePath: String, id: String): DocumentFile {
         File(imagePath).let { sourceFile ->
             sourceFile.takeUnless { it.exists() }?.run {
                 throw Exception("Not found image file.")

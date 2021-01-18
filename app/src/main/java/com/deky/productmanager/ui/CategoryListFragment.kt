@@ -3,10 +3,8 @@ package com.deky.productmanager.ui
 import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -22,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.deky.productmanager.R
-import com.deky.productmanager.database.CategoryDB
 import com.deky.productmanager.database.entity.Category
 import com.deky.productmanager.databinding.CategoryFragmentBinding
 import com.deky.productmanager.model.BaseViewModel
@@ -75,6 +72,28 @@ class CategoryListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        ed_main_category.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                if(ed_main_category.text.isNotEmpty()) {
+                    viewModel.insertMainCategory(ed_main_category.text.toString())
+                    (v as EditText).text.clear()
+                }
+                return@OnKeyListener true
+            }
+            false
+        })
+
+        ed_sub_category.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                if(ed_sub_category.text.isNotEmpty()) {
+                    viewModel.insertSubCategory(ed_sub_category.text.toString())
+                    (v as EditText).text.clear()
+                }
+                return@OnKeyListener true
+            }
+            false
+        })
+
         iv_main_category_input.setOnClickListener {
             if(ed_main_category.text.isNotEmpty()) {
                 viewModel.insertMainCategory(ed_main_category.text.toString())
@@ -86,7 +105,6 @@ class CategoryListFragment : Fragment() {
             if(ed_sub_category.text.isNotEmpty()) {
                 viewModel.insertSubCategory(ed_sub_category.text.toString())
                 ed_sub_category.text.clear()
-                ed_sub_category.clearFocus()
             }
         }
 
@@ -236,6 +254,27 @@ class CategoryListFragment : Fragment() {
                     val defaultTextColor = ContextCompat.getColor(itemView.context, android.R.color.tab_indicator_text)
                     tvName.setTextColor(defaultTextColor)
                     btnDelete.setImageResource(R.drawable.ic_round_category_delete_24)
+                    btnDelete.setOnClickListener {
+                        showAlertDelete(category)
+                    }
+                }
+            }
+
+            private fun showAlertDelete(category: Category) {
+                DKLog.debug(TAG) { "showAlertDelete()" }
+
+                context?.let {
+                    val builder = AlertDialog.Builder(it).apply {
+                        setMessage(R.string.message_alert_delete_data)
+                        setPositiveButton(
+                            R.string.btn_confirm,
+                            DialogInterface.OnClickListener { _, _ ->
+                                viewModel.delete(category)
+                            }
+                        )
+                        setNegativeButton(android.R.string.no, null)
+                    }
+                    builder.show()
                 }
             }
 

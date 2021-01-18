@@ -71,6 +71,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:singleLine="true"
+                    android:enabled="false"
                     android:hint="@string/text_sub_category_title"/>
                 <ImageView
                     android:id="@+id/iv_sub_category_input"
