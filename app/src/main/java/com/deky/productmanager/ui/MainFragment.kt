@@ -1,12 +1,11 @@
 package com.deky.productmanager.ui
 
 import android.app.Activity
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.os.Build
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,10 +17,8 @@ import androidx.documentfile.provider.DocumentFile
 import com.deky.productmanager.R
 import com.deky.productmanager.database.CategoryDB
 import com.deky.productmanager.database.ProductDB
-import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.excel.ExcelConverterTask
-import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.FileUtils
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.coroutines.CoroutineScope
@@ -143,33 +140,29 @@ class MainFragment : BaseFragment() {
                     override fun onCompleteTask(error: Exception?) {
                         log.debug { "ExcelConverterTask.onCompleteTask()" }
 
-                                    excelTask = null
-                                    if (error != null) {
-                                        log.error(true) { "Error : ${error.message}" }
-                                    } else {
-                                        Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT)
-                                            .show()
-                                    }
-                                    val imageFile = File(ExcelConverterTask.imageDir,"-.jpg")
-                                    val bitmap = BitmapFactory.decodeResource(resources, R.drawable.minus)
-                                    val fos = FileOutputStream(imageFile)
-                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 99, fos)
-
-                                }
-                            })
+                        excelTask = null
+                        if (error != null) {
+                            log.error(true) { "Error : ${error.message}" }
+                        } else {
+                            Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT).show()
+                        }
+                        val imageFile = File(ExcelConverterTask.imageDir, "-.jpg")
+                        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.minus)
+                        val fos = FileOutputStream(imageFile)
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 99, fos)
                     }
-                }
-            }
+                })
         }
     }
 
-private fun saveExcelFileAfterQ() {
-    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-    startActivityForResult(intent, MainFragment.SAF_REQUEST_CODE)
-}
 
-override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-    super.onActivityResult(requestCode, resultCode, resultData)
+    private fun saveExcelFileAfterQ() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        startActivityForResult(intent, MainFragment.SAF_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
+        super.onActivityResult(requestCode, resultCode, resultData)
 
     if (requestCode == MainFragment.SAF_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
         val uri = resultData?.data
@@ -214,30 +207,6 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Int
                                 }
                             })
                     }
-
-
-
-//                        val folder = doc.findFile("NewDir")
-//                        if (folder?.exists() == true) { //폴더 존재여부 확인
-//                            Toast.makeText(this, "디렉토리가 존재합니다.", Toast.LENGTH_SHORT).show()
-//
-//                            //폴더가 존재하니 그 안에 파일도 존재하는지 확인
-//                            val fileDoc = DocumentFile.fromTreeUri(this, folder.uri)
-//                            val file = fileDoc?.findFile("TestFile.txt")
-//                            if (file?.exists() == true) {
-//                                Toast.makeText(this, "파일도 존재합니다.", Toast.LENGTH_SHORT).show()
-//                            }
-//                            return
-//
-//                        } else { //폴더가 존재하지 않으니 폴더 생성 및 파일생성
-//
-//                            doc.createDirectory(folderName)
-//                                ?.createFile("text/plain", "TestFile.txt")
-////                                ?.also {
-////                                    contentResolver.openOutputStream(it.uri)
-////                                        ?.write("Test Input GO".toByteArray())
-////                                }
-//                        }
                 }
             }
         }

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
 import android.net.Uri
 import android.os.AsyncTask
-import com.deky.productmanager.R
 import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
@@ -132,7 +131,6 @@ class ExcelConverterTask private constructor(
             if (!exists() && !mkdirs()) {
                 throw Exception("Failed to create directory.")
             }
-
             true
         }
     }
