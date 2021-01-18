@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ import com.deky.productmanager.database.ProductDB
 import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.excel.ExcelConverterTask
 import com.deky.productmanager.util.FileUtils
+import com.deky.productmanager.util.PreferenceManager
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -157,61 +159,77 @@ class MainFragment : BaseFragment() {
 
 
     private fun saveExcelFileAfterQ() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        startActivityForResult(intent, MainFragment.SAF_REQUEST_CODE)
+        context?.let {
+            val strUri = PreferenceManager.getSaveDirectoryUri(it)
+
+            if(strUri.isNullOrEmpty()) {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                startActivityForResult(intent, SAF_REQUEST_CODE)
+            } else {
+                executeExcelConverterTask(Uri.parse(strUri))
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         super.onActivityResult(requestCode, resultCode, resultData)
 
-    if (requestCode == MainFragment.SAF_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-        val uri = resultData?.data
-        //uri ex) content://com.android.externalstorage.documents/tree/primary%3A
+        if (requestCode == SAF_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val uri = resultData?.data
+            //uri ex) content://com.android.externalstorage.documents/tree/primary%3A
 
-        uri?.let {
-
-            //Uri 에 대한 접근 권한허용
-            val takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             context?.run {
-                contentResolver?.takePersistableUriPermission(it, takeFlags)
-
-                val folderDoc = DocumentFile.fromTreeUri(this, it)
-                folderDoc?.let { doc ->
-
-                    val folderName = SimpleDateFormat(MainFragment.DIRECTORY_PATTERN, Locale.getDefault())
-                        .format(System.currentTimeMillis())
-
-                    val directory = doc.createDirectory(folderName)
-                    val productDao = ProductDB.getInstance(this).productDao()
-
-                    directory?.let {
-                        excelTask = ExcelConverterTask.convert(this, productDao.getAll(), directory,
-                            object : ExcelConverterTask.OnTaskListener {
-                                override fun onStartTask() {
-                                    log.debug { "ExcelConverterTask.onStartTask()" }
-                                }
-
-                                override fun onProgressTask(progress: Int) {
-                                    log.debug { "ExcelConverterTask.onProgressTask() - progress : $progress" }
-                                }
-
-                                override fun onCompleteTask(error: Exception?) {
-                                    log.debug { "ExcelConverterTask.onCompleteTask()" }
-
-                                    excelTask = null
-                                    if (error != null) {
-                                        log.error(true) { "Error : ${error.message}" }
-                                    } else {
-                                        Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            })
-                    }
+                uri?.let {
+                    // 다음에 퍼미션 받지 않기 위해 저장
+                    PreferenceManager.setSaveDirectoryUri(this, it.toString())
+                    executeExcelConverterTask(uri)
                 }
             }
         }
     }
-}
+
+    private fun executeExcelConverterTask(uri: Uri) {
+        val takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+
+        context?.run {
+
+            //Uri 에 대한 접근 권한허용
+            contentResolver?.takePersistableUriPermission(uri, takeFlags)
+
+            val folderDoc = DocumentFile.fromTreeUri(this, uri)
+            folderDoc?.let { doc ->
+                val folderName = SimpleDateFormat(DIRECTORY_PATTERN, Locale.getDefault())
+                    .format(System.currentTimeMillis())
+
+                val directory = doc.createDirectory(folderName)
+                val productDao = ProductDB.getInstance(this).productDao()
+
+                directory?.let {
+                    excelTask = ExcelConverterTask.convert(this, productDao.getAll(), directory,
+                        object : ExcelConverterTask.OnTaskListener {
+                            override fun onStartTask() {
+                                log.debug { "ExcelConverterTask.onStartTask()" }
+                            }
+
+                            override fun onProgressTask(progress: Int) {
+                                log.debug { "ExcelConverterTask.onProgressTask() - progress : $progress" }
+                            }
+
+                            override fun onCompleteTask(error: Exception?) {
+                                log.debug { "ExcelConverterTask.onCompleteTask()" }
+
+                                excelTask = null
+                                if (error != null) {
+                                    log.error(true) { "Error : ${error.message}" }
+                                } else {
+                                    Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        })
+                }
+            }
+        }
+    }
 
     private fun showAlertDelete() {
         context?.let {
