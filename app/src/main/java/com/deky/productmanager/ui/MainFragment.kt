@@ -133,11 +133,15 @@ class MainFragment : BaseFragment() {
                                         Toast.makeText(context, "파일저장 완료", Toast.LENGTH_SHORT)
                                             .show()
                                     }
-                                    val imageFile = File(ExcelConverterTask.imageDir,"-.jpg")
-                                    val bitmap = BitmapFactory.decodeResource(resources, R.drawable.minus)
-                                    val fos = FileOutputStream(imageFile)
-                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 99, fos)
-
+                                    ExcelConverterTask.imageDir?.let { imageDir ->
+                                        val imageFile = File(imageDir, "-.jpg")
+                                        val bitmap = BitmapFactory.decodeResource(
+                                            resources,
+                                            R.drawable.minus
+                                        )
+                                        val fos = FileOutputStream(imageFile)
+                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 99, fos)
+                                    }
                                 }
                             })
                     }
