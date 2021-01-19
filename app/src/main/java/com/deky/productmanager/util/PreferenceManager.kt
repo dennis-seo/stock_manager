@@ -13,8 +13,9 @@ import com.deky.productmanager.R
 */
 object PreferenceManager {
     private const val PREFERENCES_NAME = "preference"
-    const val PREFERENCE_IMAGE_TAG = "preferencImageTag"
+    const val PREFERENCE_IMAGE_TAG = "preferenceImageTag"
     const val PREFERENCE_IMAGE_TAG_NAME = "preferenceImageTagName"
+    const val PREFERENCE_SAVE_DIRECTORY_URI = "preferenceSaveDirectoryUri"
 
     fun getPreferences(context: Context):SharedPreferences {
         return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -41,5 +42,14 @@ object PreferenceManager {
 
     fun getImageTagName(context: Context): String {
         return getPreferences(context).getString(PREFERENCE_IMAGE_TAG_NAME, "") ?: ""
+    }
+
+    fun setSaveDirectoryUri(context: Context, uri: String) {
+        getPreferences(context).edit()
+            .putString(PREFERENCE_SAVE_DIRECTORY_URI, uri).apply()
+    }
+
+    fun getSaveDirectoryUri(context: Context): String? {
+        return getPreferences(context).getString(PREFERENCE_SAVE_DIRECTORY_URI, null)
     }
 }

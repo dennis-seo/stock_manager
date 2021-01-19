@@ -5,7 +5,10 @@ import android.content.Intent
 import android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
 import android.net.Uri
 import android.os.AsyncTask
-import com.deky.productmanager.R
+import android.os.Build
+import android.webkit.MimeTypeMap
+import androidx.annotation.RequiresApi
+import androidx.documentfile.provider.DocumentFile
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
@@ -19,6 +22,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.min
@@ -31,7 +36,7 @@ import kotlin.math.min
 class ExcelConverterTask private constructor(
     private val context: Context,
     private val productList: List<Product>,
-    private val directory: File,
+    private val directory: Any,        // File or DocumentFile
     private var listener: OnTaskListener?
 ) : AsyncTask<Void, Int, Exception>() {
 
@@ -46,6 +51,8 @@ class ExcelConverterTask private constructor(
 
         // file name
         private const val EXCEL_FILE_NAME = "수기조사서.xlsx"
+        // picture directory name
+        private const val PICTURE_DIRECTORY_NAME = "사진"
 
         // sheet name
         private const val DEFAULT_SHEET_NAME = "관리품목"
@@ -53,8 +60,13 @@ class ExcelConverterTask private constructor(
         var imageDir: File? = null
 
         @JvmStatic
-        fun convert(context: Context, productList: List<Product>, directory: File, listener: OnTaskListener?): ExcelConverterTask {
-            return ExcelConverterTask(context, productList, directory, listener).apply {
+        fun convert(
+            context: Context,
+            productList: List<Product>,
+            folder: Any,
+            listener: OnTaskListener?
+        ): ExcelConverterTask {
+            return ExcelConverterTask(context, productList, folder, listener).apply {
                 executeOnExecutor(THREAD_POOL_EXECUTOR)
             }
         }
@@ -76,23 +88,14 @@ class ExcelConverterTask private constructor(
     }
 
     override fun doInBackground(vararg params: Void?): Exception? {
-        DKLog.info(TAG) { "doInBackground()" }
+        DKLog.info(TAG) { "doInBackground() : ${Build.VERSION.SDK_INT}" }
 
-        try {
-            if (checkDirectory()) {
-                val targetFile = File(directory, EXCEL_FILE_NAME).apply {
-                    if (exists()) throw Exception("Exist target file : $absolutePath")
-                }
-
-                saveExcelFile(targetFile)
-
-                context.sendBroadcast(Intent(ACTION_MEDIA_SCANNER_SCAN_FILE).apply {
-                    data = Uri.fromFile(targetFile)
-                })
-            }
-        } catch (e: Exception) {
-            DKLog.error(TAG) { "doInBackground() - error : ${e.message}" }
-            return e
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            // directory is DocumentFile
+            saveExcelFileAfterQ()
+        } else {
+            // directory is File
+            saveExcelFileBeforeQ()
         }
 
         return null
@@ -106,7 +109,7 @@ class ExcelConverterTask private constructor(
         }
     }
 
-    override fun onPostExecute(e:Exception?) {
+    override fun onPostExecute(e: Exception?) {
         DKLog.info(TAG) { "onPostExecute()" }
 
         listener?.run {
@@ -114,7 +117,7 @@ class ExcelConverterTask private constructor(
         }
     }
 
-    override fun onCancelled(e:Exception?) {
+    override fun onCancelled(e: Exception?) {
         DKLog.debug(TAG) { "onCancelled() - exception : ${e?.message ?: ""} " }
 
         listener?.run {
@@ -124,18 +127,63 @@ class ExcelConverterTask private constructor(
 
     @Throws(Exception::class)
     private fun checkDirectory(): Boolean {
-        return directory.run {
+        return (directory as File).run {
             if (!exists() && !mkdirs()) {
                 throw Exception("Failed to create directory.")
             }
-
             true
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun saveExcelFileAfterQ() {
+
+        val file = (directory as DocumentFile).createFile("*/*", EXCEL_FILE_NAME)
+        file?.let { file ->
+            context.contentResolver.openOutputStream(file.uri)?.let { outputStream ->
+                saveExcelFile(outputStream)
+            }
+        }
+//
+//        val savedFileUri = resolver.insert(saveExcelFile, fileContent)
+//        DKLog.info(TAG) { "saveExcelFileAfterQ() > saveFileUri : $savedFileUri" }
+//
+//        // savedFileUri 파일 쓰기
+//        savedFileUri?.let {
+//            //  savedFileUri 위치에 파일을 생성해준다.
+//            val pdf = resolver.openFileDescriptor(it, "w", null)
+//
+//            pdf?.let {
+//                val fileOutputStream = FileOutputStream(pdf.fileDescriptor)
+//                saveExcelFile(fileOutputStream)
+//            }
+//        }
+//
+//        fileContent.put(MediaStore.Downloads.IS_PENDING, 0)
+//        resolver.update(saveExcelFile, fileContent, null, null)
+    }
+
+    private fun saveExcelFileBeforeQ() {
+        try {
+            if (checkDirectory()) {
+                val targetFile = File((directory as File), EXCEL_FILE_NAME).apply {
+                    if (exists()) throw Exception("Exist target file : $absolutePath")
+                }
+
+                DKLog.info(TAG) { "saveExcelFileBeforeQ() > saveFileUri : $targetFile" }
+                saveExcelFile(targetFile.outputStream())
+
+                context.sendBroadcast(Intent(ACTION_MEDIA_SCANNER_SCAN_FILE).apply {
+                    data = Uri.fromFile(targetFile)
+                })
+            }
+        } catch (e: Exception) {
+            DKLog.error(TAG) { "doInBackground() - error : ${e.message}" }
+        }
+    }
+
     @Throws(Exception::class)
-    private fun saveExcelFile(file: File) {
-        DKLog.info(TAG) { "saveExcelFile() - file : ${file.absolutePath}" }
+    private fun saveExcelFile(outputStream: OutputStream) {
 
         createSheet().let { sheet ->
             // 타이틀 셀 병합
@@ -167,7 +215,7 @@ class ExcelConverterTask private constructor(
             }
         }
 
-        file.outputStream().use { stream ->
+        outputStream.use { stream ->
             workBook.write(stream)
         }
     }
@@ -182,8 +230,13 @@ class ExcelConverterTask private constructor(
         DKLog.info(TAG) { "writeProductData() - product : $product" }
         val imageName = if (PreferenceManager.isImageTagAvailability(context)) (PreferenceManager.getImageTagName(context) + product.id) else product.id.toString()
 
-        val imageFile: File? = try {
-            copyImageFile(product.imagePath, imageName)
+        val imageFile: Any? = try {
+            DKLog.info(TAG) { "image path : ${product.imagePath}"}
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                copyImageFileAfterQ(product.imagePath, imageName)
+            } else {
+                copyImageFileBeforeQ(product.imagePath, imageName)
+            }
         } catch (error: Exception) {
             DKLog.warn(TAG) { "${error.message}" }
             null
@@ -233,7 +286,19 @@ class ExcelConverterTask private constructor(
         setCellValue(value)
     }
 
-    private fun getImageIdFromFile(imageFile: File?): String = imageFile?.nameWithoutExtension ?: "-"
+    private fun getImageIdFromFile(imageFile: Any?): String {
+        return when (imageFile) {
+            is File -> {
+                imageFile.nameWithoutExtension
+            }
+            is DocumentFile -> {
+                imageFile.name?.substringBeforeLast(".") ?: "-"
+            }
+            else -> {
+                "-"
+            }
+        }
+    }
 
     private fun parseManufactureDate(manufactureDate: Date): String {
         return SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
@@ -251,13 +316,13 @@ class ExcelConverterTask private constructor(
     }
 
     @Throws(Exception::class)
-    private fun copyImageFile(imagePath: String, id: String): File {
+    private fun copyImageFileBeforeQ(imagePath: String, id: String): File {
         File(imagePath).let { imageFile ->
             imageFile.takeUnless { it.exists() }?.run {
                 throw Exception("Not found image file.")
             }
 
-            val imageDirectory = File(directory, "사진").apply {
+            val imageDirectory = File((directory as File), "사진").apply {
                 takeUnless { exists() }?. run {
                     if (!mkdirs()) throw Exception("Failed to create image directory.")
                 }
@@ -268,6 +333,46 @@ class ExcelConverterTask private constructor(
             return File(imageDirectory, "${id}.${imageFile.extension}").let { target ->
                 imageFile.copyTo(target, true)
             }
+        }
+    }
+
+    @Throws(Exception::class)
+    private fun copyImageFileAfterQ(imagePath: String, id: String): DocumentFile {
+        File(imagePath).let { sourceFile ->
+            sourceFile.takeUnless { it.exists() }?.run {
+                throw Exception("Not found image file.")
+            }
+
+            val mainFolder = directory as DocumentFile
+//            val files = mainFolder.listFiles()
+
+            // 기존 폴더가 있다면 해당 폴더, 없다면 폴더 생성, 실패시 익셉션
+            val pictureFolder: DocumentFile = mainFolder.findFile(PICTURE_DIRECTORY_NAME)
+                ?: mainFolder.createDirectory(PICTURE_DIRECTORY_NAME)
+                ?: throw Exception("Failed to create image directory.")
+
+            val inStream = FileInputStream(sourceFile)
+            val inChannel = inStream.channel
+
+            val mimeType = getMimeType(imagePath)
+            val targetFile = pictureFolder.createFile(mimeType, id.toString())
+            val outStream = targetFile?.let { targetFile ->
+                context.contentResolver.openOutputStream(targetFile.uri)
+            }
+            val outChannel = (outStream as FileOutputStream).channel
+            inChannel.transferTo(0, inChannel.size(), outChannel)
+            outChannel.close()
+            outStream.close()
+            inChannel.close()
+            inStream.close()
+
+            return targetFile
+        }
+    }
+
+    private fun getMimeType(url: String?): String {
+        return MimeTypeMap.getFileExtensionFromUrl(url).let {
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(it)?: "error"
         }
     }
 
