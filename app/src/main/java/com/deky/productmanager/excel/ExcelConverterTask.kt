@@ -3,12 +3,15 @@ package com.deky.productmanager.excel
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
 import androidx.documentfile.provider.DocumentFile
+import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.DKLog
@@ -51,9 +54,11 @@ class ExcelConverterTask private constructor(
 
         // file name
         private const val EXCEL_FILE_NAME = "수기조사서.xlsx"
+        // default image file name
+        private const val DEFAULT_IMAGE_FILE_NAME = "-.jpg"
+
         // picture directory name
         private const val PICTURE_DIRECTORY_NAME = "사진"
-
         // sheet name
         private const val DEFAULT_SHEET_NAME = "관리품목"
 
@@ -93,9 +98,11 @@ class ExcelConverterTask private constructor(
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             // directory is DocumentFile
             saveExcelFileAfterQ()
+            createDefaultImageAfterQ()
         } else {
             // directory is File
             saveExcelFileBeforeQ()
+            createDefaultImageBeforeQ()
         }
 
         return null
@@ -163,6 +170,24 @@ class ExcelConverterTask private constructor(
 //        resolver.update(saveExcelFile, fileContent, null, null)
     }
 
+    private fun createDefaultImageAfterQ() {
+        val mainFolder = directory as DocumentFile
+        val pictureFolder: DocumentFile = mainFolder.findFile(PICTURE_DIRECTORY_NAME)
+                ?: throw Exception("Failed to create image directory.")
+
+        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.minus)
+        val newFile = pictureFolder.createFile("image/jpg", DEFAULT_IMAGE_FILE_NAME)
+
+        newFile?.let { targetFile ->
+            // 만들어진 파일의 outStream 열기
+            context.contentResolver.openOutputStream(targetFile.uri)?.run {
+                // outStream 통해 이미지 쓰고 닫기
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 99, this)
+                close()
+            }
+        }
+    }
+
     private fun saveExcelFileBeforeQ() {
         try {
             if (checkDirectory()) {
@@ -179,6 +204,16 @@ class ExcelConverterTask private constructor(
             }
         } catch (e: Exception) {
             DKLog.error(TAG) { "doInBackground() - error : ${e.message}" }
+        }
+    }
+
+    // 엑셀파일 생성 시, 사진이 없는 데이터일 경우 디폴트 이미지로 사용할 이미지 복사
+    private fun createDefaultImageBeforeQ() {
+        imageDir?.let { imageDir ->
+            val imageFile = File(imageDir, DEFAULT_IMAGE_FILE_NAME)
+            val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.minus)
+            val fos = FileOutputStream(imageFile)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 99, fos)
         }
     }
 
@@ -230,6 +265,7 @@ class ExcelConverterTask private constructor(
         DKLog.info(TAG) { "writeProductData() - product : $product" }
         val imageName = if (PreferenceManager.isImageTagAvailability(context)) (PreferenceManager.getImageTagName(context) + product.id) else product.id.toString()
 
+        // 이미지 파일 복사 및 복사된 파일 가져오기
         val imageFile: Any? = try {
             DKLog.info(TAG) { "image path : ${product.imagePath}"}
             if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
@@ -330,8 +366,8 @@ class ExcelConverterTask private constructor(
 
             imageDir = imageDirectory
 
-            return File(imageDirectory, "${id}.${imageFile.extension}").let { target ->
-                imageFile.copyTo(target, true)
+            return File(imageDirectory, "${id}.${imageFile.extension}").let { newFile ->
+                imageFile.copyTo(newFile, true)
             }
         }
     }
