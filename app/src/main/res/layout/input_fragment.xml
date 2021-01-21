@@ -258,6 +258,7 @@
                     android:layout_toEndOf="@id/tv_input_size"
                     android:gravity="center"
                     android:hint="@string/input_text_size_length"
+                    android:imeOptions="actionNext"
                     android:inputType="numberDecimal"
                     android:selectAllOnFocus="true"
                     android:text="@{productViewModel.getManufactureSize(productViewModel.products, 0)}"

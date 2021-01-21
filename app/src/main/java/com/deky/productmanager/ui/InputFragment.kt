@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
@@ -112,6 +113,25 @@ class InputFragment : BaseFragment() {
             viewModel.setClearManufacturer()
             viewModel.manufacturerParentId.postValue(-1L)
         }
+        ed_input_size_length?.imeOptions = EditorInfo.IME_ACTION_NEXT
+        ed_input_size_width?.imeOptions = EditorInfo.IME_ACTION_NEXT
+
+        ed_input_size_length?.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                ed_input_size_width.requestFocus()
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
+
+        ed_input_size_width?.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                ed_input_size_height.requestFocus()
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
+
     }
 
     private fun initObservers() {
