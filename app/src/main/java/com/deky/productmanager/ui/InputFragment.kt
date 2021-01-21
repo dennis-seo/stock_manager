@@ -75,8 +75,6 @@ class InputFragment : BaseFragment() {
         if(productId != DEFAULT_PRODUCT_ID) {
             viewModel.loadProductData(productId)
         }
-
-
         return dataBinding.root
     }
 
@@ -84,7 +82,7 @@ class InputFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         initObservers()
         viewModel.categoryParentId.postValue(-1L)
-        viewModel.manufacturerParentId.postValue(-1L)
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -103,6 +101,16 @@ class InputFragment : BaseFragment() {
                 tag_checkbox.setChecked(false)
                 tag_input.setText(PreferenceManager.getImageTagName(context))
             }
+        }
+
+        manufacturer_textview?.setOnClickListener {
+            viewModel.setClearManufacturer()
+            viewModel.manufacturerParentId.postValue(-1L)
+        }
+
+        et_input_manufacturer?.setOnClickListener {
+            viewModel.setClearManufacturer()
+            viewModel.manufacturerParentId.postValue(-1L)
         }
     }
 

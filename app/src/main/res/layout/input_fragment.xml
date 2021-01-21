@@ -107,7 +107,8 @@
             <!-- 품명 -->
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp">
 
                 <TextView
                     android:id="@+id/tv_input_name"
@@ -115,25 +116,41 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:text="@string/text_name"/>
-                <EditText
-                    android:id="@+id/et_input_name"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="10dp"
+
+                <LinearLayout
+                    android:id="@+id/name_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_toEndOf="@id/tv_input_name"
-                    android:lines="1"
-                    android:inputType="text"
-                    android:selectAllOnFocus="true"
-                    android:text="@{productViewModel.products.name}" />
+                    android:orientation="vertical"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/et_input_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:inputType="text"
+                        android:lines="1"
+                        android:selectAllOnFocus="true"
+                        android:text="@{productViewModel.products.name}" />
+
+                    <View
+                        android:layout_width="100dp"
+                        android:layout_height="2dp"
+                        android:background="@color/black"/>
+
+                </LinearLayout>
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_toEndOf="@id/et_input_name"
+                    android:layout_toEndOf="@id/name_textview"
                     android:layout_centerVertical="true"
                     android:src="@drawable/clear"
                     android:onClick="@{productViewModel::setClearProductName}"/>
+
+
             </RelativeLayout>
 
             <!-- 품명 목록 -->
@@ -159,25 +176,31 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:text="@string/text_manufacturer"/>
-                <EditText
-                    android:id="@+id/et_input_manufacturer"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="10dp"
-                    android:layout_toEndOf="@id/tv_input_manufacturer"
-                    android:lines="1"
-                    android:inputType="text|textCapCharacters"
-                    android:selectAllOnFocus="true"
-                    android:text="@{productViewModel.products.manufacturer}" />
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_toEndOf="@id/et_input_manufacturer"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/clear"
-                    android:onClick="@{productViewModel::setClearManufacturer}"/>
+                <LinearLayout
+                    android:id="@+id/manufacturer_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_toEndOf="@id/tv_input_manufacturer"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/et_input_manufacturer"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:lines="1"
+                        android:inputType="text|textCapCharacters"
+                        android:selectAllOnFocus="true"
+                        android:text="@{productViewModel.products.manufacturer}" />
+
+                    <View
+                        android:layout_width="100dp"
+                        android:layout_height="2dp"
+                        android:background="@color/black"/>
+                </LinearLayout>
+
             </RelativeLayout>
 
             <com.google.android.flexbox.FlexboxLayout

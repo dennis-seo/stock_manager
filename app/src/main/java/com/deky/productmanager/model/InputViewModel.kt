@@ -91,7 +91,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         _products.postValue(_products.value)
     }
 
-    fun setClearManufacturer(view: View) {
+    fun setClearManufacturer() {
         manufacturerParentId.postValue(-1L)
         _products.value.manufacturer = ""
         _products.postValue(_products.value)
