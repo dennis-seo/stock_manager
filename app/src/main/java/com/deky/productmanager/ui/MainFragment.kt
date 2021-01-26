@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -257,6 +258,7 @@ class MainFragment : BaseFragment() {
 
     private val removeButtonClick = { _: DialogInterface, _: Int ->
         removeDb()
+        removePictures()
     }
 
     private fun removeDb() {
@@ -269,6 +271,17 @@ class MainFragment : BaseFragment() {
                 }
 
                 Toast.makeText(context, "Database 삭제 완료", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun removePictures() {
+        val picturesFile = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        if (picturesFile?.exists() == true) {
+            picturesFile.delete()
+            val childFileList = picturesFile.listFiles()
+            childFileList?.forEach {
+                it.delete()
             }
         }
     }
