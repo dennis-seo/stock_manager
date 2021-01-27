@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.core.os.bundleOf
+import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
@@ -22,6 +23,7 @@ import com.deky.productmanager.database.entity.Manufacturer
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
 import com.deky.productmanager.model.BaseViewModel
+import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.PreferenceManager
 import com.deky.productmanager.util.toast
 import kotlinx.android.synthetic.main.input_fragment.*
@@ -37,6 +39,7 @@ import kotlinx.android.synthetic.main.productname_item_layout.view.*
 class InputFragment : BaseFragment() {
 
     companion object {
+        private const val TAG = "InputFragment"
         private const val ARG_PRODUCT_ID = "product_id"
         const val DEFAULT_PRODUCT_ID: Long = -1
 
@@ -83,6 +86,7 @@ class InputFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         initObservers()
         viewModel.categoryParentId.postValue(-1L)
+        viewModel.manufacturerParentId.postValue(-1L)
 
     }
 
@@ -104,17 +108,27 @@ class InputFragment : BaseFragment() {
             }
         }
 
-        manufacturer_textview?.setOnClickListener {
-            viewModel.setClearManufacturer()
-            viewModel.manufacturerParentId.postValue(-1L)
+        // 품명 수동입력
+        et_input_name?.doAfterTextChanged {
+            val text = it.toString()
+            if(text.isEmpty()) {
+                viewModel.setClearProductName()
+                viewModel.categoryParentId.postValue(-1L)
+            }
+            viewModel.onNameChange(text)
+            DKLog.debug(TAG) { text }
         }
 
-        et_input_manufacturer?.setOnClickListener {
-            viewModel.setClearManufacturer()
-            viewModel.manufacturerParentId.postValue(-1L)
+        // 제조사 수동입력
+        et_input_manufacturer?.doAfterTextChanged {
+            val text = it.toString()
+            if(text.isEmpty()) {
+                viewModel.setClearManufacturer()
+                viewModel.manufacturerParentId.postValue(-1L)
+            }
+            viewModel.onManufacturerChange(text)
+            DKLog.debug(TAG) { text }
         }
-        ed_input_size_length?.imeOptions = EditorInfo.IME_ACTION_NEXT
-        ed_input_size_width?.imeOptions = EditorInfo.IME_ACTION_NEXT
 
         ed_input_size_length?.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_NEXT) {
@@ -144,6 +158,7 @@ class InputFragment : BaseFragment() {
             et_input_amount.setText(it)
             Toast.makeText(context, R.string.message_toast_input_value_only_number, Toast.LENGTH_SHORT).show()
         })
+        // 품명
         viewModel.productNameList.observe(this, Observer {
             if (it.isEmpty()) {
                 viewModel.products.value?.name = viewModel.getCategory()?.name ?: ""
@@ -151,6 +166,7 @@ class InputFragment : BaseFragment() {
             }
             initProductNameLayout(it)
         })
+        // 제조사
         viewModel.manufacturerList.observe(this, Observer {
             if (it.isEmpty()) {
                 viewModel.products.value?.manufacturer = viewModel.getManufacturer()?.name ?: ""

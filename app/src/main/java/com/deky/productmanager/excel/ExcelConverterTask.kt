@@ -285,7 +285,7 @@ class ExcelConverterTask private constructor(
 
                 when (column) {
                     Column.NO -> setValueWithResize(sheet, column, itemIndex.toString())
-                    Column.LABEL -> setValueWithResize(sheet, column, product.label)
+//                    Column.LABEL -> setValueWithResize(sheet, column, product.label)
                     Column.IMAGE_ID -> setValueWithResize(sheet, column, getImageIdFromFile(imageFile))
                     Column.IMAGE -> setValueWithResize(sheet, column, "")
                     Column.LOCATION -> setValueWithResize(sheet, column, product.location)

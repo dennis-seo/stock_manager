@@ -85,7 +85,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         return ""
     }
 
-    fun setClearProductName(view: View) {
+    fun setClearProductName() {
         categoryParentId.postValue(-1L)
         _products.value.name = ""
         _products.postValue(_products.value)
@@ -239,6 +239,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
+    // 제조사 입력버튼
     fun onClickManufacturer(view: View) {
         if (view is Button) {
             _products.value.manufacturer = view.text.toString()

@@ -82,7 +82,7 @@ object ExcelManager {
 
 enum class Column(val type: Int, val title: String) {
     NO(Cell.CELL_TYPE_STRING, "No"),
-    LABEL(Cell.CELL_TYPE_STRING, "라벨번호"),
+//    LABEL(Cell.CELL_TYPE_STRING, "라벨번호"),
     IMAGE_ID(Cell.CELL_TYPE_STRING, "이미지 ID"),
     IMAGE(Cell.CELL_TYPE_STRING, "사진"),
     LOCATION(Cell.CELL_TYPE_STRING, "위치"),
