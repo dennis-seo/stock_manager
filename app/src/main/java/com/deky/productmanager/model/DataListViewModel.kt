@@ -47,6 +47,7 @@ class DataListViewModel(application: Application): BaseViewModel(application){
     fun delete(product: Product) {
         viewModelScope.launch {
             repository.delete(product)
+            products.postValue(products.value?.minus(product))
         }
     }
 }
