@@ -136,10 +136,12 @@ class MainFragment : BaseFragment() {
             excelTask = ExcelConverterTask.convert(context, productDao.getAll(), directory,
                 object : ExcelConverterTask.OnTaskListener {
                     override fun onStartTask() {
+                        Toast.makeText(context, "Start", Toast.LENGTH_SHORT).show()
                         log.debug { "ExcelConverterTask.onStartTask()" }
                     }
 
                     override fun onProgressTask(progress: Int) {
+                        Toast.makeText(context, "Progress : $progress", Toast.LENGTH_SHORT).show()
                         log.debug { "ExcelConverterTask.onProgressTask() - progress : $progress" }
                     }
 

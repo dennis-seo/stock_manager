@@ -19,7 +19,7 @@ interface ProductDao {
     @Query("SELECT * FROM Product")
     fun getAll(): List<Product>
 
-    @Query(value = "SELECT * FROM Product WHERE location = :keyword OR name = :keyword")
+    @Query(value = "SELECT * FROM Product WHERE location LIKE '%' || :keyword || '%' OR name LIKE '%' || :keyword || '%' OR manufacturer LIKE '%' || :keyword || '%'")
     fun findProduct(keyword: String): List<Product>?
 
     @Query("SELECT * FROM Product WHERE _id = :productId")
