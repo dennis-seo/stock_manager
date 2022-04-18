@@ -4,13 +4,13 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 31
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "com.deky.productmanager"
         minSdkVersion 26
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
@@ -40,6 +40,16 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    // jdk 1.8이상이면 아래 모듈들이 삭제되었기에
+    // 다시 가져와야 한다.
+    if(JavaVersion.current() != JavaVersion.VERSION_1_8){
+        kapt "com.sun.xml.bind:jaxb-core:2.3.0.1"
+        kapt "javax.xml.bind:jaxb-api:2.3.1"
+        kapt "com.sun.xml.bind:jaxb-impl:2.3.2"
+        annotationProcessor "com.sun.xml.bind:jaxb-core:2.3.0.1"
+        annotationProcessor "javax.xml.bind:jaxb-api:2.3.1"
+    }
+
     implementation deps.kotlin.stdlib
     // implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
@@ -59,10 +69,6 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.0.1'
     // implementation 'androidx.lifecycle:lifecycle-livedata-ktx:
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
     // data binding
     kapt "com.android.databinding:compiler:3.1.4"
 
@@ -76,12 +82,12 @@ dependencies {
     implementation "org.apache.poi:poi:$poi_version"
     implementation "org.apache.poi:poi-ooxml:$poi_version"
 
-    implementation "com.google.android.material:material:1.1.0"
+    implementation "com.google.android.material:material:1.4.0"
 
     // coil (Image loader)
     implementation("io.coil-kt:coil:0.10.0")
 
     // ui
     implementation 'com.google.android:flexbox:1.1.1'
-    implementation 'androidx.recyclerview:recyclerview-selection:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 }
