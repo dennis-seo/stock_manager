@@ -55,7 +55,7 @@ class ExcelConverterTask private constructor(
         // file name
         private const val EXCEL_FILE_NAME = "수기조사서.xlsx"
         // default image file name
-        private const val DEFAULT_IMAGE_FILE_NAME = "-.jpg"
+        private const val DEFAULT_IMAGE_FILE_NAME = "-.png"
 
         // picture directory name
         private const val PICTURE_DIRECTORY_NAME = "사진"
