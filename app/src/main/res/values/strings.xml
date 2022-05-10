@@ -11,6 +11,8 @@
     <string name="btn_picture">사진찍기</string>
     <string name="btn_make_excel">엑셀파일 출력</string>
     <string name="btn_manufacturer_management">제조사 관리</string>
+    <string name="btn_model_management">모델명 관리</string>
+    <string name="btn_size_management">규격 관리</string>
 
     <string name="text_category_title">품명관리</string>
     <string name="text_main_category_title">대분류</string>
@@ -18,6 +20,8 @@
 
     <string name="text_menufacturer_title">제조사 관리</string>
     <string name="text_menufacturer_subcategory_title">제조사</string>
+
+    <string name="text_model_title">모델명 관리</string>
 
     <string name="text_search_keyword">검색</string>
 

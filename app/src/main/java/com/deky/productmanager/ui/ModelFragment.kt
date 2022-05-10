@@ -18,9 +18,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Manufacturer
+import com.deky.productmanager.database.entity.Model
 import com.deky.productmanager.databinding.ManufacturerFragmentBinding
 import com.deky.productmanager.model.BaseViewModel
-import com.deky.productmanager.model.ManufacturerViewModel
+import com.deky.productmanager.model.ModelViewModel
 import com.deky.productmanager.util.DKLog
 import kotlinx.android.synthetic.main.manufacturer_fragment.*
 import kotlinx.android.synthetic.main.manufacturer_fragment.iv_main_category_input
@@ -29,17 +30,18 @@ import kotlinx.android.synthetic.main.manufacturer_fragment.recycler_main_catego
 import kotlinx.android.synthetic.main.manufacturer_fragment.recycler_sub_category
 
 /*
-* Created by Diane on 16/01/2021
+* Created by dennis on 10/05/2021
+*
 */
-class ManufacturerFragment : Fragment() {
+class ModelFragment : Fragment() {
     companion object {
-        private const val TAG = "ManufacturerFragment"
-        fun newInstance(): ManufacturerFragment = ManufacturerFragment()
+        private const val TAG = "ModelFragment"
+        fun newInstance(): ModelFragment = ModelFragment()
     }
 
     private val viewModel by lazy {
         ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application))
-            .get(ManufacturerViewModel::class.java)
+            .get(ModelViewModel::class.java)
     }
 
     private val mainCategoryAdapter: CategoryAdapter by lazy {
@@ -50,15 +52,11 @@ class ManufacturerFragment : Fragment() {
         CategoryAdapter()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val dataBinding = DataBindingUtil.inflate<ManufacturerFragmentBinding>(
             inflater, R.layout.manufacturer_fragment, container, false
         ).apply {
-            lifecycleOwner = this@ManufacturerFragment
+            lifecycleOwner = this@ModelFragment
         }
 
         return dataBinding.root
@@ -67,10 +65,12 @@ class ManufacturerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        tv_category_title.text = getText(R.string.text_model_title)
+
         ed_main_manufacturer.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 if (ed_main_manufacturer.text.isNotEmpty()) {
-                    viewModel.insertMainManufacturer(ed_main_manufacturer.text.toString())
+                    viewModel.insertMainModel(ed_main_manufacturer.text.toString())
                     (v as EditText).text.clear()
                 }
                 return@OnKeyListener true
@@ -81,7 +81,7 @@ class ManufacturerFragment : Fragment() {
         ed_sub_manufacturer.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 if (ed_sub_manufacturer.text.isNotEmpty()) {
-                    viewModel.insertSubManufacturer(ed_sub_manufacturer.text.toString())
+                    viewModel.insertSubModel(ed_sub_manufacturer.text.toString())
                     (v as EditText).text.clear()
                 }
                 return@OnKeyListener true
@@ -91,14 +91,14 @@ class ManufacturerFragment : Fragment() {
 
         iv_main_category_input.setOnClickListener {
             if (ed_main_manufacturer.text.isNotEmpty()) {
-                viewModel.insertMainManufacturer(ed_main_manufacturer.text.toString())
+                viewModel.insertMainModel(ed_main_manufacturer.text.toString())
                 ed_main_manufacturer.text.clear()
             }
         }
 
         iv_sub_category_input.setOnClickListener {
             if (ed_sub_manufacturer.text.isNotEmpty()) {
-                viewModel.insertSubManufacturer(ed_sub_manufacturer.text.toString())
+                viewModel.insertSubModel(ed_sub_manufacturer.text.toString())
                 ed_sub_manufacturer.text.clear()
             }
         }
@@ -119,22 +119,21 @@ class ManufacturerFragment : Fragment() {
 
 
         // observer
-
-        viewModel.mainCategory.observe(this, Observer {mainCategory ->
+        viewModel.mainCategory.observe(viewLifecycleOwner, Observer { mainCategory ->
             DKLog.debug(TAG) {
                 "mainCategory update: ${mainCategory.size}"
             }
             mainCategoryAdapter.submitList(mainCategory)
         })
 
-        viewModel.subCategory.observe(this, Observer { subCategroy ->
+        viewModel.subCategory.observe(viewLifecycleOwner, Observer { subCategroy ->
             DKLog.debug(TAG) {
                 "subCategory update: ${subCategroy?.size}"
             }
             subCategoryAdapter.submitList(subCategroy)
         })
 
-        viewModel.selectedCategory.observe(this, Observer { selectedCategory ->
+        viewModel.selectedCategory.observe(viewLifecycleOwner, Observer { selectedCategory ->
             DKLog.debug(TAG) {
                 "selected category : ${selectedCategory}"
             }
@@ -155,10 +154,10 @@ class ManufacturerFragment : Fragment() {
             StorageStrategy.createLongStorage()
         ).withSelectionPredicate(SelectionPredicates.createSelectSingleAnything()).build()
 
-        selectionTracker?.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
+        selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
             override fun onItemStateChanged(id: Long, selected: Boolean) {
                 DKLog.debug(TAG) { "onItemStateChanged() - category id : $id  /   selected : $selected" }
-                // TODO 소분류 항목 업데이트
+                // 소분류 항목 업데이트
                 if (selected) {
                     findCategoryInMain(id).let {
                         viewModel.selectedCategory.postValue(it)
@@ -175,7 +174,7 @@ class ManufacturerFragment : Fragment() {
         return selectionTracker
     }
 
-    private fun findCategoryInMain(id: Long): Manufacturer? {
+    private fun findCategoryInMain(id: Long): Model? {
         viewModel.mainCategory.value.let { mainCategoryList ->
             mainCategoryList?.let {
                 for(category in mainCategoryList) {
@@ -188,7 +187,7 @@ class ManufacturerFragment : Fragment() {
     }
 
     private inner class CategoryAdapter :
-        ListAdapter<Manufacturer, CategoryAdapter.CategoryViewHolder>(diffItemCallback) {
+        ListAdapter<Model, CategoryAdapter.CategoryViewHolder>(diffItemCallback) {
 
         var tracker: SelectionTracker<Long>? = null
 
@@ -207,9 +206,7 @@ class ManufacturerFragment : Fragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
             return CategoryViewHolder(
                 LayoutInflater.from(parent.context).inflate(
-                    R.layout.category_list_item,
-                    parent,
-                    false
+                    R.layout.category_list_item, parent, false
                 )
             )
         }
@@ -217,10 +214,6 @@ class ManufacturerFragment : Fragment() {
 
         override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
             val category = getItem(position)
-//            tracker?.let {
-//                holder.bind(category, it.isSelected(category.id))
-//            }
-
             holder.bind(category, tracker?.isSelected(category.id) ?: false)
         }
 
@@ -229,7 +222,7 @@ class ManufacturerFragment : Fragment() {
             val tvName: TextView by lazy { itemView.findViewById(R.id.tv_category_name) as TextView }
             val btnDelete: ImageView by lazy { itemView.findViewById(R.id.btn_category_delete) as ImageView }
 
-            fun bind(category: Manufacturer, isSelected: Boolean) {
+            fun bind(category: Model, isSelected: Boolean) {
                 DKLog.debug(TAG) { "bind() category : ${category.parentCategory} / ${category.id} / ${category.name} / $isSelected"}
 
                 tvName.text = category.name
@@ -248,7 +241,7 @@ class ManufacturerFragment : Fragment() {
                 }
             }
 
-            private fun showAlertDelete(category: Manufacturer) {
+            private fun showAlertDelete(category: Model) {
                 DKLog.debug(TAG) { "showAlertDelete()" }
 
                 context?.let {
@@ -285,13 +278,13 @@ class ManufacturerFragment : Fragment() {
         }
     }
 
-    private val diffItemCallback = object : DiffUtil.ItemCallback<Manufacturer>() {
+    private val diffItemCallback = object : DiffUtil.ItemCallback<Model>() {
 
-        override fun areItemsTheSame(oldItem: Manufacturer, newItem: Manufacturer): Boolean {
+        override fun areItemsTheSame(oldItem: Model, newItem: Model): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: Manufacturer, newItem: Manufacturer): Boolean {
+        override fun areContentsTheSame(oldItem: Model, newItem: Model): Boolean {
             return oldItem == newItem
         }
     }

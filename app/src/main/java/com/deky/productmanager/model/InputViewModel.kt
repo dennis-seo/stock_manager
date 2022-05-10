@@ -12,6 +12,7 @@ import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.*
 import com.deky.productmanager.database.repository.CategoryRepository
 import com.deky.productmanager.database.repository.ManufacturerRepository
+import com.deky.productmanager.database.repository.ModelRepository
 import com.deky.productmanager.database.repository.ProductRepository
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.NotNullMutableLiveData
@@ -28,6 +29,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     private var repository: ProductRepository = ProductRepository(application)
     private var productNameRepository: CategoryRepository = CategoryRepository(application)
     private var manufacturerRepository = ManufacturerRepository(application)
+    private var modelRepository = ModelRepository(application)
 
     private val _products: NotNullMutableLiveData<Product> = NotNullMutableLiveData(Product())
     val products: LiveData<Product> = _products
@@ -43,6 +45,10 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     // 제조사
     var manufacturerParentId = MutableLiveData<Long>()
     val manufacturerList: LiveData<List<Manufacturer>>
+
+    // 모델명
+    var modelParentId = MutableLiveData<Long>()
+    val modelList: LiveData<List<Model>>
 
     init {
         productNameList = Transformations.switchMap(
@@ -62,6 +68,16 @@ class InputViewModel(application: Application): BaseViewModel(application) {
                     return@Function manufacturerRepository.getMainCategory()
                 }
                 return@Function manufacturerRepository.getManufacturerByParentId(parentId)
+            }
+        )
+
+        modelList = Transformations.switchMap(
+            modelParentId,
+            Function<Long?, LiveData<List<Model>>> { parentId ->
+                if (parentId == null || parentId == -1L) {
+                    return@Function modelRepository.getMainCategory()
+                }
+                return@Function modelRepository.getModelByParentId(parentId)
             }
         )
     }
@@ -97,12 +113,22 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         _products.postValue(_products.value)
     }
 
+    fun setClearModel() {
+        modelParentId.postValue(-1L)
+        _products.value.model = ""
+        _products.postValue(_products.value)
+    }
+
     fun getCategory(): Category? {
         return productNameRepository.getCategoryById(categoryParentId.value ?: -1L)
     }
 
     fun getManufacturer(): Manufacturer? {
         return manufacturerRepository.getManufactureryById(manufacturerParentId.value ?: -1L)
+    }
+
+    fun getModel(): Model? {
+        return modelRepository.getModelById(modelParentId.value ?: -1L)
     }
 
     fun onLabelChange(text: CharSequence) {
@@ -149,13 +175,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun onManufactureDateChange(text: CharSequence) {
-//        manufactureDate.postValue(if (text.isNotEmpty()) splitDate(text.toString()) else "")
-//        _products.value.manufactureDate = manufactureDate.value.toString()
-
         _products.value.manufactureDate = if (text.isNotEmpty()) splitDate(text.toString()) else ""
-
-//        _products.value.manufactureDate = if (text.isNotEmpty()) splitDate(text.toString()) else ""
-//        _products.postValue(_products.value)
     }
 
     fun onAmountChange(text: CharSequence) {
@@ -245,6 +265,14 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     fun onClickManufacturer(view: View) {
         if (view is Button) {
             _products.value.manufacturer = view.text.toString()
+            _products.postValue(_products.value)
+        }
+    }
+
+    // 제조사 입력버튼
+    fun onClickModel(view: View) {
+        if (view is Button) {
+            _products.value.model = view.text.toString()
             _products.postValue(_products.value)
         }
     }

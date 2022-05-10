@@ -6,7 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +20,7 @@ import androidx.lifecycle.Observer
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Category
 import com.deky.productmanager.database.entity.Manufacturer
+import com.deky.productmanager.database.entity.Model
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
 import com.deky.productmanager.model.BaseViewModel
@@ -31,10 +32,7 @@ import kotlinx.android.synthetic.main.productname_item_layout.view.*
 
 
 /*
-* Copyright (C) 2020 Kakao corp. All rights reserved.
-*
 * Created by Dennis.Seo on 07/05/2020
-*
 */
 class InputFragment : BaseFragment() {
 
@@ -87,7 +85,7 @@ class InputFragment : BaseFragment() {
         initObservers()
         viewModel.categoryParentId.postValue(-1L)
         viewModel.manufacturerParentId.postValue(-1L)
-
+        viewModel.modelParentId.postValue(-1L)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -114,8 +112,11 @@ class InputFragment : BaseFragment() {
             if(text.isEmpty()) {
                 viewModel.setClearProductName()
                 viewModel.categoryParentId.postValue(-1L)
+                iv_clear_product.visibility = View.GONE
+            } else {
+                viewModel.onNameChange(text)
+                iv_clear_product.visibility = View.VISIBLE
             }
-            viewModel.onNameChange(text)
             DKLog.debug(TAG) { text }
         }
 
@@ -125,9 +126,24 @@ class InputFragment : BaseFragment() {
             if(text.isEmpty()) {
                 viewModel.setClearManufacturer()
                 viewModel.manufacturerParentId.postValue(-1L)
+                iv_clear_manufacturer.visibility = View.GONE
+            } else {
+                viewModel.onManufacturerChange(text)
+                iv_clear_manufacturer.visibility = View.VISIBLE
             }
-            viewModel.onManufacturerChange(text)
-            DKLog.debug(TAG) { text }
+        }
+
+        // 모델명 수동입력
+        et_input_model?.doAfterTextChanged {
+            val text = it.toString()
+            if(text.isEmpty()) {
+                viewModel.setClearModel()
+                viewModel.modelParentId.postValue(-1L)
+                iv_clear_model.visibility = View.GONE
+            } else {
+                viewModel.onModelChange(text)
+                iv_clear_model.visibility = View.VISIBLE
+            }
         }
 
         ed_input_size_length?.setOnEditorActionListener { _, actionId, _ ->
@@ -149,30 +165,40 @@ class InputFragment : BaseFragment() {
     }
 
     private fun initObservers() {
-        viewModel.toastMessage.observe(this, Observer { event ->
+        viewModel.toastMessage.observe(viewLifecycleOwner, Observer { event ->
             event.getContentIfNotHandled()?.let { messageRes ->
                 context.toast(messageRes)
             }
         })
-        viewModel.numberFormatExceptionEvent.observe(this, Observer {
+        viewModel.numberFormatExceptionEvent.observe(viewLifecycleOwner, Observer {
             et_input_amount.setText(it)
             Toast.makeText(context, R.string.message_toast_input_value_only_number, Toast.LENGTH_SHORT).show()
         })
         // 품명
-        viewModel.productNameList.observe(this, Observer {
+        viewModel.productNameList.observe(viewLifecycleOwner, Observer {
             if (it.isEmpty()) {
                 viewModel.products.value?.name = viewModel.getCategory()?.name ?: ""
                 viewModel.categoryParentId.postValue(-1L)
             }
+            DKLog.debug(TAG) { "model list : ${it}" }
             initProductNameLayout(it)
         })
         // 제조사
-        viewModel.manufacturerList.observe(this, Observer {
+        viewModel.manufacturerList.observe(viewLifecycleOwner, Observer {
             if (it.isEmpty()) {
                 viewModel.products.value?.manufacturer = viewModel.getManufacturer()?.name ?: ""
                 viewModel.manufacturerParentId.postValue(-1L)
             }
             initManufacturerInputLayout(it)
+        })
+        // 모델명
+        viewModel.modelList.observe(viewLifecycleOwner, Observer {
+            if (it.isEmpty()) {
+                viewModel.products.value?.manufacturer = viewModel.getModel()?.name ?: ""
+                viewModel.modelParentId.postValue(-1L)
+            }
+            DKLog.debug(TAG) { "model list : ${it}" }
+            initModelInputLayout(it)
         })
     }
 
@@ -202,8 +228,20 @@ class InputFragment : BaseFragment() {
         }
     }
 
-    fun onClickTakePicture(view: View?) {
+    private fun initModelInputLayout(list: List<Model>) {
+        model_container.removeAllViews()
+        list.forEach { model ->
+            val buttonView = inflater.inflate(R.layout.productname_item_layout, model_container, false)
+            buttonView.btn_name.text = model.name
+            buttonView.btn_name.setOnClickListener {
+                viewModel.onClickModel(it)
+                viewModel.modelParentId.postValue(model.id)
+            }
+            model_container.addView(buttonView)
+        }
+    }
 
+    fun onClickTakePicture(view: View?) {
         takePictureByIntent{ imageFile ->
             if(imageFile.exists()) {
                 val contentResolver = activity?.contentResolver ?: return@takePictureByIntent

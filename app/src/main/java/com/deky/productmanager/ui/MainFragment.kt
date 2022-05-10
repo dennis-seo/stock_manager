@@ -46,11 +46,7 @@ class MainFragment : BaseFragment() {
 
     private var excelTask: ExcelConverterTask? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate<MainFragmentBinding>(
             inflater, R.layout.main_fragment, container, false
         ).apply {
@@ -67,14 +63,16 @@ class MainFragment : BaseFragment() {
             when(view?.id) {
                 R.id.btn_input ->
                     transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
-
-                R.id.btn_main_category ->
-                    transaction.replace(R.id.container, CategoryListFragment.newInstance())
-
                 R.id.btn_confirm ->
                     transaction.replace(R.id.container, DataListFragment.newInstance())
+                R.id.btn_main_category ->
+                    transaction.replace(R.id.container, CategoryListFragment.newInstance())
                 R.id.btn_manage_manufacturer ->
-                    transaction.replace(R.id.container, ManufacturerFragment.newInstancne())
+                    transaction.replace(R.id.container, ManufacturerFragment.newInstance())
+                R.id.btn_manage_model ->
+                    transaction.replace(R.id.container, ModelFragment.newInstance())
+                R.id.btn_manage_size ->
+                    transaction.replace(R.id.container, ManufacturerFragment.newInstance())
 
             }
             transaction.addToBackStack(null).commitAllowingStateLoss()
