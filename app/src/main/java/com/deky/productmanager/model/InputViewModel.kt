@@ -220,7 +220,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
 
     // 상태값 변경
     fun onConditionTypeChanged(checkedId: Int) {
-        DKLog.debug(TAG) { "id : $checkedId" }
+        DKLog.debug(TAG) { "onConditionTypeChanged : $checkedId" }
         when(checkedId) {
             R.id.radio_input_condition_high ->
                 _products.value.condition = Condition.HIGH
@@ -228,6 +228,8 @@ class InputViewModel(application: Application): BaseViewModel(application) {
                 _products.value.condition = Condition.MIDDLE
             R.id.radio_input_condition_low ->
                 _products.value.condition = Condition.LOW
+            else ->
+                _products.value.condition = Condition.NONE
         }
     }
 

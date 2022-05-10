@@ -157,10 +157,7 @@ class MainFragment : BaseFragment() {
 
                         ExcelConverterTask.imageDir?.let { imageDir ->
                             val imageFile = File(imageDir, "-.png")
-                            val bitmap = BitmapFactory.decodeResource(
-                                resources,
-                                R.drawable.minus
-                            )
+                            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.minus)
                             val fos = FileOutputStream(imageFile)
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 99, fos)
                         }
