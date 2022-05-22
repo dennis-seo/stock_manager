@@ -28,6 +28,7 @@
     <string name="text_label">라벨번호</string>
     <string name="text_location">위치</string>
     <string name="text_name">품명</string>
+    <string name="input_btn_load">불러오기</string>
     <string name="text_manufacturer">제조사</string>
     <string name="text_model">모델명</string>
     <string name="text_size">규격</string>
@@ -35,6 +36,7 @@
     <string name="text_condition">상태</string>
     <string name="text_amount">수량</string>
     <string name="text_note">비고</string>
+    <string name="input_btn_favorite">즐찾추가</string>
     <string name="input_btn_clear">내용삭제</string>
     <string name="input_btn_confirm">저장</string>
 

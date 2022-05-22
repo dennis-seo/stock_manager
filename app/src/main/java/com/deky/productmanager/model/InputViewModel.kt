@@ -14,6 +14,7 @@ import com.deky.productmanager.database.repository.CategoryRepository
 import com.deky.productmanager.database.repository.ManufacturerRepository
 import com.deky.productmanager.database.repository.ModelRepository
 import com.deky.productmanager.database.repository.ProductRepository
+import com.deky.productmanager.ui.dialog.FavoriteDialog
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.NotNullMutableLiveData
 import kotlinx.coroutines.CoroutineScope
@@ -85,6 +86,10 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     fun loadProductData(productId: Long) {
         val loadProduct = repository.getProductById(productId)
         _products.postValue(loadProduct)
+    }
+
+    fun loadFavoriteData(favoriteData: Product) {
+        _products.postValue(favoriteData)
     }
 
     fun setImageFilePath(filePath: String) {
@@ -269,7 +274,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
         }
     }
 
-    // 제조사 입력버튼
+    // 모델 입력버튼
     fun onClickModel(view: View) {
         if (view is Button) {
             _products.value.model = view.text.toString()
@@ -290,6 +295,26 @@ class InputViewModel(application: Application): BaseViewModel(application) {
 
     // 저장버튼
     fun onClickSave() {
+        isValidManufactureSize()
+
+        viewModelScope.launch {
+            DKLog.debug("bbong") { "saveData() : ${products.value}" }
+            repository.insert(_products.value)
+            showToastMessage(R.string.message_success_save)
+            manufactureDate.value = ""
+            val newProduct = Product()
+            newProduct.location = _products.value.location
+            _products.postValue(newProduct)
+        }
+    }
+
+    // 불러오기 버튼
+    fun onClickPreLoad() {
+
+    }
+
+    // 즐겨찾기 추가
+    fun onClickFavorite() {
         isValidManufactureSize()
 
         viewModelScope.launch {

@@ -48,11 +48,7 @@ class DataListFragment : BaseFragment() {
         DataListPagerAdapter()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application)).get(
             DataListViewModel::class.java
         )
@@ -142,12 +138,9 @@ class DataListFragment : BaseFragment() {
                     tv_size_value.text = product.size
                     tv_condition_value.text = when (product.condition) {
                         Condition.NONE -> ""
-                        Condition.HIGH ->
-                            resources.getString(R.string.text_condition_high)
-                        Condition.MIDDLE ->
-                            resources.getString(R.string.text_condition_middle)
-                        Condition.LOW ->
-                            resources.getString(R.string.text_condition_low)
+                        Condition.HIGH -> resources.getString(R.string.text_condition_high)
+                        Condition.MIDDLE -> resources.getString(R.string.text_condition_middle)
+                        Condition.LOW -> resources.getString(R.string.text_condition_low)
                     }
                     tv_amount_value.text = product.amount.toString()
                     val strDate = product.manufactureDate
@@ -187,11 +180,7 @@ class DataListFragment : BaseFragment() {
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
         override fun getItemOffsets(
-            outRect: Rect,
-            view: View,
-            parent: RecyclerView,
-            state: RecyclerView.State
-        ) {
+            outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
             outRect.top = ScreenUtils.dipToPixel(context, 5f)
             outRect.bottom = ScreenUtils.dipToPixel(context, 5f)
             outRect.left = ScreenUtils.dipToPixel(context, 5f)

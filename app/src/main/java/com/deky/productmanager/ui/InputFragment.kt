@@ -21,9 +21,11 @@ import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Category
 import com.deky.productmanager.database.entity.Manufacturer
 import com.deky.productmanager.database.entity.Model
+import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.InputFragmentBinding
 import com.deky.productmanager.model.InputViewModel
 import com.deky.productmanager.model.BaseViewModel
+import com.deky.productmanager.ui.dialog.FavoriteDialog
 import com.deky.productmanager.util.DKLog
 import com.deky.productmanager.util.PreferenceManager
 import com.deky.productmanager.util.toast
@@ -301,5 +303,15 @@ class InputFragment : BaseFragment() {
             button.text = getString(R.string.input_tag_save)
             tag_input.isEnabled = false
         }
+    }
+
+    fun onClickFavoriteData(button: View) {
+        FavoriteDialog().apply {
+            setOnItemClickListener(object: FavoriteDialog.OnFavoriteDialogClickListener{
+                override fun onItemClick(product: Product) {
+                    viewModel.loadFavoriteData(product)
+                }
+            })
+        }.show(childFragmentManager, "FavoriteDialog")
     }
 }

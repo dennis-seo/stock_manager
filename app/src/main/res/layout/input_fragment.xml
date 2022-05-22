@@ -149,7 +149,6 @@
                     android:src="@drawable/clear"
                     android:visibility="gone"/>
 
-
             </RelativeLayout>
 
             <!-- 품명 목록 -->
@@ -465,12 +464,33 @@
                 android:gravity="end">
 
                 <Button
+                    android:id="@+id/btn_load"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:onClick="@{listener::onClickFavoriteData}"
+                    android:text="@string/input_btn_load" />
+
+                <Button
+                    android:id="@+id/btn_favorite"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_toEndOf="@id/btn_load"
+                    android:onClick="@{() -> productViewModel.onClickFavorite()}"
+                    android:text="@string/input_btn_favorite" />
+
+                <Button
                     android:id="@+id/btn_clear_data"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="@string/input_btn_clear"
-                    android:onClick="@{() -> productViewModel.onClickClear()}"/>
+                    android:layout_marginStart="10dp"
+                    android:layout_toEndOf="@id/btn_favorite"
+                    android:onClick="@{() -> productViewModel.onClickClear()}"
+                    android:text="@string/input_btn_clear" />
                 <Button
                     android:id="@+id/btn_confirm"
                     android:layout_width="100dp"
