@@ -17,15 +17,25 @@ import kotlinx.coroutines.launch
 * Created by Dennis.Seo on 15/05/2020
 *
 */
-class DataListViewModel(application: Application): BaseViewModel(application){
+enum class ListType {
+    PRODUCTS,
+    FAVORITES
+}
+class DataListViewModel(application: Application/*, params: Map<String, Any?>*/): BaseViewModel(application){
     companion object {
         private const val TAG = "DataListViewModel"
+        const val PARAM_LIST_TYPE = "listType"
     }
     private var repository: ProductRepository = ProductRepository(application)
     internal val products: MutableLiveData<List<Product>> = MutableLiveData()
     internal val keyword: MutableLiveData<String> = MutableLiveData()
 
     init {
+//        when(params[PARAM_LIST_TYPE]) {
+//            ListType.PRODUCTS -> getAllProduct()
+//            ListType.FAVORITES -> getFavoriteProduct()
+//            else -> getAllProduct()
+//        }
         getAllProduct()
     }
 
@@ -40,6 +50,24 @@ class DataListViewModel(application: Application): BaseViewModel(application){
         DKLog.info(TAG) { "findProduct() > keyword : $keyword" }
         viewModelScope.launch {
             val product = repository.findProduct(keyword)
+            products.postValue(product)
+        }
+    }
+
+    fun getFavoriteProduct() {
+        viewModelScope.launch {
+            val product = repository.getFavoriteProducts()
+            products.postValue(product)
+            DKLog.debug("bbong") {
+                "product : $product"
+            }
+        }
+    }
+
+    fun findFavoriteProduct(keyword: String) {
+        DKLog.info(TAG) { "findProduct() > keyword : $keyword" }
+        viewModelScope.launch {
+            val product = repository.findFavoriteProducts(keyword)
             products.postValue(product)
         }
     }

@@ -5,10 +5,7 @@ import android.content.DialogInterface
 import android.content.res.Resources
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
@@ -22,6 +19,7 @@ import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.model.DataListViewModel
+import com.deky.productmanager.model.ListType
 import com.deky.productmanager.ui.DataListFragment
 import com.deky.productmanager.util.ScreenUtils
 import com.deky.productmanager.util.afterTextChanged
@@ -47,7 +45,6 @@ fun DialogFragment.setScreenSize(perWidth: Int, perHeight: Int) {
     val dm = Resources.getSystem().displayMetrics
     val percentWidth = dm.widthPixels * perW
     val percentHeight = dm.heightPixels * perH
-    Log.d("bbong", "width : $percentWidth    height : $percentHeight")
     dialog?.window?.setLayout(percentWidth.toInt(), percentHeight.toInt())
 }
 
@@ -65,6 +62,7 @@ class FavoriteDialog : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val params = mapOf(DataListViewModel.PARAM_LIST_TYPE to ListType.FAVORITES)
         dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application)).get(
             DataListViewModel::class.java
         )
@@ -73,6 +71,14 @@ class FavoriteDialog : DialogFragment() {
             lifecycleOwner = this@FavoriteDialog
         }
         return dataBinding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val width = ScreenUtils.dipToPixel(context, 400f)
+        val height = ScreenUtils.dipToPixel(context, 800f)
+        dialog?.window?.setGravity(Gravity.CENTER)
+        dialog?.window?.setLayout(width, height)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -95,9 +101,9 @@ class FavoriteDialog : DialogFragment() {
 
         dataModel.keyword.observe(viewLifecycleOwner, Observer { keyword ->
             if(keyword.isNullOrBlank()) {
-                dataModel.getAllProduct()
+                dataModel.getFavoriteProduct()
             } else {
-                dataModel.findProduct(keyword)
+                dataModel.findFavoriteProduct(keyword)
             }
         })
     }

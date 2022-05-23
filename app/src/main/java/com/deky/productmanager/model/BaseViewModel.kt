@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
 import com.deky.productmanager.database.ProductDB
-import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.util.Event
 
 
@@ -37,4 +36,19 @@ open class BaseViewModel(application: Application): AndroidViewModel(application
             return modelClass.getConstructor(Application::class.java).newInstance(application)
         }
     }
+
+//    class Factory(private val application: Application, private vararg val params: Map<String, Any>)
+//        : ViewModelProvider.NewInstanceFactory() {
+//        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+//            if (AndroidViewModel::class.java.isAssignableFrom(modelClass)) {
+//                try {
+//                    return modelClass.getConstructor(Application::class.java, Map::class.java)
+//                        .newInstance(application, params)
+//                } catch (e: Exception) {
+//
+//                }
+//            }
+//            return super.create(modelClass)
+//        }
+//    }
 }

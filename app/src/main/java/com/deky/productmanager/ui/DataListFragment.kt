@@ -21,6 +21,7 @@ import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
 import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.BaseViewModel
+import com.deky.productmanager.model.ListType
 import com.deky.productmanager.util.ScreenUtils
 import com.deky.productmanager.util.afterTextChanged
 import kotlinx.android.synthetic.main.datalist_fragment.*
@@ -49,9 +50,9 @@ class DataListFragment : BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application)).get(
-            DataListViewModel::class.java
-        )
+        val params = mapOf(DataListViewModel.PARAM_LIST_TYPE to ListType.PRODUCTS)
+        dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application))
+            .get(DataListViewModel::class.java)
 
         dataBinding = DataBindingUtil.inflate<DatalistFragmentBinding>(
             inflater, R.layout.datalist_fragment, container, false
@@ -73,13 +74,13 @@ class DataListFragment : BaseFragment() {
     private fun addObserve() {
         log.debug { "getProductList()" }
 
-        dataModel.products.observe(this, Observer { products ->
+        dataModel.products.observe(viewLifecycleOwner, Observer { products ->
             log.debug { "getProductList.onChanged(), products = ${products.size}" }
             datalist_viewpager.adapter = viewPagerAdapter
             viewPagerAdapter.notifyDataSetChanged()
         })
 
-        dataModel.keyword.observe(this, Observer { keyword ->
+        dataModel.keyword.observe(viewLifecycleOwner, Observer { keyword ->
             if(keyword.isNullOrBlank()) {
                 dataModel.getAllProduct()
             } else {
@@ -228,7 +229,7 @@ class DataListFragment : BaseFragment() {
                 productsAdapter.onItemClick = { product ->
                     fragmentManager?.let {
                         val transaction = it.beginTransaction()
-                        transaction.replace(R.id.container, InputFragment.newInstance(product.id))
+                        transaction.replace(R.id.container, InputFragment.newInstance(product.id, ViewType.MODIFY))
                         transaction.addToBackStack(null).commitAllowingStateLoss()
                     }
                 }

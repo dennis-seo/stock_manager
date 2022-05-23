@@ -28,6 +28,13 @@ interface ProductDao {
     @Query("SELECT * FROM Product ORDER BY _id DESC")
     fun getAllProducts(): List<Product>
 
+    @Query("SELECT * FROM Product WHERE favorite = 'true'")
+    fun getFavoriteProducts(): List<Product>
+
+    @Query(value = "SELECT * FROM Product WHERE favorite = 1 AND " +
+            "location LIKE '%' || :keyword || '%' OR name LIKE '%' || :keyword || '%' OR manufacturer LIKE '%' || :keyword || '%'")
+    fun findFavoriteProducts(keyword: String): List<Product>?
+
     @Insert(onConflict = REPLACE)
     fun insert(product: Product)
 

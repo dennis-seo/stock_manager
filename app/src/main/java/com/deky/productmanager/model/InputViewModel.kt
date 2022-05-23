@@ -3,6 +3,7 @@ package com.deky.productmanager.model
 import android.app.Application
 import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import androidx.arch.core.util.Function
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -295,26 +296,6 @@ class InputViewModel(application: Application): BaseViewModel(application) {
 
     // 저장버튼
     fun onClickSave() {
-        isValidManufactureSize()
-
-        viewModelScope.launch {
-            DKLog.debug("bbong") { "saveData() : ${products.value}" }
-            repository.insert(_products.value)
-            showToastMessage(R.string.message_success_save)
-            manufactureDate.value = ""
-            val newProduct = Product()
-            newProduct.location = _products.value.location
-            _products.postValue(newProduct)
-        }
-    }
-
-    // 불러오기 버튼
-    fun onClickPreLoad() {
-
-    }
-
-    // 즐겨찾기 추가
-    fun onClickFavorite() {
         isValidManufactureSize()
 
         viewModelScope.launch {

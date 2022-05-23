@@ -28,7 +28,8 @@ data class Product(
     @ColumnInfo(name = "size") var size: String = DEFAULT_SIZE,
     @ColumnInfo(name = "model") var model: String = "",
     @ColumnInfo(name = "amount") var amount: Int = 1,
-    @ColumnInfo(name = "note") var note: String = ""
+    @ColumnInfo(name = "note") var note: String = "",
+    @ColumnInfo(name = "favorite") var favorite: Boolean = false
 ) : BaseEntity() {
     override fun toString(): String {
         return buildString {
@@ -45,6 +46,7 @@ data class Product(
             append("model : $model".prependIndent(1)).append("\n")
             append("amount : $amount".prependIndent(1)).append("\n")
             append("note : $note".prependIndent(1)).append("\n")
+            append("favorite : $favorite".prependIndent(1)).append("\n")
             append("}")
         }
     }

@@ -48,6 +48,19 @@
                     android:lines="1"
                     android:text="@{productViewModel.products.location}"
                     android:onTextChanged="@{(text, start, before, count) -> productViewModel.onLocationChange(text)}" />
+
+                <CheckBox
+                    android:id="@+id/btn_favorite"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/btn_favorite"
+                    android:button="@android:color/transparent"
+                    android:checked="@{productViewModel.products.favorite}"
+                    android:onClick="@{listener::onClickFavorite}"/>
+
             </RelativeLayout>
             <com.google.android.flexbox.FlexboxLayout
                 android:layout_width="match_parent"
@@ -149,6 +162,7 @@
                     android:src="@drawable/clear"
                     android:visibility="gone"/>
 
+
             </RelativeLayout>
 
             <!-- 품명 목록 -->
@@ -176,27 +190,27 @@
                     android:text="@string/text_manufacturer"/>
 
 
-                    <EditText
-                        android:id="@+id/et_input_manufacturer"
-                        android:layout_width="100dp"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="10dp"
-                        android:layout_toEndOf="@id/tv_input_manufacturer"
-                        android:inputType="text|textCapCharacters"
-                        android:lines="1"
-                        android:selectAllOnFocus="true"
-                        android:onTextChanged="@{(text, start, before, count) -> productViewModel.onManufacturerChange(text)}"
-                        android:text="@{productViewModel.products.manufacturer}" />
-                    <ImageView
-                        android:id="@+id/iv_clear_manufacturer"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:layout_toEndOf="@id/et_input_manufacturer"
-                        android:onClick="@{() -> productViewModel.setClearManufacturer()}"
-                        android:src="@drawable/clear"
-                        android:visibility="gone"/>
+                <EditText
+                    android:id="@+id/et_input_manufacturer"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_toEndOf="@id/tv_input_manufacturer"
+                    android:inputType="text|textCapCharacters"
+                    android:lines="1"
+                    android:selectAllOnFocus="true"
+                    android:onTextChanged="@{(text, start, before, count) -> productViewModel.onManufacturerChange(text)}"
+                    android:text="@{productViewModel.products.manufacturer}" />
+                <ImageView
+                    android:id="@+id/iv_clear_manufacturer"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/et_input_manufacturer"
+                    android:onClick="@{() -> productViewModel.setClearManufacturer()}"
+                    android:src="@drawable/clear"
+                    android:visibility="gone"/>
 
             </RelativeLayout>
 
@@ -278,9 +292,9 @@
                     android:hint="@string/input_text_size_length"
                     android:imeOptions="actionNext"
                     android:inputType="numberDecimal"
+                    android:onTextChanged="@{(text, start, before, count) -> productViewModel.onReplaceSize(0, text.toString())}"
                     android:selectAllOnFocus="true"
-                    android:text="@{productViewModel.getManufactureSize(productViewModel.products, 0)}"
-                    android:onTextChanged="@{(text, start, before, count) -> productViewModel.onReplaceSize(0, text.toString())}" />
+                    android:text="@{productViewModel.getManufactureSize(productViewModel.products, 0)}" />
 
                 <TextView
                     android:id="@+id/tv_input_size_x_1"
@@ -470,9 +484,10 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="10dp"
                     android:onClick="@{listener::onClickFavoriteData}"
-                    android:text="@string/input_btn_load" />
+                    android:text="@string/input_btn_load"
+                    android:visibility="visible"/>
 
-                <Button
+                <!--<Button
                     android:id="@+id/btn_favorite"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -480,7 +495,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_toEndOf="@id/btn_load"
                     android:onClick="@{() -> productViewModel.onClickFavorite()}"
-                    android:text="@string/input_btn_favorite" />
+                    android:text="@string/input_btn_favorite" />-->
 
                 <Button
                     android:id="@+id/btn_clear_data"
@@ -488,7 +503,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="10dp"
-                    android:layout_toEndOf="@id/btn_favorite"
+                    android:layout_toEndOf="@id/btn_load"
                     android:onClick="@{() -> productViewModel.onClickClear()}"
                     android:text="@string/input_btn_clear" />
                 <Button

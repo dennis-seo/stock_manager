@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,26 +37,36 @@ import kotlinx.android.synthetic.main.productname_item_layout.view.*
 /*
 * Created by Dennis.Seo on 07/05/2020
 */
+
+enum class ViewType {
+    INPUT,
+    MODIFY,
+    CONFIRM
+}
+
 class InputFragment : BaseFragment() {
 
     companion object {
         private const val TAG = "InputFragment"
         private const val ARG_PRODUCT_ID = "product_id"
+        private const val ARG_VIEW_TYPE = "view_type"
         const val DEFAULT_PRODUCT_ID: Long = -1
 
-        fun newInstance(productId: Long) = InputFragment().apply {
+        fun newInstance(productId: Long, viewType: ViewType = ViewType.INPUT) = InputFragment().apply {
             arguments = bundleOf (
-                ARG_PRODUCT_ID to productId
+                ARG_PRODUCT_ID to productId,
+                ARG_VIEW_TYPE to viewType
             )
         }
     }
 
     private var productId: Long = DEFAULT_PRODUCT_ID
+    private var viewType: ViewType = ViewType.INPUT
     private lateinit var dataBinding: InputFragmentBinding
     private val viewModel: InputViewModel by lazy {
         ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application)).get(InputViewModel::class.java)
     }
-    val inflater by lazy {
+    private val inflater by lazy {
         context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     }
 
@@ -65,6 +76,7 @@ class InputFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         arguments?.apply {
             productId = getLong(ARG_PRODUCT_ID, DEFAULT_PRODUCT_ID)
+            viewType = get(ARG_VIEW_TYPE) as ViewType
         }
     }
 
@@ -92,6 +104,8 @@ class InputFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        btn_load.visibility = if(viewType == ViewType.INPUT) View.VISIBLE else View.GONE
 
         context?.let {context ->
             if (PreferenceManager.isImageTagAvailability(context)) {
@@ -178,27 +192,28 @@ class InputFragment : BaseFragment() {
         })
         // 품명
         viewModel.productNameList.observe(viewLifecycleOwner, Observer {
-            if (it.isEmpty()) {
-                viewModel.products.value?.name = viewModel.getCategory()?.name ?: ""
-                viewModel.categoryParentId.postValue(-1L)
-            }
-            DKLog.debug(TAG) { "model list : ${it}" }
+//            if (it.isEmpty()) {
+//                viewModel.products.value?.name = viewModel.getCategory()?.name ?: ""
+//                viewModel.categoryParentId.postValue(-1L)
+//            }
+            DKLog.debug(TAG) { "productNameList list : ${it}" }
             initProductNameLayout(it)
         })
         // 제조사
         viewModel.manufacturerList.observe(viewLifecycleOwner, Observer {
-            if (it.isEmpty()) {
-                viewModel.products.value?.manufacturer = viewModel.getManufacturer()?.name ?: ""
-                viewModel.manufacturerParentId.postValue(-1L)
-            }
+//            if (it.isEmpty()) {
+//                viewModel.products.value?.manufacturer = viewModel.getManufacturer()?.name ?: ""
+//                viewModel.manufacturerParentId.postValue(-1L)
+//            }
+            DKLog.debug(TAG) { "manufacturerList  : ${it}" }
             initManufacturerInputLayout(it)
         })
         // 모델명
         viewModel.modelList.observe(viewLifecycleOwner, Observer {
-            if (it.isEmpty()) {
-                viewModel.products.value?.manufacturer = viewModel.getModel()?.name ?: ""
-                viewModel.modelParentId.postValue(-1L)
-            }
+//            if (it.isEmpty()) {
+//                viewModel.products.value?.manufacturer = viewModel.getModel()?.name ?: ""
+//                viewModel.modelParentId.postValue(-1L)
+//            }
             DKLog.debug(TAG) { "model list : ${it}" }
             initModelInputLayout(it)
         })
@@ -206,6 +221,7 @@ class InputFragment : BaseFragment() {
 
     private fun initProductNameLayout(list: List<Category>) {
         productname_layout.removeAllViews()
+        DKLog.debug(TAG) { "initProductNameLayout" }
         list.forEach { category ->
             val buttonView = inflater.inflate(R.layout.productname_item_layout, productname_layout, false)
             buttonView.btn_name.text = category.name
@@ -306,6 +322,7 @@ class InputFragment : BaseFragment() {
     }
 
     fun onClickFavoriteData(button: View) {
+        Log.d("bbong", "favorite : ${viewModel.products.value?.favorite}")
         FavoriteDialog().apply {
             setOnItemClickListener(object: FavoriteDialog.OnFavoriteDialogClickListener{
                 override fun onItemClick(product: Product) {
@@ -313,5 +330,12 @@ class InputFragment : BaseFragment() {
                 }
             })
         }.show(childFragmentManager, "FavoriteDialog")
+    }
+
+    // 즐겨찾기 추가
+    fun onClickFavorite(checkBox: View) {
+        checkBox as CheckBox
+        DKLog.debug("bbong") { "view.isChecked : ${checkBox.isChecked}"}
+        viewModel.products.value?.favorite = checkBox.isChecked
     }
 }

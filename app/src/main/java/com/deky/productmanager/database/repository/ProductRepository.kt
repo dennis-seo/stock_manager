@@ -43,4 +43,12 @@ class ProductRepository(application: Application) {
     fun getAllProducts(): List<Product> {
         return productDao.getAllProducts()
     }
+
+    fun getFavoriteProducts(): List<Product> {
+        return productDao.getFavoriteProducts()
+    }
+
+    fun findFavoriteProducts(keyword: String): List<Product>? {
+        return productDao.findFavoriteProducts(keyword)
+    }
 }
