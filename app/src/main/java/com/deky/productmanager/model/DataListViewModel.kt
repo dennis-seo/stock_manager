@@ -21,7 +21,7 @@ enum class ListType {
     PRODUCTS,
     FAVORITES
 }
-class DataListViewModel(application: Application/*, params: Map<String, Any?>*/): BaseViewModel(application){
+class DataListViewModel(application: Application, params: Map<String, Any?>): BaseViewModel(application){
     companion object {
         private const val TAG = "DataListViewModel"
         const val PARAM_LIST_TYPE = "listType"
@@ -31,12 +31,12 @@ class DataListViewModel(application: Application/*, params: Map<String, Any?>*/)
     internal val keyword: MutableLiveData<String> = MutableLiveData()
 
     init {
-//        when(params[PARAM_LIST_TYPE]) {
-//            ListType.PRODUCTS -> getAllProduct()
-//            ListType.FAVORITES -> getFavoriteProduct()
-//            else -> getAllProduct()
-//        }
-        getAllProduct()
+        when(params[PARAM_LIST_TYPE]) {
+            ListType.PRODUCTS -> getAllProduct()
+            ListType.FAVORITES -> getFavoriteProduct()
+            else -> getAllProduct()
+        }
+//        getAllProduct()
     }
 
     fun getAllProduct() {

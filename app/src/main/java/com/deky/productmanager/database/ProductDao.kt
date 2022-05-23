@@ -28,7 +28,7 @@ interface ProductDao {
     @Query("SELECT * FROM Product ORDER BY _id DESC")
     fun getAllProducts(): List<Product>
 
-    @Query("SELECT * FROM Product WHERE favorite = 'true'")
+    @Query("SELECT * FROM Product WHERE favorite = 1")
     fun getFavoriteProducts(): List<Product>
 
     @Query(value = "SELECT * FROM Product WHERE favorite = 1 AND " +

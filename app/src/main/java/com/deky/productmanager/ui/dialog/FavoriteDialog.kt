@@ -63,7 +63,7 @@ class FavoriteDialog : DialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val params = mapOf(DataListViewModel.PARAM_LIST_TYPE to ListType.FAVORITES)
-        dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application)).get(
+        dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application, params)).get(
             DataListViewModel::class.java
         )
 

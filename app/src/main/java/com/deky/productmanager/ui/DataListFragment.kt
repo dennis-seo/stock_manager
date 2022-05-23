@@ -51,7 +51,7 @@ class DataListFragment : BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val params = mapOf(DataListViewModel.PARAM_LIST_TYPE to ListType.PRODUCTS)
-        dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application))
+        dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application, params))
             .get(DataListViewModel::class.java)
 
         dataBinding = DataBindingUtil.inflate<DatalistFragmentBinding>(

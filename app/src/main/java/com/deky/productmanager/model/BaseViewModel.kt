@@ -31,24 +31,30 @@ open class BaseViewModel(application: Application): AndroidViewModel(application
         _toastMessage.value = Event(message)
     }
 
-    class Factory(private val application: Application) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return modelClass.getConstructor(Application::class.java).newInstance(application)
-        }
-    }
-
-//    class Factory(private val application: Application, private vararg val params: Map<String, Any>)
-//        : ViewModelProvider.NewInstanceFactory() {
+//    class Factory(private val application: Application) : ViewModelProvider.NewInstanceFactory() {
 //        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
 //            if (AndroidViewModel::class.java.isAssignableFrom(modelClass)) {
-//                try {
-//                    return modelClass.getConstructor(Application::class.java, Map::class.java)
-//                        .newInstance(application, params)
-//                } catch (e: Exception) {
-//
-//                }
+//                return modelClass.getConstructor(Application::class.java).newInstance(application)
 //            }
 //            return super.create(modelClass)
 //        }
 //    }
+
+    class Factory(private val application: Application, private val params: Map<String, Any>? = null)
+        : ViewModelProvider.NewInstanceFactory() {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            if (AndroidViewModel::class.java.isAssignableFrom(modelClass)) {
+                try {
+                    return if(params.isNullOrEmpty()) {
+                        modelClass.getConstructor(Application::class.java).newInstance(application)
+
+                    } else {
+                        modelClass.getConstructor(Application::class.java, Map::class.java)
+                            .newInstance(application, params)
+                    }
+                } catch (e: Exception) { }
+            }
+            return super.create(modelClass)
+        }
+    }
 }

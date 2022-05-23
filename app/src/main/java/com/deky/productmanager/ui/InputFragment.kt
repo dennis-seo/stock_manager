@@ -322,11 +322,11 @@ class InputFragment : BaseFragment() {
     }
 
     fun onClickFavoriteData(button: View) {
-        Log.d("bbong", "favorite : ${viewModel.products.value?.favorite}")
         FavoriteDialog().apply {
             setOnItemClickListener(object: FavoriteDialog.OnFavoriteDialogClickListener{
                 override fun onItemClick(product: Product) {
                     viewModel.loadFavoriteData(product)
+                    dialog?.dismiss()
                 }
             })
         }.show(childFragmentManager, "FavoriteDialog")
