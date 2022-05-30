@@ -216,6 +216,7 @@ class MainFragment : BaseFragment() {
                         object : ExcelConverterTask.OnTaskListener {
                             override fun onStartTask() {
                                 log.debug { "ExcelConverterTask.onStartTask()" }
+                                Toast.makeText(context, "파일저장 시작", Toast.LENGTH_SHORT).show()
                             }
 
                             override fun onProgressTask(progress: Int) {
