@@ -90,7 +90,9 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     }
 
     fun loadFavoriteData(favoriteData: Product) {
-        _products.postValue(favoriteData)
+        val loadProduct = Product.create(favoriteData)
+        loadProduct.favorite = false
+        _products.postValue(loadProduct)
     }
 
     fun setImageFilePath(filePath: String) {

@@ -59,7 +59,7 @@
                     android:background="@drawable/btn_favorite"
                     android:button="@android:color/transparent"
                     android:checked="@{productViewModel.products.favorite}"
-                    android:onClick="@{listener::onClickFavorite}"/>
+                    android:onClick="@{listener::onClickFavorite}" />
 
             </RelativeLayout>
             <com.google.android.flexbox.FlexboxLayout

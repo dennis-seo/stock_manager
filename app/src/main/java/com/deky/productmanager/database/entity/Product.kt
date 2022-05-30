@@ -31,6 +31,14 @@ data class Product(
     @ColumnInfo(name = "note") var note: String = "",
     @ColumnInfo(name = "favorite") var favorite: Boolean = false
 ) : BaseEntity() {
+
+    companion object Factory {
+        fun create(product: Product): Product {
+            return Product(product.label, product.imagePath, product.location, product.name, product.manufacturer,
+            product.manufactureDate, DEFAULT_DATE, product.condition, product.size, product.model,
+            product.amount, product.note, product.favorite)
+        }
+    }
     override fun toString(): String {
         return buildString {
             append("Product {").append("\n")

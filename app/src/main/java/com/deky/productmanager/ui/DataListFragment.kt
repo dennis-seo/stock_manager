@@ -133,6 +133,7 @@ class DataListFragment : BaseFragment() {
                     }
 
                     tv_location_value.text = product.location
+                    btn_favorite.isChecked = product.favorite
                     tv_name_value.text = product.name
                     tv_manufacturer_value.text = product.manufacturer
                     tv_model_value.text = product.model
@@ -210,20 +211,18 @@ class DataListFragment : BaseFragment() {
         }
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val inflater: LayoutInflater =
-                context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val view =
-                inflater.inflate(R.layout.datalist_pager_recylerview_layout, container, false)
+            val inflater: LayoutInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val view = inflater.inflate(R.layout.datalist_pager_recylerview_layout, container, false)
             val products = dataModel.products.value
-            val size = dataModel.products.value?.size ?: 0
+            val size = products?.size ?: 0
             val pageCnt = (size / 20) + 1
             view.index_tv.text = "${position + 1}/${pageCnt}"
             val startPosition = position.times(20)
             var endPosition = (position + 1).times(20)
             if (endPosition > products?.size ?: 0) endPosition = products?.size ?: 0
             if (endPosition <= 0) endPosition = 0
-            val productsAdapter =
-                ProductsAdapter(products?.subList(startPosition, endPosition) ?: ArrayList())
+            val productsAdapter = ProductsAdapter(products?.subList(startPosition, endPosition) ?: ArrayList())
+
             view.product_recycler_view.apply {
                 adapter = productsAdapter
                 productsAdapter.onItemClick = { product ->
