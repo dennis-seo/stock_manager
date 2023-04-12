@@ -1,6 +1,7 @@
 package com.deky.productmanager.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
@@ -169,13 +170,24 @@ class MainFragment : BaseFragment() {
         context?.let {
             val strUri = PreferenceManager.getSaveDirectoryUri(it)
 
-            if(strUri.isNullOrEmpty()) {
+            if(isValidDirectoryUri(strUri)) {
+                executeExcelConverterTask(Uri.parse(strUri))
+            } else {
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
                 startActivityForResult(intent, SAF_REQUEST_CODE)
-            } else {
-                executeExcelConverterTask(Uri.parse(strUri))
             }
         }
+    }
+
+    private fun isValidDirectoryUri(directoryUriString: String?): Boolean {
+        val context: Context = context ?: return false
+        if (directoryUriString.isNullOrEmpty()) return false
+
+        val directoryUri = Uri.parse(directoryUriString)
+        if (DocumentFile.isDocumentUri(context, directoryUri)) return false
+        return DocumentFile.fromSingleUri(context, directoryUri)?.run {
+            exists() && canRead() && canWrite()
+        } ?: false
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
