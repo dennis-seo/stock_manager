@@ -10,7 +10,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -56,12 +55,7 @@ class CategoryListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        dataBinding = DataBindingUtil.inflate<CategoryFragmentBinding>(
-            inflater, R.layout.category_fragment, container, false
-        ).apply {
-            lifecycleOwner = this@CategoryListFragment
-        }
-
+        dataBinding = CategoryFragmentBinding.inflate(inflater, container, false)
         return dataBinding.root
     }
 

@@ -38,6 +38,7 @@ class InputViewModel(application: Application): BaseViewModel(application) {
 
     var manufactureDate: MutableLiveData<String> = MutableLiveData()        // 제조일자
     val numberFormatExceptionEvent: MutableLiveData<String> = MutableLiveData() // 수량 입력시 숫자 아닌거 입력했을때 처리
+    val saveCompleteEvent: MutableLiveData<Boolean> = MutableLiveData() // 저장 완료 이벤트
 
     // 품명
     var categoryParentId = MutableLiveData<Long>()
@@ -290,17 +291,24 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     }
 
     // 저장버튼
-    fun onClickSave() {
+    fun onClickSave(isModifyMode: Boolean = false) {
         isValidManufactureSize()
 
         viewModelScope.launch {
             DKLog.debug("bbong") { "saveData() : ${products.value}" }
             repository.insert(_products.value)
             showToastMessage(R.string.message_success_save)
-            manufactureDate.value = ""
-            val newProduct = Product()
-            newProduct.location = _products.value.location
-            _products.postValue(newProduct)
+
+            if (isModifyMode) {
+                // 수정모드: 저장 완료 이벤트 발생
+                saveCompleteEvent.postValue(true)
+            } else {
+                // 입력모드: 새 Product로 초기화 (위치는 유지)
+                manufactureDate.value = ""
+                val newProduct = Product()
+                newProduct.location = _products.value.location
+                _products.postValue(newProduct)
+            }
         }
     }
 }

@@ -7,7 +7,6 @@ import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -52,12 +51,7 @@ class ManufacturerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        dataBinding = DataBindingUtil.inflate<ManufacturerFragmentBinding>(
-            inflater, R.layout.manufacturer_fragment, container, false
-        ).apply {
-            lifecycleOwner = this@ManufacturerFragment
-        }
-
+        dataBinding = ManufacturerFragmentBinding.inflate(inflater, container, false)
         return dataBinding.root
     }
 

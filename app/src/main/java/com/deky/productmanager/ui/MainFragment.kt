@@ -15,7 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.databinding.DataBindingUtil
 import androidx.documentfile.provider.DocumentFile
 import com.deky.productmanager.R
 import com.deky.productmanager.database.CategoryDB
@@ -47,20 +46,14 @@ class MainFragment : BaseFragment() {
     private var excelTask: ExcelConverterTask? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = DataBindingUtil.inflate<MainFragmentBinding>(
-            inflater, R.layout.main_fragment, container, false
-        ).apply {
-            lifecycleOwner = this@MainFragment
-            listener = this@MainFragment
-        }
-
+        binding = MainFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    fun onClickButton(view: View?) {
+    private fun onClickButton(view: View) {
         fragmentManager?.let {
             val transaction = it.beginTransaction()
-            when(view?.id) {
+            when(view.id) {
                 R.id.btn_input ->
                     transaction.replace(R.id.container, InputFragment.newInstance(InputFragment.DEFAULT_PRODUCT_ID))
                 R.id.btn_confirm ->
@@ -79,11 +72,11 @@ class MainFragment : BaseFragment() {
         }
     }
 
-    fun onClickDeleteButton() {
+    private fun onClickDeleteButton() {
         showAlertDelete()
     }
 
-    fun onClickInsertDataButton() {
+    private fun onClickInsertDataButton() {
         context?.let { context ->
             CategoryDB.getInstance(context).run {
                 setSampleDataSet()
@@ -96,18 +89,14 @@ class MainFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        /* [테스트] 사진찍고 DB 저장
-        btn_picture.setOnClickListener {
-            takePictureByIntent { imageFile ->
-                if (imageFile.exists()) {
-                    log.debug { "btn_picture.onClick() - Take image file success." }
-                    ProductDB.getInstance(context!!).setSampleData(imageFile)
-                } else {
-                    log.debug { "btn_picture.onClick() - Not found image file." }
-                }
-            }
-        }
-        */
+        // 버튼 클릭 리스너 설정
+        binding.btnInput.setOnClickListener { onClickButton(it) }
+        binding.btnConfirm.setOnClickListener { onClickButton(it) }
+        binding.btnMainCategory.setOnClickListener { onClickButton(it) }
+        binding.btnManageManufacturer.setOnClickListener { onClickButton(it) }
+        binding.btnManageModel.setOnClickListener { onClickButton(it) }
+        binding.btnManageSize.setOnClickListener { onClickButton(it) }
+        binding.btnRemove.setOnClickListener { onClickDeleteButton() }
 
         binding.btnTest.setOnClickListener {
             if (excelTask != null) return@setOnClickListener

@@ -7,7 +7,6 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -66,9 +65,7 @@ class FavoriteDialog : DialogFragment() {
             DataListViewModel::class.java
         )
 
-        dataBinding = DataBindingUtil.inflate<DatalistFragmentBinding>(inflater, R.layout.datalist_fragment, container, false).apply {
-            lifecycleOwner = this@FavoriteDialog
-        }
+        dataBinding = DatalistFragmentBinding.inflate(inflater, container, false)
         return dataBinding.root
     }
 

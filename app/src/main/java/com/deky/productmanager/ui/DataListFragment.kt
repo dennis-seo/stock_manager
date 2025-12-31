@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -53,12 +52,7 @@ class DataListFragment : BaseFragment() {
         dataModel = ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application, params))
             .get(DataListViewModel::class.java)
 
-        dataBinding = DataBindingUtil.inflate<DatalistFragmentBinding>(
-            inflater, R.layout.datalist_fragment, container, false
-        ).apply {
-            lifecycleOwner = this@DataListFragment
-        }
-
+        dataBinding = DatalistFragmentBinding.inflate(inflater, container, false)
         return dataBinding.root
     }
 
