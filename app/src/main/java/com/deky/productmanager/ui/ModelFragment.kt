@@ -17,17 +17,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.deky.productmanager.R
-import com.deky.productmanager.database.entity.Manufacturer
 import com.deky.productmanager.database.entity.Model
 import com.deky.productmanager.databinding.ManufacturerFragmentBinding
 import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.model.ModelViewModel
 import com.deky.productmanager.util.DKLog
-import kotlinx.android.synthetic.main.manufacturer_fragment.*
-import kotlinx.android.synthetic.main.manufacturer_fragment.iv_main_category_input
-import kotlinx.android.synthetic.main.manufacturer_fragment.iv_sub_category_input
-import kotlinx.android.synthetic.main.manufacturer_fragment.recycler_main_category
-import kotlinx.android.synthetic.main.manufacturer_fragment.recycler_sub_category
 
 /*
 * Created by dennis on 10/05/2021
@@ -38,6 +32,8 @@ class ModelFragment : Fragment() {
         private const val TAG = "ModelFragment"
         fun newInstance(): ModelFragment = ModelFragment()
     }
+
+    private lateinit var dataBinding: ManufacturerFragmentBinding
 
     private val viewModel by lazy {
         ViewModelProvider(this, BaseViewModel.Factory(requireActivity().application))
@@ -53,7 +49,7 @@ class ModelFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val dataBinding = DataBindingUtil.inflate<ManufacturerFragmentBinding>(
+        dataBinding = DataBindingUtil.inflate<ManufacturerFragmentBinding>(
             inflater, R.layout.manufacturer_fragment, container, false
         ).apply {
             lifecycleOwner = this@ModelFragment
@@ -65,12 +61,12 @@ class ModelFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tv_category_title.text = getText(R.string.text_model_title)
+        dataBinding.tvCategoryTitle.text = getText(R.string.text_model_title)
 
-        ed_main_manufacturer.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
+        dataBinding.edMainManufacturer.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                if (ed_main_manufacturer.text.isNotEmpty()) {
-                    viewModel.insertMainModel(ed_main_manufacturer.text.toString())
+                if (dataBinding.edMainManufacturer.text.isNotEmpty()) {
+                    viewModel.insertMainModel(dataBinding.edMainManufacturer.text.toString())
                     (v as EditText).text.clear()
                 }
                 return@OnKeyListener true
@@ -78,10 +74,10 @@ class ModelFragment : Fragment() {
             false
         })
 
-        ed_sub_manufacturer.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
+        dataBinding.edSubManufacturer.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                if (ed_sub_manufacturer.text.isNotEmpty()) {
-                    viewModel.insertSubModel(ed_sub_manufacturer.text.toString())
+                if (dataBinding.edSubManufacturer.text.isNotEmpty()) {
+                    viewModel.insertSubModel(dataBinding.edSubManufacturer.text.toString())
                     (v as EditText).text.clear()
                 }
                 return@OnKeyListener true
@@ -89,33 +85,33 @@ class ModelFragment : Fragment() {
             false
         })
 
-        iv_main_category_input.setOnClickListener {
-            if (ed_main_manufacturer.text.isNotEmpty()) {
-                viewModel.insertMainModel(ed_main_manufacturer.text.toString())
-                ed_main_manufacturer.text.clear()
+        dataBinding.ivMainCategoryInput.setOnClickListener {
+            if (dataBinding.edMainManufacturer.text.isNotEmpty()) {
+                viewModel.insertMainModel(dataBinding.edMainManufacturer.text.toString())
+                dataBinding.edMainManufacturer.text.clear()
             }
         }
 
-        iv_sub_category_input.setOnClickListener {
-            if (ed_sub_manufacturer.text.isNotEmpty()) {
-                viewModel.insertSubModel(ed_sub_manufacturer.text.toString())
-                ed_sub_manufacturer.text.clear()
+        dataBinding.ivSubCategoryInput.setOnClickListener {
+            if (dataBinding.edSubManufacturer.text.isNotEmpty()) {
+                viewModel.insertSubModel(dataBinding.edSubManufacturer.text.toString())
+                dataBinding.edSubManufacturer.text.clear()
             }
         }
 
-        recycler_main_category.apply {
+        dataBinding.recyclerMainCategory.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mainCategoryAdapter
         }
 
-        recycler_sub_category.apply {
+        dataBinding.recyclerSubCategory.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = subCategoryAdapter
         }
 
-        (recycler_main_category.adapter as CategoryAdapter).tracker = getTracker()
+        (dataBinding.recyclerMainCategory.adapter as CategoryAdapter).tracker = getTracker()
 
 
         // observer
@@ -137,10 +133,10 @@ class ModelFragment : Fragment() {
             DKLog.debug(TAG) {
                 "selected category : ${selectedCategory}"
             }
-            ed_main_manufacturer.isEnabled = selectedCategory == null
-            iv_main_category_input.isEnabled = selectedCategory == null
-            ed_sub_manufacturer.isEnabled = selectedCategory != null
-            iv_sub_category_input.isEnabled = selectedCategory != null
+            dataBinding.edMainManufacturer.isEnabled = selectedCategory == null
+            dataBinding.ivMainCategoryInput.isEnabled = selectedCategory == null
+            dataBinding.edSubManufacturer.isEnabled = selectedCategory != null
+            dataBinding.ivSubCategoryInput.isEnabled = selectedCategory != null
         })
     }
 
@@ -148,9 +144,9 @@ class ModelFragment : Fragment() {
 
         val selectionTracker = SelectionTracker.Builder<Long>(
             "id",
-            recycler_main_category,
-            MyItemKeyProvider(recycler_main_category),
-            SelectionDetailsLookup(recycler_main_category),
+            dataBinding.recyclerMainCategory,
+            MyItemKeyProvider(dataBinding.recyclerMainCategory),
+            SelectionDetailsLookup(dataBinding.recyclerMainCategory),
             StorageStrategy.createLongStorage()
         ).withSelectionPredicate(SelectionPredicates.createSelectSingleAnything()).build()
 

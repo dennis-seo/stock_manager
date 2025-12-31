@@ -25,10 +25,6 @@ import com.deky.productmanager.databinding.CategoryFragmentBinding
 import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.model.CategoryListViewModel
 import com.deky.productmanager.util.DKLog
-import kotlinx.android.synthetic.main.category_fragment.*
-import kotlinx.android.synthetic.main.datalist_fragment.*
-import kotlinx.android.synthetic.main.datalist_item.view.*
-import kotlinx.android.synthetic.main.datalist_pager_recylerview_layout.view.*
 
 
 /*
@@ -72,10 +68,10 @@ class CategoryListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        ed_main_category.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
+        dataBinding.edMainCategory.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                if(ed_main_category.text.isNotEmpty()) {
-                    viewModel.insertMainCategory(ed_main_category.text.toString())
+                if(dataBinding.edMainCategory.text.isNotEmpty()) {
+                    viewModel.insertMainCategory(dataBinding.edMainCategory.text.toString())
                     (v as EditText).text.clear()
                 }
                 return@OnKeyListener true
@@ -83,10 +79,10 @@ class CategoryListFragment : Fragment() {
             false
         })
 
-        ed_sub_category.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
+        dataBinding.edSubCategory.setOnKeyListener(View.OnKeyListener { v, keyCode, _ ->
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                if(ed_sub_category.text.isNotEmpty()) {
-                    viewModel.insertSubCategory(ed_sub_category.text.toString())
+                if(dataBinding.edSubCategory.text.isNotEmpty()) {
+                    viewModel.insertSubCategory(dataBinding.edSubCategory.text.toString())
                     (v as EditText).text.clear()
                 }
                 return@OnKeyListener true
@@ -94,35 +90,35 @@ class CategoryListFragment : Fragment() {
             false
         })
 
-        iv_main_category_input.setOnClickListener {
-            if(ed_main_category.text.isNotEmpty()) {
-                viewModel.insertMainCategory(ed_main_category.text.toString())
-                ed_main_category.text.clear()
+        dataBinding.ivMainCategoryInput.setOnClickListener {
+            if(dataBinding.edMainCategory.text.isNotEmpty()) {
+                viewModel.insertMainCategory(dataBinding.edMainCategory.text.toString())
+                dataBinding.edMainCategory.text.clear()
             }
         }
 
-        iv_sub_category_input.setOnClickListener {
-            if(ed_sub_category.text.isNotEmpty()) {
-                viewModel.insertSubCategory(ed_sub_category.text.toString())
-                ed_sub_category.text.clear()
+        dataBinding.ivSubCategoryInput.setOnClickListener {
+            if(dataBinding.edSubCategory.text.isNotEmpty()) {
+                viewModel.insertSubCategory(dataBinding.edSubCategory.text.toString())
+                dataBinding.edSubCategory.text.clear()
             }
         }
 
         mainCategoryAdapter = CategoryAdapter()
         subCategoryAdapter = CategoryAdapter()
 
-        recycler_main_category.apply {
+        dataBinding.recyclerMainCategory.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mainCategoryAdapter
         }
-        recycler_sub_category.apply {
+        dataBinding.recyclerSubCategory.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = subCategoryAdapter
         }
 
-        (recycler_main_category.adapter as CategoryAdapter).tracker = getTracker()
+        (dataBinding.recyclerMainCategory.adapter as CategoryAdapter).tracker = getTracker()
 
         viewModel.mainCategory.observe(viewLifecycleOwner, Observer { mainCategory ->
             DKLog.debug(TAG) { "mainCategory update : ${mainCategory.size}" }
@@ -136,19 +132,19 @@ class CategoryListFragment : Fragment() {
 
         viewModel.selectedCategory.observe(viewLifecycleOwner, Observer { selectedCategory ->
             DKLog.debug(TAG) { "selected category : $selectedCategory" }
-            ed_main_category.isEnabled = selectedCategory == null
-            iv_main_category_input.isEnabled = selectedCategory == null
-            ed_sub_category.isEnabled = selectedCategory != null
-            iv_sub_category_input.isEnabled = selectedCategory != null
+            dataBinding.edMainCategory.isEnabled = selectedCategory == null
+            dataBinding.ivMainCategoryInput.isEnabled = selectedCategory == null
+            dataBinding.edSubCategory.isEnabled = selectedCategory != null
+            dataBinding.ivSubCategoryInput.isEnabled = selectedCategory != null
         })
     }
 
     private fun getTracker(): SelectionTracker<Long> {
         val selectionTracker = SelectionTracker.Builder<Long>(
             "id",
-            recycler_main_category,
-            StableIdKeyProvider(recycler_main_category),
-            SelectionDetailsLookup(recycler_main_category),
+            dataBinding.recyclerMainCategory,
+            StableIdKeyProvider(dataBinding.recyclerMainCategory),
+            SelectionDetailsLookup(dataBinding.recyclerMainCategory),
             StorageStrategy.createLongStorage()
         ).withSelectionPredicate(SelectionPredicates.createSelectSingleAnything()).build()
 
@@ -229,10 +225,6 @@ class CategoryListFragment : Fragment() {
 
         override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
             val category = getItem(position)
-//            tracker?.let {
-//                holder.bind(category, it.isSelected(category.id))
-//            }
-
             holder.bind(category, tracker?.isSelected(category.id) ?: false)
         }
 

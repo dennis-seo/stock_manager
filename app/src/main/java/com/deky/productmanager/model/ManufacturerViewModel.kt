@@ -3,12 +3,11 @@ package com.deky.productmanager.model
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.database.entity.Manufacturer
 import com.deky.productmanager.database.repository.ManufacturerRepository
 import kotlinx.coroutines.launch
-import androidx.arch.core.util.Function
 
 
 /*
@@ -31,15 +30,13 @@ class ManufacturerViewModel(application: Application): BaseViewModel(application
     var parentId = MutableLiveData<Long>()
 
     init {
-        subCategory = Transformations.switchMap(
-            parentId,
-            Function<Long?, LiveData<List<Manufacturer>>> { parentId ->
-                if(parentId == null || parentId == -1L) {
-                    return@Function MutableLiveData<List<Manufacturer>>()
-                }
-                return@Function repository.getManufacturerByParentId(parentId)
+        subCategory = parentId.switchMap { parentId ->
+            if (parentId == null || parentId == -1L) {
+                MutableLiveData<List<Manufacturer>>()
+            } else {
+                repository.getManufacturerByParentId(parentId)
             }
-        )
+        }
     }
 
 

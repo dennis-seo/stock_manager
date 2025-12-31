@@ -3,7 +3,7 @@ package com.deky.productmanager.model
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Condition
@@ -30,13 +30,13 @@ class ModifyViewModel(application: Application): BaseViewModel(application) {
     private val _products: NotNullMutableLiveData<Product> = NotNullMutableLiveData(Product())
     val products: LiveData<Product> = _products
 
-    var sizeLength: LiveData<String> = Transformations.map(_products) { product ->
+    var sizeLength: LiveData<String> = _products.map { product ->
         getManufactureSize(product, 0)
     }
-    var sizeWidth: LiveData<String> = Transformations.map(_products) { product ->
+    var sizeWidth: LiveData<String> = _products.map { product ->
         getManufactureSize(product, 1)
     }
-    var sizeHeight: LiveData<String> = Transformations.map(_products) { product ->
+    var sizeHeight: LiveData<String> = _products.map { product ->
         getManufactureSize(product, 2)
     }
     var manufactureDate: MutableLiveData<String> = MutableLiveData()        // 제조일자
@@ -173,4 +173,3 @@ class ModifyViewModel(application: Application): BaseViewModel(application) {
         }
     }
 }
-

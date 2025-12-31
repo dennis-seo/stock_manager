@@ -42,7 +42,8 @@ open class BaseViewModel(application: Application): AndroidViewModel(application
 
     class Factory(private val application: Application, private val params: Map<String, Any>? = null)
         : ViewModelProvider.NewInstanceFactory() {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (AndroidViewModel::class.java.isAssignableFrom(modelClass)) {
                 try {
                     return if(params.isNullOrEmpty()) {

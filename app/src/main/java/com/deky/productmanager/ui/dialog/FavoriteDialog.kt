@@ -17,14 +17,13 @@ import androidx.viewpager.widget.PagerAdapter
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.Product
 import com.deky.productmanager.databinding.DatalistFragmentBinding
+import com.deky.productmanager.databinding.DatalistPagerRecylerviewLayoutBinding
 import com.deky.productmanager.model.BaseViewModel
 import com.deky.productmanager.model.DataListViewModel
 import com.deky.productmanager.model.ListType
 import com.deky.productmanager.ui.DataListFragment
 import com.deky.productmanager.util.ScreenUtils
 import com.deky.productmanager.util.afterTextChanged
-import kotlinx.android.synthetic.main.datalist_fragment.*
-import kotlinx.android.synthetic.main.datalist_pager_recylerview_layout.view.*
 
 
 /*
@@ -85,7 +84,7 @@ class FavoriteDialog : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         addObserve()
 
-        ed_search_keyword.afterTextChanged { dataModel.keyword.postValue(it) }
+        dataBinding.edSearchKeyword.afterTextChanged { dataModel.keyword.postValue(it) }
     }
 
     fun setOnItemClickListener(listener: OnFavoriteDialogClickListener) {
@@ -95,7 +94,7 @@ class FavoriteDialog : DialogFragment() {
     private fun addObserve() {
 
         dataModel.products.observe(viewLifecycleOwner, Observer { products ->
-            datalist_viewpager.adapter = viewPagerAdapter
+            dataBinding.datalistViewpager.adapter = viewPagerAdapter
             viewPagerAdapter.notifyDataSetChanged()
         })
 
@@ -123,12 +122,13 @@ class FavoriteDialog : DialogFragment() {
         }
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val inflater: LayoutInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val view = inflater.inflate(R.layout.datalist_pager_recylerview_layout, container, false)
+            val pagerBinding = DatalistPagerRecylerviewLayoutBinding.inflate(
+                LayoutInflater.from(context), container, false
+            )
             val products = dataModel.products.value
             val size = dataModel.products.value?.size ?: 0
             val pageCnt = (size / 20) + 1
-            view.index_tv.text = "${position + 1}/${pageCnt}"
+            pagerBinding.indexTv.text = "${position + 1}/${pageCnt}"
             val startPosition = position.times(20)
             var endPosition = (position + 1).times(20)
             if (endPosition > products?.size ?: 0) endPosition = products?.size ?: 0
@@ -136,7 +136,7 @@ class FavoriteDialog : DialogFragment() {
             val productsAdapter = DataListFragment.ProductsAdapter(
                     products?.subList(startPosition, endPosition) ?: ArrayList()
                 )
-            view.product_recycler_view.apply {
+            pagerBinding.productRecyclerView.apply {
                 adapter = productsAdapter
                 productsAdapter.onItemClick = { product ->
                     onItemClickListener.onItemClick(product)
@@ -149,8 +149,8 @@ class FavoriteDialog : DialogFragment() {
                 addItemDecoration(ItemDecoration())
                 setHasFixedSize(true)
             }
-            container.addView(view)
-            return view
+            container.addView(pagerBinding.root)
+            return pagerBinding.root
         }
     }
 

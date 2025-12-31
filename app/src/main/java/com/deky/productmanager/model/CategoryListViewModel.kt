@@ -3,7 +3,8 @@ package com.deky.productmanager.model
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.database.entity.Category
 import com.deky.productmanager.database.repository.CategoryRepository

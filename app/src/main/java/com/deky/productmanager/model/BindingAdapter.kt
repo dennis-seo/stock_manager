@@ -5,7 +5,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.databinding.BindingAdapter
-import coil.api.load
+import coil.load
 import com.deky.productmanager.R
 import java.io.File
 

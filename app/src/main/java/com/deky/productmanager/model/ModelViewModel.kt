@@ -1,10 +1,9 @@
 package com.deky.productmanager.model
 
 import android.app.Application
-import androidx.arch.core.util.Function
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.database.entity.Model
 import com.deky.productmanager.database.repository.ModelRepository
@@ -29,15 +28,13 @@ class ModelViewModel(application: Application): BaseViewModel(application) {
     var parentId = MutableLiveData<Long>()
 
     init {
-        subCategory = Transformations.switchMap(
-            parentId,
-            Function<Long?, LiveData<List<Model>>> { parentId ->
-                if(parentId == null || parentId == -1L) {
-                    return@Function MutableLiveData<List<Model>>()
-                }
-                return@Function repository.getModelByParentId(parentId)
+        subCategory = parentId.switchMap { parentId ->
+            if (parentId == null || parentId == -1L) {
+                MutableLiveData<List<Model>>()
+            } else {
+                repository.getModelByParentId(parentId)
             }
-        )
+        }
     }
 
 

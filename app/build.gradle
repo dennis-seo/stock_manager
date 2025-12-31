@@ -1,92 +1,79 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 31
+    namespace 'com.deky.productmanager'
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.deky.productmanager"
-        minSdkVersion 26
-        targetSdkVersion 30
+        minSdk 26
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+        buildConfig true
     }
 
     buildTypes {
         release {
-            lintOptions {
-                checkReleaseBuilds false
-                abortOnError false
-            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    // jdk 1.8이상이면 아래 모듈들이 삭제되었기에
-    // 다시 가져와야 한다.
-    if(JavaVersion.current() != JavaVersion.VERSION_1_8){
-        kapt "com.sun.xml.bind:jaxb-core:2.3.0.1"
-        kapt "javax.xml.bind:jaxb-api:2.3.1"
-        kapt "com.sun.xml.bind:jaxb-impl:2.3.2"
-        annotationProcessor "com.sun.xml.bind:jaxb-core:2.3.0.1"
-        annotationProcessor "javax.xml.bind:jaxb-api:2.3.1"
-    }
-
     implementation deps.kotlin.stdlib
-    // implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation deps.app_compat
-    // implementation 'androidx.appcompat:appcompat:1.1.0'
 
     implementation deps.core_ktx
-    // implementation 'androidx.core:core-ktx:1.2.0'
 
     implementation deps.constraint_layout
-    // implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     implementation deps.lifecycle.viewmodel_ktx
-    // implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 
     implementation deps.lifecycle.livedata_ktx
     implementation 'androidx.documentfile:documentfile:1.0.1'
-    // implementation 'androidx.lifecycle:lifecycle-livedata-ktx:
-
-    // data binding
-    kapt "com.android.databinding:compiler:3.1.4"
 
     // Room
     implementation deps.room.runtime
     kapt deps.room.compiler
-//    implementation "androidx.room:room-runtime:$room_version"
-//    kapt "androidx.room:room-compiler:$room_version"
 
     // excel
     implementation "org.apache.poi:poi:$poi_version"
     implementation "org.apache.poi:poi-ooxml:$poi_version"
 
-    implementation "com.google.android.material:material:1.4.0"
+    implementation "com.google.android.material:material:1.9.0"
 
     // coil (Image loader)
-    implementation("io.coil-kt:coil:0.10.0")
+    implementation("io.coil-kt:coil:2.4.0")
 
     // ui
-    implementation 'com.google.android:flexbox:1.1.1'
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 }

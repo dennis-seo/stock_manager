@@ -24,7 +24,6 @@ import com.deky.productmanager.databinding.MainFragmentBinding
 import com.deky.productmanager.excel.ExcelConverterTask
 import com.deky.productmanager.util.FileUtils
 import com.deky.productmanager.util.PreferenceManager
-import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,7 +109,7 @@ class MainFragment : BaseFragment() {
         }
         */
 
-        btn_test.setOnClickListener {
+        binding.btnTest.setOnClickListener {
             if (excelTask != null) return@setOnClickListener
 
             if(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {

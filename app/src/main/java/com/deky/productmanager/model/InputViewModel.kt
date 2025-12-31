@@ -4,10 +4,9 @@ import android.app.Application
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
-import androidx.arch.core.util.Function
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.deky.productmanager.R
 import com.deky.productmanager.database.entity.*
@@ -53,35 +52,29 @@ class InputViewModel(application: Application): BaseViewModel(application) {
     val modelList: LiveData<List<Model>>
 
     init {
-        productNameList = Transformations.switchMap(
-            categoryParentId,
-            Function<Long?, LiveData<List<Category>>> { parentId ->
-                if (parentId == null || parentId == -1L) {
-                    return@Function productNameRepository.getMainCategory()
-                }
-                return@Function productNameRepository.getCategoryLiveDataByParentId(parentId)
+        productNameList = categoryParentId.switchMap { parentId ->
+            if (parentId == null || parentId == -1L) {
+                productNameRepository.getMainCategory()
+            } else {
+                productNameRepository.getCategoryLiveDataByParentId(parentId)
             }
-        )
+        }
 
-        manufacturerList = Transformations.switchMap(
-            manufacturerParentId,
-            Function<Long?, LiveData<List<Manufacturer>>> { parentId ->
-                if (parentId == null || parentId == -1L) {
-                    return@Function manufacturerRepository.getMainCategory()
-                }
-                return@Function manufacturerRepository.getManufacturerByParentId(parentId)
+        manufacturerList = manufacturerParentId.switchMap { parentId ->
+            if (parentId == null || parentId == -1L) {
+                manufacturerRepository.getMainCategory()
+            } else {
+                manufacturerRepository.getManufacturerByParentId(parentId)
             }
-        )
+        }
 
-        modelList = Transformations.switchMap(
-            modelParentId,
-            Function<Long?, LiveData<List<Model>>> { parentId ->
-                if (parentId == null || parentId == -1L) {
-                    return@Function modelRepository.getMainCategory()
-                }
-                return@Function modelRepository.getModelByParentId(parentId)
+        modelList = modelParentId.switchMap { parentId ->
+            if (parentId == null || parentId == -1L) {
+                modelRepository.getMainCategory()
+            } else {
+                modelRepository.getModelByParentId(parentId)
             }
-        )
+        }
     }
 
     fun loadProductData(productId: Long) {
